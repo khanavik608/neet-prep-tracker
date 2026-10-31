@@ -91,18 +91,19 @@
     }
 
     .progress-bar {
-      background-color: var(--accent);
+      background-color: #22c55e;
     }
 
+    /* Green Checked Styling */
     .form-check-input:checked {
-      background-color: var(--accent);
-      border-color: var(--accent);
+      background-color: #22c55e !important;
+      border-color: #22c55e !important;
     }
 
-    .chapter-badge {
-      font-size: 0.7rem;
-      cursor: pointer;
-      user-select: none;
+    .btn-complete-active {
+      background-color: #22c55e !important;
+      border-color: #22c55e !important;
+      color: white !important;
     }
 
     .lap-list {
@@ -128,10 +129,11 @@
       background-color: rgba(6, 182, 212, 0.05);
     }
 
-    .ratio-youtube {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
+    .poster-img {
+      max-height: 480px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
     }
   </style>
 </head>
@@ -148,7 +150,7 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
-        <label for="neetDate" class="small text-nowrap"><i class="bi bi-calendar-event me-1"></i>Exam Date:</label>
+        <label for="neetDate" class="small text-nowrap"><i class="bi bi-calendar-event me-1"></i>Exam Target Date:</label>
         <input type="date" id="neetDate" class="form-control form-control-sm text-white" style="width: auto;">
       </div>
     </header>
@@ -165,11 +167,11 @@
         <button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>Full To-Do Section</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-headphones me-1"></i>Motivation Songs</button>
+        <button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Motivational Posters</button>
       </li>
     </ul>
 
-    <!-- Motivational Quotes Section (Always Visible Banner) -->
+    <!-- Motivational Quotes Section Banner -->
     <div class="card mb-4 quote-box">
       <div class="card-body d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
@@ -192,29 +194,29 @@
         <!-- Countdown Banner -->
         <div class="card mb-4 text-center p-3">
           <div class="row align-items-center">
-            <div class="col-md-3 mb-2 mb-md-0">
-              <span class="text-muted small d-block">DAYS REMAINING</span>
+            <div class="col-md-3 mb-2 mb-md-0 border-end border-secondary">
+              <span class="text-muted small d-block fw-bold">DAYS REMAINING</span>
               <span id="countdownDays" class="display-5 fw-bold text-warning">00</span>
-              <span class="text-muted small">Days</span>
+              <span class="text-muted small d-block">Days</span>
             </div>
             <div class="col-md-6 mb-2 mb-md-0">
               <div class="d-flex justify-content-center gap-4">
                 <div>
-                  <span id="countdownHours" class="h3 fw-bold mb-0">00</span>
+                  <span id="countdownHours" class="h3 fw-bold mb-0 text-info">00</span>
                   <span class="text-muted small d-block">Hours</span>
                 </div>
                 <div>
-                  <span id="countdownMinutes" class="h3 fw-bold mb-0">00</span>
+                  <span id="countdownMinutes" class="h3 fw-bold mb-0 text-info">00</span>
                   <span class="text-muted small d-block">Mins</span>
                 </div>
                 <div>
-                  <span id="countdownSeconds" class="h3 fw-bold mb-0">00</span>
+                  <span id="countdownSeconds" class="h3 fw-bold mb-0 text-info">00</span>
                   <span class="text-muted small d-block">Secs</span>
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <span class="text-muted small d-block">SYLLABUS COMPLETED</span>
+            <div class="col-md-3 border-start border-secondary">
+              <span class="text-muted small d-block fw-bold">SYLLABUS PROGRESS</span>
               <span id="overallProgressText" class="h4 fw-bold text-success">0%</span>
               <div class="progress mt-1">
                 <div id="overallProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
@@ -276,12 +278,12 @@
             <!-- Quick To-Do Preview Card -->
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-check2-square me-2"></i>Quick Tasks</span>
+                <span><i class="bi bi-check2-square me-2"></i>To-Do Section</span>
                 <span id="todoCount" class="badge bg-secondary">0 Left</span>
               </div>
               <div class="card-body">
                 <form id="todoForm" class="d-flex gap-2 mb-3">
-                  <input type="text" id="todoInput" class="form-control form-control-sm" placeholder="Add task..." required>
+                  <input type="text" id="todoInput" class="form-control form-control-sm" placeholder="Add study task..." required>
                   <button type="submit" class="btn btn-accent btn-sm text-nowrap"><i class="bi bi-plus-lg"></i></button>
                 </form>
                 <ul id="todoList" class="list-group list-group-flush"></ul>
@@ -290,25 +292,42 @@
 
           </div>
 
-          <!-- Right Column: NEET Syllabus Tracker -->
+          <!-- Right Column: NEET Custom Chapters Section -->
           <div class="col-lg-8">
             <div class="card h-100">
               <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                <span><i class="bi bi-journals me-2"></i>NEET Syllabus Tracker</span>
+                <span><i class="bi bi-journals me-2"></i>Add & Track Chapters</span>
                 <div class="btn-group btn-group-sm flex-wrap" role="group" id="subjectFilter">
                   <button type="button" class="btn btn-outline-info active" onclick="filterSubject('all')">All</button>
                   <button type="button" class="btn btn-outline-info" onclick="filterSubject('Physics')">Physics</button>
                   <button type="button" class="btn btn-outline-info" onclick="filterSubject('Chemistry')">Chemistry</button>
-                  <button type="button" class="btn btn-outline-info" onclick="filterSubject('Botany')">Botany</button>
-                  <button type="button" class="btn btn-outline-info" onclick="filterSubject('Zoology')">Zoology</button>
+                  <button type="button" class="btn btn-outline-info" onclick="filterSubject('Biology')">Biology</button>
                 </div>
               </div>
               <div class="card-body">
+                
+                <!-- Add Chapter Input Form -->
+                <form id="addChapterForm" class="row g-2 mb-3">
+                  <div class="col-md-7">
+                    <input type="text" id="chapterNameInput" class="form-control form-control-sm" placeholder="Enter chapter name (e.g., Vectors, Cell Cycle)..." required>
+                  </div>
+                  <div class="col-md-3">
+                    <select id="chapterSubjectInput" class="form-select form-select-sm" required>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="btn btn-accent btn-sm w-100"><i class="bi bi-plus-circle me-1"></i>Add</button>
+                  </div>
+                </form>
+
                 <div class="mb-3">
-                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search chapter name (e.g. Vectors, Basic Maths)...">
+                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search added chapter name...">
                 </div>
                 
-                <div id="syllabusContainer" style="max-height: 580px; overflow-y: auto;" class="pe-2">
+                <div id="syllabusContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2">
                   <!-- Dynamic render -->
                 </div>
               </div>
@@ -321,7 +340,7 @@
       <div class="tab-pane fade" id="tab-focus-timer" role="tabpanel">
         <div class="card text-center p-5">
           <h2 class="h4 text-info mb-3"><i class="bi bi-aspect-ratio me-2"></i>Full Focus Timer Mode</h2>
-          <p class="text-muted mb-4">Eliminate distractions and keep your eyes on the session timer.</p>
+          <p class="text-muted mb-4">Eliminate distractions and keep your eyes on the timer.</p>
           
           <div class="timer-display-lg my-4" id="bigTimerDisplay">25:00</div>
           
@@ -343,12 +362,12 @@
       <div class="tab-pane fade" id="tab-full-todo" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h4 text-info mb-0"><i class="bi bi-list-check me-2"></i>Full NEET Task Manager</h3>
+            <h3 class="h4 text-info mb-0"><i class="bi bi-list-check me-2"></i>Full To-Do Section</h3>
             <button class="btn btn-sm btn-outline-danger" onclick="clearCompletedTodos()"><i class="bi bi-trash me-1"></i>Clear Completed</button>
           </div>
           
           <form id="fullTodoForm" class="d-flex gap-2 mb-4">
-            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add detailed study objective (e.g. Solve 100 PYQs of Kinematics)..." required>
+            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add study objective..." required>
             <button type="submit" class="btn btn-accent text-nowrap px-4"><i class="bi bi-plus-lg me-1"></i> Add Task</button>
           </form>
 
@@ -360,41 +379,22 @@
         </div>
       </div>
 
-      <!-- TAB 4: MOTIVATIONAL SONGS SECTION -->
+      <!-- TAB 4: MOTIVATIONAL POSTERS SECTION -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
-        <div class="card p-4">
-          <h3 class="h4 text-info mb-2"><i class="bi bi-headphones me-2"></i>AKKI's Motivation Station</h3>
-          <p class="text-muted small mb-4">Feeling low or tired? Listen to these high-energy motivational speeches and power songs to get back on track!</p>
-
-          <div class="row g-4">
-            <!-- Playlist 1 -->
-            <div class="col-md-6">
-              <div class="card bg-dark border-secondary h-100">
-                <div class="card-body">
-                  <h6 class="text-light fw-bold mb-3"><i class="bi bi-fire text-warning me-1"></i> Ultimate NEET Study Motivation</h6>
-                  <div class="ratio ratio-16x9 ratio-youtube">
-                    <iframe src="https://www.youtube-api.com/embed?listType=playlist&list=PLx0sYbCqOb8TBPRdmJ8t3X6XJz14VnK2x" title="NEET Motivation Playlist" allowfullscreen></iframe>
-                  </div>
-                </div>
-              </div>
+        <div class="card p-4 text-center">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h3 class="h4 text-info mb-0"><i class="bi bi-image me-2"></i>Motivational Poster Station</h3>
+              <p class="text-muted small mb-0">Recharge your drive whenever you feel low!</p>
             </div>
-
-            <!-- Specific Motivational Video 1 -->
-            <div class="col-md-6">
-              <div class="card bg-dark border-secondary h-100">
-                <div class="card-body">
-                  <h6 class="text-light fw-bold mb-3"><i class="bi bi-play-circle-fill text-info me-1"></i> "Doctor Banna Hai" - Power Speech</h6>
-                  <div class="ratio ratio-16x9 ratio-youtube">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLzMcBGfZo4-kKztKp5Yt8tH51n02-xW8e" title="Motivational Speech" allowfullscreen></iframe>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <button class="btn btn-accent text-nowrap" onclick="nextPoster()"><i class="bi bi-arrow-repeat me-1"></i>New Poster</button>
           </div>
 
-          <div class="alert alert-info bg-dark border-info text-info mt-4 mb-0 small">
-            <i class="bi bi-lightbulb-fill me-1"></i> <strong>Tip:</strong> Put on your earphones, listen to 1 motivational track, and immediately jump back to solving physics numericals or reading NCERT biology!
+          <div class="d-flex justify-content-center my-3">
+            <img id="posterImage" src="" alt="Motivational Poster" class="img-fluid poster-img shadow">
           </div>
+          
+          <p id="posterCaption" class="text-info fw-bold mt-2 fs-5"></p>
         </div>
       </div>
 
@@ -403,134 +403,41 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // --- Full NEET Chapters Database (Includes Vectors & Basic Maths) ---
-    const defaultSyllabus = [
-      // Physics (Includes Vectors & Basic Maths explicitly)
-      { id: 'ph0', subject: 'Physics', name: 'Basic Mathematics in Physics' },
-      { id: 'ph01', subject: 'Physics', name: 'Vectors' },
-      { id: 'ph1', subject: 'Physics', name: 'Physical World and Measurement' },
-      { id: 'ph2', subject: 'Physics', name: 'Units and Measurements' },
-      { id: 'ph3', subject: 'Physics', name: 'Motion in a Straight Line' },
-      { id: 'ph4', subject: 'Physics', name: 'Motion in a Plane' },
-      { id: 'ph5', subject: 'Physics', name: 'Laws of Motion' },
-      { id: 'ph6', subject: 'Physics', name: 'Work, Energy and Power' },
-      { id: 'ph7', subject: 'Physics', name: 'System of Particles and Rotational Motion' },
-      { id: 'ph8', subject: 'Physics', name: 'Gravitation' },
-      { id: 'ph9', subject: 'Physics', name: 'Mechanical Properties of Solids' },
-      { id: 'ph10', subject: 'Physics', name: 'Mechanical Properties of Fluids' },
-      { id: 'ph11', subject: 'Physics', name: 'Thermal Properties of Matter' },
-      { id: 'ph12', subject: 'Physics', name: 'Thermodynamics' },
-      { id: 'ph13', subject: 'Physics', name: 'Kinetic Theory' },
-      { id: 'ph14', subject: 'Physics', name: 'Oscillations' },
-      { id: 'ph15', subject: 'Physics', name: 'Waves' },
-      { id: 'ph16', subject: 'Physics', name: 'Electric Charges and Fields' },
-      { id: 'ph17', subject: 'Physics', name: 'Electrostatic Potential and Capacitance' },
-      { id: 'ph18', subject: 'Physics', name: 'Current Electricity' },
-      { id: 'ph19', subject: 'Physics', name: 'Moving Charges and Magnetism' },
-      { id: 'ph20', subject: 'Physics', name: 'Magnetism and Matter' },
-      { id: 'ph21', subject: 'Physics', name: 'Electromagnetic Induction' },
-      { id: 'ph22', subject: 'Physics', name: 'Alternating Current' },
-      { id: 'ph23', subject: 'Physics', name: 'Electromagnetic Waves' },
-      { id: 'ph24', subject: 'Physics', name: 'Ray Optics and Optical Instruments' },
-      { id: 'ph25', subject: 'Physics', name: 'Wave Optics' },
-      { id: 'ph26', subject: 'Physics', name: 'Dual Nature of Radiation and Matter' },
-      { id: 'ph27', subject: 'Physics', name: 'Atoms & Nuclei' },
-      { id: 'ph28', subject: 'Physics', name: 'Semiconductor Electronics' },
-
-      // Chemistry
-      { id: 'ch1', subject: 'Chemistry', name: 'Some Basic Concepts of Chemistry' },
-      { id: 'ch2', subject: 'Chemistry', name: 'Structure of Atom' },
-      { id: 'ch3', subject: 'Chemistry', name: 'Classification of Elements and Periodicity' },
-      { id: 'ch4', subject: 'Chemistry', name: 'Chemical Bonding and Molecular Structure' },
-      { id: 'ch5', subject: 'Chemistry', name: 'States of Matter' },
-      { id: 'ch6', subject: 'Chemistry', name: 'Thermodynamics' },
-      { id: 'ch7', subject: 'Chemistry', name: 'Equilibrium' },
-      { id: 'ch8', subject: 'Chemistry', name: 'Redox Reactions' },
-      { id: 'ch9', subject: 'Chemistry', name: 'Hydrogen' },
-      { id: 'ch10', subject: 'Chemistry', name: 's-Block Elements' },
-      { id: 'ch11', subject: 'Chemistry', name: 'p-Block Elements' },
-      { id: 'ch12', subject: 'Chemistry', name: 'Organic Chemistry - Basic Principles & Techniques' },
-      { id: 'ch13', subject: 'Chemistry', name: 'Hydrocarbons' },
-      { id: 'ch14', subject: 'Chemistry', name: 'Environmental Chemistry' },
-      { id: 'ch15', subject: 'Chemistry', name: 'Solid State' },
-      { id: 'ch16', subject: 'Chemistry', name: 'Solutions' },
-      { id: 'ch17', subject: 'Chemistry', name: 'Electrochemistry' },
-      { id: 'ch18', subject: 'Chemistry', name: 'Chemical Kinetics' },
-      { id: 'ch19', subject: 'Chemistry', name: 'Surface Chemistry' },
-      { id: 'ch20', subject: 'Chemistry', name: 'General Principles of Isolation of Elements' },
-      { id: 'ch21', subject: 'Chemistry', name: 'd and f Block Elements' },
-      { id: 'ch22', subject: 'Chemistry', name: 'Coordination Compounds' },
-      { id: 'ch23', subject: 'Chemistry', name: 'Haloalkanes and Haloarenes' },
-      { id: 'ch24', subject: 'Chemistry', name: 'Alcohols, Phenols and Ethers' },
-      { id: 'ch25', subject: 'Chemistry', name: 'Aldehydes, Ketones and Carboxylic Acids' },
-      { id: 'ch26', subject: 'Chemistry', name: 'Amines' },
-      { id: 'ch27', subject: 'Chemistry', name: 'Biomolecules' },
-      { id: 'ch28', subject: 'Chemistry', name: 'Polymers' },
-      { id: 'ch29', subject: 'Chemistry', name: 'Chemistry in Everyday Life' },
-
-      // Botany
-      { id: 'bo1', subject: 'Botany', name: 'The Living World' },
-      { id: 'bo2', subject: 'Botany', name: 'Biological Classification' },
-      { id: 'bo3', subject: 'Botany', name: 'Plant Kingdom' },
-      { id: 'bo4', subject: 'Botany', name: 'Morphology of Flowering Plants' },
-      { id: 'bo5', subject: 'Botany', name: 'Anatomy of Flowering Plants' },
-      { id: 'bo6', subject: 'Botany', name: 'Cell: The Unit of Life' },
-      { id: 'bo7', subject: 'Botany', name: 'Biomolecules' },
-      { id: 'bo8', subject: 'Botany', name: 'Cell Cycle and Cell Division' },
-      { id: 'bo9', subject: 'Botany', name: 'Transport in Plants' },
-      { id: 'bo10', subject: 'Botany', name: 'Mineral Nutrition' },
-      { id: 'bo11', subject: 'Botany', name: 'Photosynthesis in Higher Plants' },
-      { id: 'bo12', subject: 'Botany', name: 'Respiration in Plants' },
-      { id: 'bo13', subject: 'Botany', name: 'Plant Growth and Development' },
-      { id: 'bo14', subject: 'Botany', name: 'Reproduction in Organisms' },
-      { id: 'bo15', subject: 'Botany', name: 'Sexual Reproduction in Flowering Plants' },
-      { id: 'bo16', subject: 'Botany', name: 'Principles of Inheritance and Variation' },
-      { id: 'bo17', subject: 'Botany', name: 'Molecular Basis of Inheritance' },
-      { id: 'bo18', subject: 'Botany', name: 'Microbes in Human Welfare' },
-
-      // Zoology
-      { id: 'zo1', subject: 'Zoology', name: 'Animal Kingdom' },
-      { id: 'zo2', subject: 'Zoology', name: 'Structural Organisation in Animals' },
-      { id: 'zo3', subject: 'Zoology', name: 'Digestion and Absorption' },
-      { id: 'zo4', subject: 'Zoology', name: 'Breathing and Exchange of Gases' },
-      { id: 'zo5', subject: 'Zoology', name: 'Body Fluids and Circulation' },
-      { id: 'zo6', subject: 'Zoology', name: 'Excretory Products and their Elimination' },
-      { id: 'zo7', subject: 'Zoology', name: 'Locomotion and Movement' },
-      { id: 'zo8', subject: 'Zoology', name: 'Neural Control and Coordination' },
-      { id: 'zo9', subject: 'Zoology', name: 'Chemical Coordination and Integration' },
-      { id: 'zo10', subject: 'Zoology', name: 'Human Reproduction' },
-      { id: 'zo11', subject: 'Zoology', name: 'Reproductive Health' },
-      { id: 'zo12', subject: 'Zoology', name: 'Evolution' },
-      { id: 'zo13', subject: 'Zoology', name: 'Human Health and Disease' },
-      { id: 'zo14', subject: 'Zoology', name: 'Biotechnology: Principles and Processes' },
-      { id: 'zo15', subject: 'Zoology', name: 'Biotechnology and its Applications' },
-      { id: 'zo16', subject: 'Zoology', name: 'Organisms and Populations' },
-      { id: 'zo17', subject: 'Zoology', name: 'Ecosystem' },
-      { id: 'zo18', subject: 'Zoology', name: 'Biodiversity and Conservation' }
-    ];
-
-    // Quotes Database
+    // Motivational Quotes Database
     const motivationalQuotes = [
       { quote: "Future doctors are made during silent hours of hard work.", author: "AKKI's Mantra" },
       { quote: "Push yourself, because no one else is going to do it for you.", author: "AKKI Motivation" },
       { quote: "Your stethoscope is waiting for you. Don't give up now!", author: "Medical Wisdom" },
       { quote: "Study like there is no tomorrow, because NEET won't wait.", author: "Focus Motivation" },
-      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-      { quote: "Small daily improvements over time lead to stunning results.", author: "Robin Sharma" }
+      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" }
     ];
+
+    // Motivational Posters Database
+    const motivationalPosters = [
+      { url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80", caption: "Focus on the Goal, Not the Obstacles" },
+      { url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80", caption: "Work Hard in Silence, Let Success Make Noise" },
+      { url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80", caption: "Every Hour of Study Takes You Closer to White Coat" },
+      { url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80", caption: "Discipline is Choosing Between What You Want Now and What You Want Most" }
+    ];
+
+    let currentPosterIdx = 0;
 
     // Dynamic Default Target Date
     const defaultFutureDate = new Date();
     defaultFutureDate.setFullYear(defaultFutureDate.getFullYear() + 1);
-    defaultFutureDate.setMonth(4); // May
-    defaultFutureDate.setDate(5);  // 5th
+    defaultFutureDate.setMonth(4); 
+    defaultFutureDate.setDate(5);  
     const formattedDefaultDate = defaultFutureDate.toISOString().split('T')[0];
 
-    // Application State
+    // State Management
     let state = {
       targetDate: localStorage.getItem('neetTargetDate') || formattedDefaultDate,
       todos: JSON.parse(localStorage.getItem('neetTodos')) || [],
-      syllabusProgress: JSON.parse(localStorage.getItem('neetSyllabusProgress')) || {}
+      customChapters: JSON.parse(localStorage.getItem('neetCustomChapters')) || [
+        { id: '1', name: 'Vectors & Basic Maths', subject: 'Physics', completed: false },
+        { id: '2', name: 'Physical Chemistry Basics', subject: 'Chemistry', completed: false },
+        { id: '3', name: 'Cell: The Unit of Life', subject: 'Biology', completed: false }
+      ]
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -540,13 +447,24 @@
       initPomodoro();
       initStopwatch();
       getRandomQuote();
+      loadPoster(0);
     });
 
-    // --- Motivational Quotes ---
+    // --- Motivational Quotes & Posters ---
     function getRandomQuote() {
       const idx = Math.floor(Math.random() * motivationalQuotes.length);
       document.getElementById('quoteText').innerText = `"${motivationalQuotes[idx].quote}"`;
       document.getElementById('quoteAuthor').innerText = `— ${motivationalQuotes[idx].author}`;
+    }
+
+    function loadPoster(idx) {
+      currentPosterIdx = idx % motivationalPosters.length;
+      document.getElementById('posterImage').src = motivationalPosters[currentPosterIdx].url;
+      document.getElementById('posterCaption').innerText = motivationalPosters[currentPosterIdx].caption;
+    }
+
+    function nextPoster() {
+      loadPoster(currentPosterIdx + 1);
     }
 
     // --- Countdown Timer ---
@@ -589,12 +507,30 @@
       document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
     }
 
-    // --- Syllabus Tracker ---
+    // --- Chapter Manager ---
     let activeFilter = 'all';
 
     function initSyllabus() {
       renderSyllabus();
       document.getElementById('chapterSearch').addEventListener('input', renderSyllabus);
+      
+      document.getElementById('addChapterForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('chapterNameInput');
+        const subjectInput = document.getElementById('chapterSubjectInput');
+        
+        const newChapter = {
+          id: Date.now().toString(),
+          name: nameInput.value.trim(),
+          subject: subjectInput.value,
+          completed: false
+        };
+
+        state.customChapters.push(newChapter);
+        localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
+        nameInput.value = '';
+        renderSyllabus();
+      });
     }
 
     function filterSubject(subject) {
@@ -610,62 +546,62 @@
       const searchQuery = document.getElementById('chapterSearch').value.toLowerCase();
       container.innerHTML = '';
 
-      const filtered = defaultSyllabus.filter(item => {
+      const filtered = state.customChapters.filter(item => {
         const matchesSubject = activeFilter === 'all' || item.subject === activeFilter;
         const matchesSearch = item.name.toLowerCase().includes(searchQuery);
         return matchesSubject && matchesSearch;
       });
 
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted py-4">No chapters found. Add a chapter using the form above!</div>`;
+      }
+
       filtered.forEach(ch => {
-        const prog = state.syllabusProgress[ch.id] || { theory: false, ncert: false, pyq: false, rev: false };
-        
         let badgeColor = 'bg-info text-dark';
         if(ch.subject === 'Chemistry') badgeColor = 'bg-warning text-dark';
-        if(ch.subject === 'Botany') badgeColor = 'bg-success text-white';
-        if(ch.subject === 'Zoology') badgeColor = 'bg-danger text-white';
+        if(ch.subject === 'Biology') badgeColor = 'bg-success text-white';
 
         const card = document.createElement('div');
         card.className = 'card mb-2 p-2 bg-dark border-secondary';
         card.innerHTML = `
-          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+          <div class="d-flex justify-content-between align-items-center gap-2">
             <div>
               <span class="badge ${badgeColor} mb-1">${ch.subject}</span>
               <h6 class="mb-0 text-light small fw-bold">${ch.name}</h6>
             </div>
-            <div class="d-flex gap-1 flex-wrap">
-              <span class="badge ${prog.theory ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'theory')">Theory</span>
-              <span class="badge ${prog.ncert ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'ncert')">NCERT</span>
-              <span class="badge ${prog.pyq ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'pyq')">PYQ</span>
-              <span class="badge ${prog.rev ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'rev')">Rev</span>
+            <div class="d-flex gap-2 align-items-center">
+              <button class="btn btn-sm ${ch.completed ? 'btn-complete-active' : 'btn-outline-secondary'} text-nowrap" onclick="toggleChapter('${ch.id}')">
+                <i class="bi ${ch.completed ? 'bi-check-circle-fill' : 'bi-circle'} me-1"></i>${ch.completed ? 'Completed' : 'Not Complete'}
+              </button>
+              <button class="btn btn-sm text-danger p-0 border-0" onclick="deleteChapter('${ch.id}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
         `;
         container.appendChild(card);
       });
 
-      // Update Overall Progress
-      let overallTotal = defaultSyllabus.length;
-      let overallDone = 0;
-      defaultSyllabus.forEach(ch => {
-        const p = state.syllabusProgress[ch.id];
-        if (p && p.theory && p.ncert && p.pyq && p.rev) overallDone++;
-      });
-
-      const percentage = Math.round((overallDone / overallTotal) * 100);
+      // Calculate Progress
+      let overallTotal = state.customChapters.length;
+      let overallDone = state.customChapters.filter(c => c.completed).length;
+      const percentage = overallTotal > 0 ? Math.round((overallDone / overallTotal) * 100) : 0;
+      
       document.getElementById('overallProgressText').innerText = `${percentage}%`;
       document.getElementById('overallProgressBar').style.width = `${percentage}%`;
     }
 
-    function toggleProgress(id, stage) {
-      if (!state.syllabusProgress[id]) {
-        state.syllabusProgress[id] = { theory: false, ncert: false, pyq: false, rev: false };
-      }
-      state.syllabusProgress[id][stage] = !state.syllabusProgress[id][stage];
-      localStorage.setItem('neetSyllabusProgress', JSON.stringify(state.syllabusProgress));
+    function toggleChapter(id) {
+      state.customChapters = state.customChapters.map(c => c.id === id ? { ...c, completed: !c.completed } : c);
+      localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
       renderSyllabus();
     }
 
-    // --- Synchronized To-Do Lists ---
+    function deleteChapter(id) {
+      state.customChapters = state.customChapters.filter(c => c.id !== id);
+      localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
+      renderSyllabus();
+    }
+
+    // --- Green Checked To-Do List ---
     function initTodos() {
       renderTodos();
       
@@ -701,7 +637,7 @@
       state.todos.forEach(todo => {
         if (!todo.completed) leftCount++;
 
-        // Quick Preview Item
+        // Quick Preview Item with Green Check Box
         const liQuick = document.createElement('li');
         liQuick.className = 'list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center px-0 py-1';
         liQuick.innerHTML = `
