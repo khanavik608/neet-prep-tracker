@@ -6,6 +6,8 @@
   <title>AKKI | NEET Prep & Focus Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Chart.js for Test Score Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg-light: #f1f5f9;
@@ -108,7 +110,6 @@
       color: #ffffff !important;
     }
 
-    /* High contrast strike-through text */
     .todo-completed {
       text-decoration: line-through;
       text-decoration-color: #dc2626;
@@ -181,10 +182,13 @@
         <button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Study Calendar & Records</button>
+        <button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Tracker & Graph</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Posters</button>
+        <button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Auto Study Calendar</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button>
       </li>
     </ul>
 
@@ -194,8 +198,8 @@
         <div class="d-flex align-items-center gap-3">
           <i class="bi bi-quote fs-2 text-primary"></i>
           <div>
-            <p id="quoteText" class="mb-0 fw-semibold text-dark fs-6">"Future doctors are made during silent hours of hard work."</p>
-            <small id="quoteAuthor" class="text-muted fw-bold">— AKKI Motivation</small>
+            <p id="quoteText" class="mb-0 fw-semibold text-dark fs-6">"Dream, dream, dream. Dreams transform into thoughts and thoughts result in action."</p>
+            <small id="quoteAuthor" class="text-muted fw-bold">— Dr. A.P.J. Abdul Kalam</small>
           </div>
         </div>
         <button class="btn btn-sm btn-outline-primary text-nowrap ms-auto fw-semibold" onclick="getRandomQuote()"><i class="bi bi-shuffle me-1"></i>New Quote</button>
@@ -418,60 +422,90 @@
         </div>
       </div>
 
-      <!-- TAB 4: STUDY CALENDAR & RECORDS -->
-      <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
+      <!-- TAB 4: TEST SECTION (Scheduler, Marks out of 720, & Performance Graph) -->
+      <div class="tab-pane fade" id="tab-tests" role="tabpanel">
         <div class="row g-4">
+          <!-- Schedule / Add Test Form -->
           <div class="col-lg-5">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Log Today's Study Record</h3>
-              <form id="dailyRecordForm">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule or Add NEET Test</h3>
+              <form id="testScheduleForm">
                 <div class="mb-3">
-                  <label for="recordDate" class="form-label small fw-bold text-muted">Select Date:</label>
-                  <input type="date" id="recordDate" class="form-control" required>
+                  <label for="testName" class="form-label small fw-bold text-muted">Test Name / Chapters Included:</label>
+                  <input type="text" id="testName" class="form-control" placeholder="e.g. Full Syllabus Mock Test 1 or Physics: Mechanics" required>
                 </div>
                 <div class="mb-3">
-                  <label for="recordHours" class="form-label small fw-bold text-muted">Study Hours Completed:</label>
-                  <input type="number" step="0.5" min="0" max="24" id="recordHours" class="form-control" placeholder="e.g. 6.5" required>
+                  <label for="testDate" class="form-label small fw-bold text-muted">Test Date:</label>
+                  <input type="date" id="testDate" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                  <label for="recordTopics" class="form-label small fw-bold text-muted">Topics Studied / Accomplishments:</label>
-                  <textarea id="recordTopics" rows="3" class="form-control" placeholder="e.g. Completed Kinematics theory & solved 50 questions..." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-save me-1"></i> Save Day Record</button>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Schedule Test</button>
               </form>
             </div>
           </div>
 
+          <!-- Test Performance Graph & List -->
           <div class="col-lg-7">
-            <div class="card p-4 h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Past Years & Days History Log</h3>
-                <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
-              </div>
-              <div id="calendarHistoryContainer" style="max-height: 480px; overflow-y: auto;" class="pe-2">
-                <!-- History logs -->
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (Out of 720)</h3>
+              <div style="height: 250px;">
+                <canvas id="scoreChart"></canvas>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Upcoming & Completed Tests List -->
+        <div class="card p-4 mt-2">
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>My Scheduled & Completed Tests</h3>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Test Name / Syllabus</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Marks Obtained (/720)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="testsTableBody">
+                <!-- Dynamic tests list -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <!-- TAB 5: MOTIVATIONAL POSTERS -->
+      <!-- TAB 5: AUTOMATED STUDY CALENDAR & RECORDS -->
+      <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Automated Daily Study History Log</h3>
+            <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
+          </div>
+          <p class="text-muted small">Your focused study hours and completed to-do tasks are automatically recorded here every day!</p>
+          <div id="calendarHistoryContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2">
+            <!-- Automated records rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: MOTIVATIONAL POSTERS -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
         <div class="card p-4 text-center">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
-              <h3 class="h4 text-primary mb-0"><i class="bi bi-image me-2"></i>Motivational Poster Station</h3>
-              <p class="text-muted small mb-0">Recharge your drive whenever you feel low!</p>
+              <h3 class="h4 text-primary mb-0"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
+              <p class="text-muted small mb-0">A brand new motivational poster updates automatically every single day!</p>
             </div>
-            <button class="btn btn-accent text-nowrap" onclick="nextPoster()"><i class="bi bi-arrow-repeat me-1"></i>New Poster</button>
           </div>
 
-          <div class="d-flex justify-content-center my-3">
-            <img id="posterImage" src="" alt="Motivational Poster" class="img-fluid poster-img shadow">
+          <div class="d-flex justify-content-center my-3 position-relative">
+            <img id="posterImage" src="" alt="Poster of the Day" class="img-fluid poster-img shadow">
           </div>
           
-          <p id="posterCaption" class="text-primary fw-bold mt-2 fs-5"></p>
+          <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
+          <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
         </div>
       </div>
 
@@ -480,23 +514,50 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Motivational Quotes & Posters
+    // Motivational Quotes & 30 Posters
     const motivationalQuotes = [
-      { quote: "Future doctors are made during silent hours of hard work.", author: "AKKI's Mantra" },
-      { quote: "Push yourself, because no one else is going to do it for you.", author: "AKKI Motivation" },
-      { quote: "Your stethoscope is waiting for you. Don't give up now!", author: "Medical Wisdom" },
-      { quote: "Study like there is no tomorrow, because NEET won't wait.", author: "Focus Motivation" },
-      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" }
+      { quote: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
+      { quote: "Arise, awake, and do not stop until the goal is reached.", author: "Swami Vivekananda" },
+      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+      { quote: "Success is not final; failure is not fatal: It is the courage to continue that counts.", author: "Winston Churchill" },
+      { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+      { quote: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+      { quote: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+      { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" }
     ];
 
-    const motivationalPosters = [
-      { url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80", caption: "Focus on the Goal, Not the Obstacles" },
-      { url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80", caption: "Work Hard in Silence, Let Success Make Noise" },
-      { url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80", caption: "Every Hour of Study Takes You Closer to White Coat" },
-      { url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80", caption: "Discipline is Choosing Between What You Want Now and What You Want Most" }
+    const thirtyPosters = [
+      { title: "Day 1: Unstoppable Focus", caption: "Your future is created by what you do today, not tomorrow.", url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 2: Silent Grind", caption: "Work hard in silence, let your success make the noise.", url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 3: White Coat Dream", caption: "Every hour of study takes you one step closer to your stethoscope.", url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 4: Supreme Discipline", caption: "Discipline is choosing between what you want now and what you want most.", url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 5: Rise Above", caption: "The pain you feel today will be the strength you feel tomorrow.", url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 6: Relentless Effort", caption: "Success doesn't just find you. You have to go out and get it.", url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 7: Future Doctor", caption: "Healers are forged in libraries and testing halls.", url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 8: Push Through", caption: "Great things never come from comfort zones.", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 9: Laser Sharp", caption: "Eliminate distractions. Your goal requires your absolute focus.", url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 10: Unshakable Will", caption: "Believe in yourself and all that you are capable of achieving.", url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 11: Consistency is Key", caption: "Small daily improvements over time lead to staggering results.", url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 12: Conquer Physics", caption: "Equations become easy when your determination is unbreakable.", url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 13: Master Chemistry", caption: "Reactions and formulas obey those who practice daily.", url: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 14: Biology Supreme", caption: "NCERT is your scripture. Read it line by line.", url: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 15: Halfway Milestone", caption: "Keep going. The view from the top is worth every drop of sweat.", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 16: Iron Mindset", caption: "Your mind is a weapon. Keep it sharp through rigorous practice.", url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 17: Zero Excuses", caption: "Excuses don't build a medical career. Hard work does.", url: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 18: Power Hour", caption: "Make every single study session count towards your dream rank.", url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 19: Dedicated Vision", caption: "Keep your eyes on the white coat and your hands on the books.", url: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 20: Built for Toughness", caption: "Tough times build strong aspirants. Stand tall against challenges.", url: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 21: Unbreakable Spirit", caption: "Fall seven times, stand up eight.", url: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 22: Focus & Execute", caption: "Plan your work, execute your plan with supreme dedication.", url: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 23: Target NEET", caption: "One goal. One exam. Infinite determination.", url: "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 24: Fearless Mock Tests", caption: "Embrace mistakes in mock tests so you make zero mistakes on exam day.", url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 25: Master Your Time", caption: "Time is your most valuable asset. Spend it wisely on solving MCQs.", url: "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 26: Silent Warriors", caption: "The loudest victory comes after the quietest preparation.", url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 27: Peak Performance", caption: "Push past your perceived limits. You are capable of greatness.", url: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 28: Destiny Awaits", caption: "Your name belongs on the merit list. Earn it today.", url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 29: Final Stretch", caption: "Almost there. Keep your momentum at maximum speed.", url: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80" },
+      { title: "Day 30: Champion Mindset", caption: "Champions don't quit when it gets hard. They get better.", url: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&auto=format&fit=crop&q=80" }
     ];
-
-    let currentPosterIdx = 0;
 
     // Default Target Date
     const defaultFutureDate = new Date();
@@ -514,19 +575,57 @@
         { id: '2', name: 'Physical Chemistry Basics', subject: 'Chemistry', completed: false },
         { id: '3', name: 'Cell: The Unit of Life', subject: 'Biology', completed: false }
       ],
+      tests: JSON.parse(localStorage.getItem('neetTests')) || [],
+      studyMinutesToday: parseInt(localStorage.getItem('neetStudyMinutesToday') || '0'),
+      lastActiveDate: localStorage.getItem('neetLastActiveDate') || new Date().toISOString().split('T')[0],
       studyHistory: JSON.parse(localStorage.getItem('neetStudyHistory')) || []
     };
 
+    let scoreChartInstance = null;
+
     document.addEventListener('DOMContentLoaded', () => {
+      checkNewDayReset();
       initCountdown();
       initSyllabus();
       initTodos();
       initPomodoro();
       initStopwatch();
+      initTestSection();
       initCalendarHistory();
       getRandomQuote();
-      loadPoster(0);
+      loadPosterOfTheDay();
     });
+
+    // Check if day changed to record yesterday's study time automatically
+    function checkNewDayReset() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (state.lastActiveDate !== todayStr) {
+        // Save previous day record before resetting
+        saveAutomatedDayRecord(state.lastActiveDate);
+        state.studyMinutesToday = 0;
+        state.lastActiveDate = todayStr;
+        localStorage.setItem('neetLastActiveDate', todayStr);
+        localStorage.setItem('neetStudyMinutesToday', '0');
+      }
+    }
+
+    function saveAutomatedDayRecord(dateStr) {
+      const hours = (state.studyMinutesToday / 60).toFixed(1);
+      // Collect completed todos for that day
+      const completedTasks = state.todos.filter(t => t.completed).map(t => t.text);
+      const topicsText = completedTasks.length > 0 ? `Completed Tasks: ${completedTasks.join(', ')}` : "Focused study session completed.";
+
+      if (parseFloat(hours) > 0 || completedTasks.length > 0) {
+        const existingIdx = state.studyHistory.findIndex(h => h.date === dateStr);
+        if (existingIdx >= 0) {
+          state.studyHistory[existingIdx] = { date: dateStr, hours, topics: topicsText };
+        } else {
+          state.studyHistory.push({ date: dateStr, hours, topics: topicsText });
+        }
+        state.studyHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+        localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
+      }
+    }
 
     // --- Big Screen Timer Mode Switcher ---
     function switchBigTimerMode(mode) {
@@ -555,14 +654,13 @@
       document.getElementById('quoteAuthor').innerText = `— ${motivationalQuotes[idx].author}`;
     }
 
-    function loadPoster(idx) {
-      currentPosterIdx = idx % motivationalPosters.length;
-      document.getElementById('posterImage').src = motivationalPosters[currentPosterIdx].url;
-      document.getElementById('posterCaption').innerText = motivationalPosters[currentPosterIdx].caption;
-    }
-
-    function nextPoster() {
-      loadPoster(currentPosterIdx + 1);
+    function loadPosterOfTheDay() {
+      const dayOfMonth = new Date().getDate();
+      const posterIndex = (dayOfMonth - 1) % thirtyPosters.length;
+      const poster = thirtyPosters[posterIndex];
+      document.getElementById('posterImage').src = poster.url;
+      document.getElementById('posterTitle').innerText = poster.title;
+      document.getElementById('posterCaption').innerText = poster.caption;
     }
 
     // --- Countdown Timer ---
@@ -698,41 +796,23 @@
       renderSyllabus();
     }
 
-    // --- Study Calendar & History Records ---
+    // --- Automated Study Calendar & Records ---
     function initCalendarHistory() {
-      document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
       renderStudyHistory();
-
-      document.getElementById('dailyRecordForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const date = document.getElementById('recordDate').value;
-        const hours = document.getElementById('recordHours').value;
-        const topics = document.getElementById('recordTopics').value.trim();
-
-        const existingIdx = state.studyHistory.findIndex(h => h.date === date);
-        if (existingIdx >= 0) {
-          state.studyHistory[existingIdx] = { date, hours, topics };
-        } else {
-          state.studyHistory.push({ date, hours, topics });
-        }
-
-        state.studyHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-        localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
-
-        document.getElementById('recordTopics').value = '';
-        renderStudyHistory();
-        alert('Daily study record saved successfully!');
-      });
     }
 
     function renderStudyHistory() {
+      // Always update today's active study hours before rendering
+      const todayStr = new Date().toISOString().split('T')[0];
+      saveAutomatedDayRecord(todayStr);
+
       const container = document.getElementById('calendarHistoryContainer');
       container.innerHTML = '';
 
       document.getElementById('totalLoggedDays').innerText = `${state.studyHistory.length} Days Logged`;
 
       if (state.studyHistory.length === 0) {
-        container.innerHTML = `<div class="text-center text-muted py-5">No study records logged yet. Fill out the form on the left to start tracking your daily progress across years!</div>`;
+        container.innerHTML = `<div class="text-center text-muted py-5">No study records yet. Use the Pomodoro timer or complete tasks to automatically log your days!</div>`;
         return;
       }
 
@@ -744,19 +824,10 @@
             <span class="badge bg-success"><i class="bi bi-calendar-event me-1"></i>${record.date}</span>
             <span class="badge bg-primary text-white fw-bold"><i class="bi bi-clock me-1"></i>${record.hours} Hours Studied</span>
           </div>
-          <p class="mb-1 text-dark small mt-2"><strong>Activity / Topics:</strong> ${record.topics}</p>
-          <div class="text-end">
-            <button class="btn btn-sm text-danger p-0 border-0" onclick="deleteHistoryRecord('${record.date}')"><i class="bi bi-trash me-1"></i>Delete Record</button>
-          </div>
+          <p class="mb-1 text-dark small mt-2"><strong>Activity / To-Do List Topics:</strong> ${record.topics}</p>
         `;
         container.appendChild(card);
       });
-    }
-
-    function deleteHistoryRecord(date) {
-      state.studyHistory = state.studyHistory.filter(h => h.date !== date);
-      localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
-      renderStudyHistory();
     }
 
     // --- To-Do List ---
@@ -781,6 +852,7 @@
         localStorage.setItem('neetTodos', JSON.stringify(state.todos));
         inputElement.value = '';
         renderTodos();
+        renderStudyHistory();
       }
     }
 
@@ -825,18 +897,159 @@
       state.todos = state.todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
+      renderStudyHistory();
     }
 
     function deleteTodo(id) {
       state.todos = state.todos.filter(t => t.id !== id);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
+      renderStudyHistory();
     }
 
     function clearCompletedTodos() {
       state.todos = state.todos.filter(t => !t.completed);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
+      renderStudyHistory();
+    }
+
+    // --- Test Section & Graph Tracker ---
+    function initTestSection() {
+      document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+      renderTests();
+
+      document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('testName').value.trim();
+        const date = document.getElementById('testDate').value;
+
+        const newTest = {
+          id: Date.now().toString(),
+          name,
+          date,
+          completed: false,
+          marks: null
+        };
+
+        state.tests.push(newTest);
+        state.tests.sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem('neetTests', JSON.stringify(state.tests));
+
+        document.getElementById('testName').value = '';
+        renderTests();
+      });
+    }
+
+    function renderTests() {
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+
+      if (state.tests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No tests scheduled yet. Add a test using the form!</td></tr>`;
+        updateScoreChart([]);
+        return;
+      }
+
+      state.tests.forEach(test => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold">${test.name}</td>
+          <td>${test.date}</td>
+          <td>
+            <span class="badge ${test.completed ? 'bg-success' : 'bg-warning text-dark'}">
+              ${test.completed ? 'Completed' : 'Upcoming'}
+            </span>
+          </td>
+          <td class="fw-bold">${test.completed ? `${test.marks} / 720` : '—'}</td>
+          <td>
+            ${!test.completed ? `<button class="btn btn-sm btn-outline-success text-nowrap" onclick="completeTest('${test.id}')"><i class="bi bi-check-circle me-1"></i>Give Test</button>` : `<button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="resetTest('${test.id}')">Edit Marks</button>`}
+            <button class="btn btn-sm text-danger border-0 ms-2" onclick="deleteTest('${test.id}')"><i class="bi bi-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Filter completed tests for graph
+      const completedTests = state.tests.filter(t => t.completed && t.marks !== null);
+      updateScoreChart(completedTests);
+    }
+
+    function completeTest(id) {
+      const marksInput = prompt("Enter your obtained marks out of 720:");
+      if (marksInput !== null) {
+        const marks = parseFloat(marksInput);
+        if (!isNaN(marks) && marks >= 0 && marks <= 720) {
+          state.tests = state.tests.map(t => t.id === id ? { ...t, completed: true, marks } : t);
+          localStorage.setItem('neetTests', JSON.stringify(state.tests));
+          renderTests();
+        } else {
+          alert("Please enter a valid number between 0 and 720.");
+        }
+      }
+    }
+
+    function resetTest(id) {
+      const marksInput = prompt("Update your obtained marks out of 720:");
+      if (marksInput !== null) {
+        const marks = parseFloat(marksInput);
+        if (!isNaN(marks) && marks >= 0 && marks <= 720) {
+          state.tests = state.tests.map(t => t.id === id ? { ...t, completed: true, marks } : t);
+          localStorage.setItem('neetTests', JSON.stringify(state.tests));
+          renderTests();
+        } else {
+          alert("Please enter a valid number between 0 and 720.");
+        }
+      }
+    }
+
+    function deleteTest(id) {
+      state.tests = state.tests.filter(t => t.id !== id);
+      localStorage.setItem('neetTests', JSON.stringify(state.tests));
+      renderTests();
+    }
+
+    function updateScoreChart(completedTests) {
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      
+      const labels = completedTests.map(t => t.name.length > 15 ? t.name.substring(0, 15) + '...' : t.name);
+      const data = completedTests.map(t => t.marks);
+
+      if (scoreChartInstance) {
+        scoreChartInstance.destroy();
+      }
+
+      scoreChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels.length > 0 ? labels : ['No Tests Yet'],
+          datasets: [{
+            label: 'Marks Obtained (/720)',
+            data: data.length > 0 ? data : [0],
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.2,
+            pointRadius: 5,
+            pointBackgroundColor: '#0284c7'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 720,
+              grid: { color: '#e2e8f0' }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
     }
 
     // --- Pomodoro Timer ---
@@ -875,7 +1088,11 @@
         } else {
           clearInterval(pomoTimer);
           pomoTimer = null;
-          alert('Focus session completed! Great job.');
+          // Add 25 mins (or session duration) to automated history
+          state.studyMinutesToday += 25;
+          localStorage.setItem('neetStudyMinutesToday', state.studyMinutesToday);
+          renderStudyHistory();
+          alert('Focus session completed! Logged to your study calendar.');
           resetPomo();
         }
       }, 1000);
@@ -901,6 +1118,7 @@
     // --- Stopwatch ---
     let swTime = 0;
     let swTimer = null;
+    let swIntervalMinutesTracker = 0;
 
     function initStopwatch() {
       document.getElementById('swStartBtn').addEventListener('click', startSw);
@@ -930,6 +1148,13 @@
 
       swTimer = setInterval(() => {
         swTime++;
+        swIntervalMinutesTracker++;
+        if (swIntervalMinutesTracker >= 60) {
+          state.studyMinutesToday += 1;
+          localStorage.setItem('neetStudyMinutesToday', state.studyMinutesToday);
+          swIntervalMinutesTracker = 0;
+          renderStudyHistory();
+        }
         updateSwDisplay();
       }, 1000);
     }
@@ -957,6 +1182,7 @@
     function resetSw() {
       pauseSw();
       swTime = 0;
+      swIntervalMinutesTracker = 0;
       updateSwDisplay();
       document.getElementById('lapList').innerHTML = '';
     }
