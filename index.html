@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEET Prep Tracker & Focus Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #06b6d4;
+      --accent-hover: #0891b2;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-header {
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .nav-pills .nav-link {
+      color: var(--text-muted);
+      border-radius: 8px;
+    }
+
+    .nav-pills .nav-link.active {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent:hover {
+      background-color: var(--accent-hover);
+      color: #fff;
+    }
+
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    .progress {
+      background-color: var(--border-color);
+      height: 10px;
+      border-radius: 5px;
+    }
+
+    .progress-bar {
+      background-color: var(--accent);
+    }
+
+    .form-check-input:checked {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .chapter-badge {
+      font-size: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lap-list {
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .form-control, .form-select {
+      background-color: #0f172a;
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .form-control:focus, .form-select:focus {
+      background-color: #0f172a;
+      border-color: var(--accent);
+      color: var(--text-main);
+      box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-4">
+    <!-- Header & Target Date Setting -->
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+      <div>
+        <h1 class="h3 mb-0 fw-bold text-info"><i class="bi bi-journal-bookmark-fill me-2"></i>NEET Preparation Tracker</h1>
+        <p class="text-muted small mb-0">Stay organized, focused, and track your syllabus progress</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+        <label for="neetDate" class="small text-nowrap"><i class="bi bi-calendar-event me-1"></i>NEET Exam Date:</label>
+        <input type="date" id="neetDate" class="form-control form-control-sm" style="width: auto;">
+      </div>
+    </header>
+
+    <!-- Countdown Dashboard Banner -->
+    <div class="card mb-4 text-center p-3">
+      <div class="row align-items-center">
+        <div class="col-md-3 mb-2 mb-md-0">
+          <span class="text-muted small d-block">DAYS REMAINING</span>
+          <span id="countdownDays" class="display-5 fw-bold text-warning">00</span>
+          <span class="text-muted small">Days</span>
+        </div>
+        <div class="col-md-6 mb-2 mb-md-0">
+          <div class="d-flex justify-content-center gap-4">
+            <div>
+              <span id="countdownHours" class="h3 fw-bold mb-0">00</span>
+              <span class="text-muted small d-block">Hours</span>
+            </div>
+            <div>
+              <span id="countdownMinutes" class="h3 fw-bold mb-0">00</span>
+              <span class="text-muted small d-block">Mins</span>
+            </div>
+            <div>
+              <span id="countdownSeconds" class="h3 fw-bold mb-0">00</span>
+              <span class="text-muted small d-block">Secs</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <span class="text-muted small d-block">SYLLABUS COMPLETED</span>
+          <span id="overallProgressText" class="h4 fw-bold text-success">0%</span>
+          <div class="progress mt-1">
+            <div id="overallProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area: Two Columns -->
+    <div class="row g-4">
+      
+      <!-- Left Column: Timers and To-Do List -->
+      <div class="col-lg-5">
+        
+        <!-- Timer Tools Card -->
+        <div class="card mb-4">
+          <div class="card-header p-2">
+            <ul class="nav nav-pills nav-justified" id="timerTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active py-1" id="pomodoro-tab" data-bs-toggle="pill" data-bs-target="#pomodoro" type="button"><i class="bi bi-cup-hot me-1"></i>Pomodoro</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link py-1" id="stopwatch-tab" data-bs-toggle="pill" data-bs-target="#stopwatch" type="button"><i class="bi bi-stopwatch me-1"></i>Stopwatch</button>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body text-center">
+            <div class="tab-content" id="timerTabContent">
+              
+              <!-- Pomodoro Timer -->
+              <div class="tab-pane fade show active" id="pomodoro" role="tabpanel">
+                <div class="timer-display my-2" id="pomoDisplay">25:00</div>
+                <div class="mb-3">
+                  <button id="pomoStartBtn" class="btn btn-accent me-2"><i class="bi bi-play-fill me-1"></i>Start</button>
+                  <button id="pomoPauseBtn" class="btn btn-secondary me-2" disabled><i class="bi bi-pause-fill me-1"></i>Pause</button>
+                  <button id="pomoResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+                </div>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-secondary text-white" onclick="setPomoTime(25)">25m Study</button>
+                  <button type="button" class="btn btn-outline-secondary text-white" onclick="setPomoTime(5)">5m Break</button>
+                  <button type="button" class="btn btn-outline-secondary text-white" onclick="setPomoTime(15)">15m Break</button>
+                </div>
+              </div>
+
+              <!-- Stopwatch -->
+              <div class="tab-pane fade" id="stopwatch" role="tabpanel">
+                <div class="timer-display my-2" id="swDisplay">00:00:00</div>
+                <div class="mb-3">
+                  <button id="swStartBtn" class="btn btn-accent me-2"><i class="bi bi-play-fill me-1"></i>Start</button>
+                  <button id="swPauseBtn" class="btn btn-secondary me-2" disabled><i class="bi bi-pause-fill me-1"></i>Pause</button>
+                  <button id="swLapBtn" class="btn btn-info me-2" disabled><i class="bi bi-flag-fill me-1"></i>Lap</button>
+                  <button id="swResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+                </div>
+                <ul id="lapList" class="list-group list-group-flush text-start small lap-list"></ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily To-Do List Card -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-check2-square me-2"></i>Daily To-Do List</span>
+            <span id="todoCount" class="badge bg-secondary">0 Left</span>
+          </div>
+          <div class="card-body">
+            <form id="todoForm" class="d-flex gap-2 mb-3">
+              <input type="text" id="todoInput" class="form-control form-control-sm" placeholder="Add task (e.g. Read Bio Ch 3 NCERT)..." required>
+              <button type="submit" class="btn btn-accent btn-sm text-nowrap"><i class="bi bi-plus-lg"></i> Add</button>
+            </form>
+            <ul id="todoList" class="list-group list-group-flush"></ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: NEET Syllabus Tracker -->
+      <div class="col-lg-7">
+        <div class="card h-100">
+          <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <span><i class="bi bi-journals me-2"></i>NEET Syllabus Tracker</span>
+            <div class="btn-group btn-group-sm" role="group" id="subjectFilter">
+              <button type="button" class="btn btn-outline-info active" onclick="filterSubject('all')">All</button>
+              <button type="button" class="btn btn-outline-info" onclick="filterSubject('Physics')">Physics</button>
+              <button type="button" class="btn btn-outline-info" onclick="filterSubject('Chemistry')">Chemistry</button>
+              <button type="button" class="btn btn-outline-info" onclick="filterSubject('Biology')">Biology</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-3 d-flex gap-2">
+              <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search chapter name...">
+            </div>
+            
+            <div id="syllabusContainer" style="max-height: 600px; overflow-y: auto;" class="pe-2">
+              <!-- Chapter lists will be rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // --- NEET Syllabus Data ---
+    const defaultSyllabus = [
+      // Physics
+      { id: 'p1', subject: 'Physics', name: 'Physical World and Measurement' },
+      { id: 'p2', subject: 'Physics', name: 'Kinematics' },
+      { id: 'p3', subject: 'Physics', name: 'Laws of Motion' },
+      { id: 'p4', subject: 'Physics', name: 'Work, Energy and Power' },
+      { id: 'p5', subject: 'Physics', name: 'Motion of System of Particles and Rigid Body' },
+      { id: 'p6', subject: 'Physics', name: 'Gravitation' },
+      { id: 'p7', subject: 'Physics', name: 'Properties of Bulk Matter' },
+      { id: 'p8', subject: 'Physics', name: 'Thermodynamics' },
+      { id: 'p9', subject: 'Physics', name: 'Behavior of Perfect Gas and Kinetic Theory' },
+      { id: 'p10', subject: 'Physics', name: 'Oscillations and Waves' },
+      { id: 'p11', subject: 'Physics', name: 'Electrostatics' },
+      { id: 'p12', subject: 'Physics', name: 'Current Electricity' },
+      { id: 'p13', subject: 'Physics', name: 'Magnetic Effects of Current and Magnetism' },
+      { id: 'p14', subject: 'Physics', name: 'Electromagnetic Induction and Alternating Currents' },
+      { id: 'p15', subject: 'Physics', name: 'Electromagnetic Waves' },
+      { id: 'p16', subject: 'Physics', name: 'Optics' },
+      { id: 'p17', subject: 'Physics', name: 'Dual Nature of Matter and Radiation' },
+      { id: 'p18', subject: 'Physics', name: 'Atoms and Nuclei' },
+      { id: 'p19', subject: 'Physics', name: 'Electronic Devices' },
+
+      // Chemistry
+      { id: 'c1', subject: 'Chemistry', name: 'Some Basic Concepts of Chemistry' },
+      { id: 'c2', subject: 'Chemistry', name: 'Structure of Atom' },
+      { id: 'c3', subject: 'Chemistry', name: 'Classification of Elements and Periodicity' },
+      { id: 'c4', subject: 'Chemistry', name: 'Chemical Bonding and Molecular Structure' },
+      { id: 'c5', subject: 'Chemistry', name: 'States of Matter: Gases and Liquids' },
+      { id: 'c6', subject: 'Chemistry', name: 'Thermodynamics' },
+      { id: 'c7', subject: 'Chemistry', name: 'Equilibrium' },
+      { id: 'c8', subject: 'Chemistry', name: 'Redox Reactions' },
+      { id: 'c9', subject: 'Chemistry', name: 'Solutions' },
+      { id: 'c10', subject: 'Chemistry', name: 'Electrochemistry' },
+      { id: 'c11', subject: 'Chemistry', name: 'Chemical Kinetics' },
+      { id: 'c12', subject: 'Chemistry', name: 'Surface Chemistry' },
+      { id: 'c13', subject: 'Chemistry', name: 'General Principles and Processes of Isolation of Elements' },
+      { id: 'c14', subject: 'Chemistry', name: 'p-Block Elements' },
+      { id: 'c15', subject: 'Chemistry', name: 'd and f Block Elements' },
+      { id: 'c16', subject: 'Chemistry', name: 'Coordination Compounds' },
+      { id: 'c17', subject: 'Chemistry', name: 'Organic Chemistry - Basic Principles & Techniques' },
+      { id: 'c18', subject: 'Chemistry', name: 'Hydrocarbons' },
+      { id: 'c19', subject: 'Chemistry', name: 'Haloalkanes and Haloarenes' },
+      { id: 'c20', subject: 'Chemistry', name: 'Alcohols, Phenols and Ethers' },
+      { id: 'c21', subject: 'Chemistry', name: 'Aldehydes, Ketones and Carboxylic Acids' },
+      { id: 'c22', subject: 'Chemistry', name: 'Organic Compounds Containing Nitrogen' },
+      { id: 'c23', subject: 'Chemistry', name: 'Biomolecules' },
+      { id: 'c24', subject: 'Chemistry', name: 'Polymers' },
+      { id: 'c25', subject: 'Chemistry', name: 'Chemistry in Everyday Life' },
+
+      // Biology
+      { id: 'b1', subject: 'Biology', name: 'Diversity in Living World' },
+      { id: 'b2', subject: 'Biology', name: 'Structural Organisation in Animals and Plants' },
+      { id: 'b3', subject: 'Biology', name: 'Cell Structure and Function' },
+      { id: 'b4', subject: 'Biology', name: 'Plant Physiology' },
+      { id: 'b5', subject: 'Biology', name: 'Human Physiology' },
+      { id: 'b6', subject: 'Biology', name: 'Reproduction' },
+      { id: 'b7', subject: 'Biology', name: 'Genetics and Evolution' },
+      { id: 'b8', subject: 'Biology', name: 'Biology and Human Welfare' },
+      { id: 'b9', subject: 'Biology', name: 'Biotechnology and Its Applications' },
+      { id: 'b10', subject: 'Biology', name: 'Ecology and Environment' }
+    ];
+
+    // State Management
+    let state = {
+      targetDate: localStorage.getItem('neetTargetDate') || '2025-05-04',
+      todos: JSON.parse(localStorage.getItem('neetTodos')) || [],
+      syllabusProgress: JSON.parse(localStorage.getItem('neetSyllabusProgress')) || {}
+    };
+
+    // Initialize Application
+    document.addEventListener('DOMContentLoaded', () => {
+      initCountdown();
+      initSyllabus();
+      initTodos();
+      initPomodoro();
+      initStopwatch();
+    });
+
+    // --- Countdown Timer ---
+    let countdownInterval;
+    function initCountdown() {
+      const dateInput = document.getElementById('neetDate');
+      dateInput.value = state.targetDate;
+
+      dateInput.addEventListener('change', (e) => {
+        state.targetDate = e.target.value;
+        localStorage.setItem('neetTargetDate', state.targetDate);
+        updateCountdown();
+      });
+
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    function updateCountdown() {
+      const target = new Date(state.targetDate + "T00:00:00").getTime();
+      const now = new Date().getTime();
+      const difference = target - now;
+
+      if (difference <= 0) {
+        document.getElementById('countdownDays').innerText = "00";
+        document.getElementById('countdownHours').innerText = "00";
+        document.getElementById('countdownMinutes').innerText = "00";
+        document.getElementById('countdownSeconds').innerText = "00";
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
+      document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
+      document.getElementById('countdownMinutes').innerText = String(minutes).padStart(2, '0');
+      document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
+    }
+
+    // --- Syllabus Tracker ---
+    let activeFilter = 'all';
+
+    function initSyllabus() {
+      renderSyllabus();
+      document.getElementById('chapterSearch').addEventListener('input', renderSyllabus);
+    }
+
+    function filterSubject(subject) {
+      activeFilter = subject;
+      const btns = document.querySelectorAll('#subjectFilter button');
+      btns.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderSyllabus();
+    }
+
+    function renderSyllabus() {
+      const container = document.getElementById('syllabusContainer');
+      const searchQuery = document.getElementById('chapterSearch').value.toLowerCase();
+      container.innerHTML = '';
+
+      let totalCompleted = 0;
+      let totalItems = defaultSyllabus.length;
+
+      const filtered = defaultSyllabus.filter(item => {
+        const matchesSubject = activeFilter === 'all' || item.subject === activeFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery);
+        return matchesSubject && matchesSearch;
+      });
+
+      filtered.forEach(ch => {
+        const prog = state.syllabusProgress[ch.id] || { theory: false, ncert: false, pyq: false, rev: false };
+        
+        // Count fully completed chapters for overall progress calculation
+        if (prog.theory && prog.ncert && prog.pyq && prog.rev) {
+          totalCompleted++;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card mb-2 p-2 bg-dark border-secondary';
+        card.innerHTML = `
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <div>
+              <span class="badge bg-outline-info text-info border border-info mb-1">${ch.subject}</span>
+              <h6 class="mb-0 text-light">${ch.name}</h6>
+            </div>
+            <div class="d-flex gap-1 flex-wrap">
+              <span class="badge ${prog.theory ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'theory')">Theory</span>
+              <span class="badge ${prog.ncert ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'ncert')">NCERT</span>
+              <span class="badge ${prog.pyq ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'pyq')">PYQ</span>
+              <span class="badge ${prog.rev ? 'bg-success' : 'bg-secondary'} chapter-badge" onclick="toggleProgress('${ch.id}', 'rev')">Rev</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Update Overall Progress
+      let overallTotal = defaultSyllabus.length;
+      let overallDone = 0;
+      defaultSyllabus.forEach(ch => {
+        const p = state.syllabusProgress[ch.id];
+        if (p && p.theory && p.ncert && p.pyq && p.rev) overallDone++;
+      });
+
+      const percentage = Math.round((overallDone / overallTotal) * 100);
+      document.getElementById('overallProgressText').innerText = `${percentage}%`;
+      document.getElementById('overallProgressBar').style.width = `${percentage}%`;
+    }
+
+    function toggleProgress(id, stage) {
+      if (!state.syllabusProgress[id]) {
+        state.syllabusProgress[id] = { theory: false, ncert: false, pyq: false, rev: false };
+      }
+      state.syllabusProgress[id][stage] = !state.syllabusProgress[id][stage];
+      localStorage.setItem('neetSyllabusProgress', JSON.stringify(state.syllabusProgress));
+      renderSyllabus();
+    }
+
+    // --- To-Do List ---
+    function initTodos() {
+      renderTodos();
+      document.getElementById('todoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('todoInput');
+        const text = input.value.trim();
+        if (text) {
+          state.todos.push({ id: Date.now(), text, completed: false });
+          localStorage.setItem('neetTodos', JSON.stringify(state.todos));
+          input.value = '';
+          renderTodos();
+        }
+      });
+    }
+
+    function renderTodos() {
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      
+      let leftCount = 0;
+
+      state.todos.forEach(todo => {
+        if (!todo.completed) leftCount++;
+
+        const li = document.createElement('li');
+        li.className = 'list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center px-0';
+        li.innerHTML = `
+          <div class="form-check me-2">
+            <input class="form-check-input" type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${todo.id})">
+            <label class="form-check-label ${todo.completed ? 'text-decoration-line-through text-muted' : ''}">${todo.text}</label>
+          </div>
+          <button class="btn btn-sm text-danger p-0 border-0" onclick="deleteTodo(${todo.id})"><i class="bi bi-trash"></i></button>
+        `;
+        list.appendChild(li);
+      });
+
+      document.getElementById('todoCount').innerText = `${leftCount} Left`;
+    }
+
+    function toggleTodo(id) {
+      state.todos = state.todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+      localStorage.setItem('neetTodos', JSON.stringify(state.todos));
+      renderTodos();
+    }
+
+    function deleteTodo(id) {
+      state.todos = state.todos.filter(t => t.id !== id);
+      localStorage.setItem('neetTodos', JSON.stringify(state.todos));
+      renderTodos();
+    }
+
+    // --- Pomodoro Timer ---
+    let pomoTime = 25 * 60;
+    let pomoTimer = null;
+
+    function initPomodoro() {
+      document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
+      document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
+      document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
+    }
+
+    function setPomoTime(minutes) {
+      pausePomo();
+      pomoTime = minutes * 60;
+      updatePomoDisplay();
+    }
+
+    function updatePomoDisplay() {
+      const mins = Math.floor(pomoTime / 60);
+      const secs = pomoTime % 60;
+      document.getElementById('pomoDisplay').innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function startPomo() {
+      if (pomoTimer) return;
+      document.getElementById('pomoStartBtn').disabled = true;
+      document.getElementById('pomoPauseBtn').disabled = false;
+      pomoTimer = setInterval(() => {
+        if (pomoTime > 0) {
+          pomoTime--;
+          updatePomoDisplay();
+        } else {
+          clearInterval(pomoTimer);
+          pomoTimer = null;
+          alert('Time is up! Take a break or start a new focus session.');
+          resetPomo();
+        }
+      }, 1000);
+    }
+
+    function pausePomo() {
+      clearInterval(pomoTimer);
+      pomoTimer = null;
+      document.getElementById('pomoStartBtn').disabled = false;
+      document.getElementById('pomoPauseBtn').disabled = true;
+    }
+
+    function resetPomo() {
+      pausePomo();
+      pomoTime = 25 * 60;
+      updatePomoDisplay();
+    }
+
+    // --- Stopwatch ---
+    let swTime = 0;
+    let swTimer = null;
+
+    function initStopwatch() {
+      document.getElementById('swStartBtn').addEventListener('click', startSw);
+      document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
+      document.getElementById('swLapBtn').addEventListener('click', lapSw);
+      document.getElementById('swResetBtn').addEventListener('click', resetSw);
+    }
+
+    function updateSwDisplay() {
+      const hrs = Math.floor(swTime / 3600);
+      const mins = Math.floor((swTime % 3600) / 60);
+      const secs = swTime % 60;
+      document.getElementById('swDisplay').innerText = 
+        `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function startSw() {
+      if (swTimer) return;
+      document.getElementById('swStartBtn').disabled = true;
+      document.getElementById('swPauseBtn').disabled = false;
+      document.getElementById('swLapBtn').disabled = false;
+      swTimer = setInterval(() => {
+        swTime++;
+        updateSwDisplay();
+      }, 1000);
+    }
+
+    function pauseSw() {
+      clearInterval(swTimer);
+      swTimer = null;
+      document.getElementById('swStartBtn').disabled = false;
+      document.getElementById('swPauseBtn').disabled = true;
+      document.getElementById('swLapBtn').disabled = true;
+    }
+
+    function lapSw() {
+      const lapList = document.getElementById('lapList');
+      const li = document.createElement('li');
+      li.className = 'list-group-item bg-transparent text-light border-secondary py-1 px-0';
+      li.innerText = `Lap ${lapList.children.length + 1}: ${document.getElementById('swDisplay').innerText}`;
+      lapList.prepend(li);
+    }
+
+    function resetSw() {
+      pauseSw();
+      swTime = 0;
+      updateSwDisplay();
+      document.getElementById('lapList').innerHTML = '';
+    }
+  </script>
+</body>
+</html>
