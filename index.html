@@ -490,14 +490,15 @@
         </div>
       </div>
 
-      <!-- TAB 6: MOTIVATIONAL POSTERS -->
+      <!-- TAB 6: MOTIVATIONAL POSTERS WITH GENERATE BUTTON -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
         <div class="card p-4 text-center">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
               <h3 class="h4 text-primary mb-0"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
-              <p class="text-muted small mb-0">A brand new motivational poster updates automatically every single day!</p>
+              <p class="text-muted small mb-0">Updates daily automatically, or click to generate a new poster anytime!</p>
             </div>
+            <button class="btn btn-accent text-nowrap fw-semibold" onclick="generateNewPoster()"><i class="bi bi-arrow-repeat me-1"></i>Generate New Poster</button>
           </div>
 
           <div class="d-flex justify-content-center my-3 position-relative">
@@ -613,10 +614,12 @@
       const existingIdx = state.studyHistory.findIndex(h => h.date === dateStr);
       if (existingIdx >= 0) {
         const existingRecord = state.studyHistory[existingIdx];
+        // Merge existing tasks with currently completed todos uniquely
+        const mergedTasks = Array.from(new Set([...(existingRecord.tasksList || []), ...completedTasks]));
         state.studyHistory[existingIdx] = { 
           date: dateStr, 
           hours, 
-          tasksList: existingRecord.tasksList || completedTasks 
+          tasksList: mergedTasks 
         };
       } else {
         if (parseFloat(hours) > 0 || completedTasks.length > 0) {
@@ -629,6 +632,25 @@
       }
       state.studyHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
       localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
+    }
+
+    // --- Poster Generator / Switcher ---
+    function loadPosterOfTheDay() {
+      const dayOfMonth = new Date().getDate();
+      const posterIndex = (dayOfMonth - 1) % thirtyPosters.length;
+      displayPoster(posterIndex);
+    }
+
+    function generateNewPoster() {
+      const randomIndex = Math.floor(Math.random() * thirtyPosters.length);
+      displayPoster(randomIndex);
+    }
+
+    function displayPoster(index) {
+      const poster = thirtyPosters[index];
+      document.getElementById('posterImage').src = poster.url;
+      document.getElementById('posterTitle').innerText = poster.title;
+      document.getElementById('posterCaption').innerText = poster.caption;
     }
 
     // --- Big Screen Timer Mode Switcher ---
@@ -651,20 +673,11 @@
       }
     }
 
-    // --- Motivational Quotes & Posters ---
+    // --- Motivational Quotes ---
     function getRandomQuote() {
       const idx = Math.floor(Math.random() * motivationalQuotes.length);
       document.getElementById('quoteText').innerText = `"${motivationalQuotes[idx].quote}"`;
       document.getElementById('quoteAuthor').innerText = `— ${motivationalQuotes[idx].author}`;
-    }
-
-    function loadPosterOfTheDay() {
-      const dayOfMonth = new Date().getDate();
-      const posterIndex = (dayOfMonth - 1) % thirtyPosters.length;
-      const poster = thirtyPosters[posterIndex];
-      document.getElementById('posterImage').src = poster.url;
-      document.getElementById('posterTitle').innerText = poster.title;
-      document.getElementById('posterCaption').innerText = poster.caption;
     }
 
     // --- Countdown Timer ---
@@ -879,7 +892,7 @@
       }
     }
 
-    // --- To-Do List ---
+    // --- To-Do List with Automatic Calendar Sync ---
     function initTodos() {
       renderTodos();
       
@@ -901,7 +914,6 @@
         localStorage.setItem('neetTodos', JSON.stringify(state.todos));
         inputElement.value = '';
         renderTodos();
-        renderStudyHistory();
       }
     }
 
@@ -946,6 +958,9 @@
       state.todos = state.todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
+      // Immediately trigger study history update so completed tasks show up instantly in calendar
+      const todayStr = new Date().toISOString().split('T')[0];
+      saveAutomatedDayRecord(todayStr);
       renderStudyHistory();
     }
 
@@ -953,14 +968,12 @@
       state.todos = state.todos.filter(t => t.id !== id);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
-      renderStudyHistory();
     }
 
     function clearCompletedTodos() {
       state.todos = state.todos.filter(t => !t.completed);
       localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
-      renderStudyHistory();
     }
 
     // --- Test Section & Graph Tracker ---
