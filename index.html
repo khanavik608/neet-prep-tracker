@@ -153,6 +153,12 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
+        <!-- Live IST Clock Widget added here -->
+        <div class="bg-white border rounded px-3 py-1 text-center shadow-sm">
+          <small class="text-muted d-block fw-bold" style="font-size: 0.65rem;">LIVE IST CLOCK</small>
+          <span id="liveIstClock" class="fw-bold text-primary font-monospace" style="font-size: 0.95rem;">00:00:00 AM</span>
+        </div>
+
         <div id="authSection">
           <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
         </div>
@@ -513,6 +519,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
       initISTCountdown();
+      initLiveISTClock(); // Initialize Live IST Clock
       initTimers();
       renderChapters();
       renderTodos();
@@ -700,18 +707,39 @@
       }
     }
 
-    // --- IST COUNTDOWN ---
+    // --- LIVE IST CLOCK TICKER ---
+    function initLiveISTClock() {
+      setInterval(() => {
+        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const timeString = new Intl.DateTimeFormat('en-US', options).format(new Date());
+        const clockEl = document.getElementById('liveIstClock');
+        if(clockEl) clockEl.innerText = timeString;
+      }, 1000);
+    }
+
+    // --- IST COUNTDOWN & MIDNIGHT ROLLOVER ---
     function initISTCountdown() {
       setInterval(() => {
-        const targetStr = appData.neetDate + 'T09:00:00+05:30';
+        // Target exam start date at 00:00:00 IST
+        const targetStr = appData.neetDate + 'T00:00:00+05:30';
         const targetDate = new Date(targetStr).getTime();
-        const diff = targetDate - new Date().getTime();
+
+        // Get exact current time in Asia/Kolkata (IST)
+        const nowISTString = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        const istNowTime = new Date(nowISTString).getTime();
+
+        const diff = targetDate - istNowTime;
 
         if (diff > 0) {
           document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
           document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
           document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
           document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+        } else {
+          document.getElementById('countdownDays').innerText = "00";
+          document.getElementById('countdownHours').innerText = "00";
+          document.getElementById('countdownMinutes').innerText = "00";
+          document.getElementById('countdownSeconds').innerText = "00";
         }
       }, 1000);
     }
@@ -992,10 +1020,15 @@
       updateScoreChart();
     }
 
-    // --- AUTO STUDY CALENDAR & HISTORY ---
+    // --- AUTO STUDY CALENDAR & IST-STRICT HISTORY ---
     function getTodayKey() {
-      const d = new Date();
-      return d.toISOString().split('T')[0];
+      // Formats current date strictly in IST (Asia/Kolkata) as YYYY-MM-DD
+      const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+      const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(new Date());
+      const year = parts.find(p => p.type === 'year').value;
+      const month = parts.find(p => p.type === 'month').value;
+      const day = parts.find(p => p.type === 'day').value;
+      return `${year}-${month}-${day}`;
     }
 
     function recordTodayActivity() {
