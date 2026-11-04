@@ -181,7 +181,7 @@
           <i class="bi bi-quote fs-2 text-primary"></i>
           <div>
             <p id="quoteText" class="mb-0 fw-semibold text-dark fs-6">"Dream, dream, dream. Dreams transform into thoughts and thoughts result in action."</p>
-            <small id="quoteAuthor" class="text-muted fw-bold">â€” Dr. A.P.J. Abdul Kalam</small>
+            <small id="quoteAuthor" class="text-muted fw-bold">— Dr. A.P.J. Abdul Kalam</small>
           </div>
         </div>
         <button class="btn btn-sm btn-outline-primary text-nowrap ms-auto fw-semibold" onclick="getRandomQuote()"><i class="bi bi-shuffle me-1"></i>New Quote</button>
@@ -503,7 +503,7 @@
     const posters = [
       { title: "Future Doctor in the Making", caption: "Every single page brings you one step closer to your White Coat.", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80" },
       { title: "Consistency is Key", caption: "Small daily improvements over time lead to stunning results.", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80" },
-      { title: "Believe in Yourself", caption: "Your limitationâ€”it's only your imagination. Push beyond it.", image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80" },
+      { title: "Believe in Yourself", caption: "Your limitation—it's only your imagination. Push beyond it.", image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80" },
       { title: "Hard Work Beats Talent", caption: "When talent doesn't work hard, hard work beats talent.", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" },
       { title: "Focus on Your Goal", caption: "Don't look at the mountains, look at the path right in front of you.", image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80" },
       { title: "Strive for Progress", caption: "Not perfection. Every hour studied is a step towards AIIMS/Govt Medical College.", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" },
@@ -1054,7 +1054,7 @@
     function getRandomQuote() {
       const q = quotes[Math.floor(Math.random() * quotes.length)];
       document.getElementById('quoteText').innerText = `"${q.text}"`;
-      document.getElementById('quoteAuthor').innerText = `â€” ${q.author}`;
+      document.getElementById('quoteAuthor').innerText = `— ${q.author}`;
     }
 
     function renderPoster() {
