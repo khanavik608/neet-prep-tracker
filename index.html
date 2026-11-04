@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKKI | NEET Prep & Focus Dashboard</title>
+  <title>ENDORANK | NEET Prep & Focus Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg-light: #f1f5f9;
+      --bg-light: #f8fafc;
       --card-bg: #ffffff;
       --accent: #0284c7;
       --accent-hover: #0369a1;
       --text-main: #0f172a;
-      --text-muted: #475569;
-      --border-color: #cbd5e1;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
     }
 
     body {
@@ -32,30 +32,34 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       color: var(--text-main);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
     .card-header {
-      background-color: #f8fafc;
+      background-color: #ffffff;
       border-bottom: 1px solid var(--border-color);
       font-weight: 600;
       color: var(--text-main);
+      padding: 1rem 1.25rem;
     }
 
-    .akki-brand {
+    .endorank-brand {
       font-weight: 900;
-      letter-spacing: 2px;
-      background: linear-gradient(45deg, #0284c7, #2563eb);
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #0284c7 0%, #4338ca 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      font-size: 1.9rem;
+      font-size: 2.1rem;
+      font-family: 'Segoe UI Black', sans-serif;
     }
 
     .nav-pills .nav-link {
       color: var(--text-muted);
       font-weight: 600;
       border-radius: 8px;
+      padding: 8px 16px;
+      transition: all 0.2s ease;
     }
 
     .nav-pills .nav-link.active {
@@ -91,25 +95,17 @@
 
     .progress {
       background-color: #e2e8f0;
-      height: 12px;
-      border-radius: 6px;
+      height: 10px;
+      border-radius: 5px;
     }
 
     .progress-bar {
       background-color: #16a34a;
     }
 
-    .btn-complete-active {
-      background-color: #16a34a !important;
-      border-color: #16a34a !important;
-      color: #ffffff !important;
-    }
-
     .todo-completed {
       text-decoration: line-through;
-      text-decoration-color: #dc2626;
-      text-decoration-thickness: 2px;
-      color: #475569 !important;
+      color: #94a3b8 !important;
     }
 
     .lap-list {
@@ -121,29 +117,31 @@
       background-color: #ffffff;
       border-color: var(--border-color);
       color: var(--text-main);
+      padding: 0.6rem 0.9rem;
     }
 
     .form-control:focus, .form-select:focus {
       background-color: #ffffff;
       border-color: var(--accent);
       color: var(--text-main);
-      box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.2);
+      box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.15);
     }
 
     .quote-box {
-      border-left: 5px solid var(--accent);
-      background-color: #e0f2fe;
+      border-left: 4px solid var(--accent);
+      background-color: #f0f9ff;
     }
 
     .poster-img {
-      max-height: 480px;
+      max-height: 420px;
       object-fit: cover;
       border-radius: 12px;
-      border: 2px solid var(--border-color);
+      border: 1px solid var(--border-color);
     }
 
     .history-card {
       border-left: 4px solid #16a34a;
+      background: #ffffff;
     }
   </style>
 </head>
@@ -151,10 +149,10 @@
 
   <div class="container py-4">
     <!-- Header -->
-    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary-subtle gap-3">
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
       <div class="d-flex align-items-center gap-3">
-        <div class="akki-brand">AKKI</div>
-        <div class="border-start border-secondary-subtle ps-3">
+        <div class="endorank-brand">ENDORANK</div>
+        <div class="border-start ps-3">
           <h1 class="h5 mb-0 fw-bold text-dark">NEET Prep & Focus Dashboard</h1>
           <p class="text-muted small mb-0">Doctor's Mission Control</p>
         </div>
@@ -162,18 +160,18 @@
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
         <div id="authSection">
-          <button class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Cloud Login / OTP</span></button>
+          <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
         </div>
 
         <div class="d-flex align-items-center gap-2">
-          <label for="neetDate" class="small text-nowrap fw-bold text-dark"><i class="bi bi-calendar-event me-1"></i>Exam Target:</label>
+          <label for="neetDate" class="small text-nowrap fw-bold text-dark"><i class="bi bi-calendar-event me-1"></i>Exam Target (IST):</label>
           <input type="date" id="neetDate" class="form-control form-control-sm text-dark fw-semibold" style="width: auto;">
         </div>
       </div>
     </header>
 
-    <!-- Navigation -->
-    <ul class="nav nav-pills mb-4 gap-2 border-bottom border-secondary-subtle pb-3 flex-wrap" id="mainAppTabs" role="tablist">
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
@@ -182,9 +180,9 @@
       <li class="nav-item"><button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button></li>
     </ul>
 
-    <!-- Quote -->
-    <div class="card mb-4 quote-box">
-      <div class="card-body d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
+    <!-- Quote Box -->
+    <div class="card mb-4 quote-box border-0 shadow-sm">
+      <div class="card-body d-flex align-items-center justify-content-between py-3 px-4 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
           <i class="bi bi-quote fs-2 text-primary"></i>
           <div>
@@ -196,27 +194,28 @@
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content Tabs -->
     <div class="tab-content" id="mainAppTabContent">
+      <!-- Tab 1: Dashboard -->
       <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
-        <div class="card mb-4 text-center p-3">
+        <div class="card mb-4 text-center p-4">
           <div class="row align-items-center">
-            <div class="col-md-3 mb-2 mb-md-0 border-end border-secondary-subtle">
-              <span class="text-muted small d-block fw-bold text-uppercase">DAYS REMAINING</span>
+            <div class="col-md-3 mb-3 mb-md-0 border-end">
+              <span class="text-muted small d-block fw-bold text-uppercase">DAYS REMAINING (IST)</span>
               <span id="countdownDays" class="display-5 fw-bold text-danger">00</span>
               <span class="text-muted small d-block fw-bold">Days</span>
             </div>
-            <div class="col-md-6 mb-2 mb-md-0">
+            <div class="col-md-6 mb-3 mb-md-0">
               <div class="d-flex justify-content-center gap-4">
                 <div><span id="countdownHours" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Hours</span></div>
                 <div><span id="countdownMinutes" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Mins</span></div>
                 <div><span id="countdownSeconds" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Secs</span></div>
               </div>
             </div>
-            <div class="col-md-3 border-start border-secondary-subtle">
+            <div class="col-md-3 border-start">
               <span class="text-muted small d-block fw-bold text-uppercase">SYLLABUS PROGRESS</span>
               <span id="overallProgressText" class="h4 fw-bold text-success">0%</span>
-              <div class="progress mt-1">
+              <div class="progress mt-2">
                 <div id="overallProgressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
               </div>
             </div>
@@ -225,6 +224,7 @@
 
         <div class="row g-4">
           <div class="col-lg-4">
+            <!-- Timers Card -->
             <div class="card mb-4">
               <div class="card-header p-2">
                 <ul class="nav nav-pills nav-justified" id="timerTabs" role="tablist">
@@ -235,11 +235,11 @@
               <div class="card-body text-center">
                 <div class="tab-content" id="timerTabContent">
                   <div class="tab-pane fade show active" id="pomodoro" role="tabpanel">
-                    <div class="timer-display my-2" id="pomoDisplay">25:00</div>
+                    <div class="timer-display my-3" id="pomoDisplay">25:00</div>
                     <div class="mb-3">
-                      <button id="pomoStartBtn" class="btn btn-accent me-1"><i class="bi bi-play-fill"></i></button>
-                      <button id="pomoPauseBtn" class="btn btn-secondary me-1" disabled><i class="bi bi-pause-fill"></i></button>
-                      <button id="pomoResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise"></i></button>
+                      <button id="pomoStartBtn" class="btn btn-accent me-1 px-3"><i class="bi bi-play-fill"></i></button>
+                      <button id="pomoPauseBtn" class="btn btn-secondary me-1 px-3" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="pomoResetBtn" class="btn btn-outline-danger px-3"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
                       <button type="button" class="btn btn-outline-primary" onclick="setPomoTime(25)">25m</button>
@@ -248,12 +248,12 @@
                     </div>
                   </div>
                   <div class="tab-pane fade" id="stopwatch" role="tabpanel">
-                    <div class="timer-display my-2" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
+                    <div class="timer-display my-3" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
                     <div class="mb-3">
-                      <button id="swStartBtn" class="btn btn-accent me-1"><i class="bi bi-play-fill"></i></button>
-                      <button id="swPauseBtn" class="btn btn-secondary me-1" disabled><i class="bi bi-pause-fill"></i></button>
-                      <button id="swLapBtn" class="btn btn-info me-1" disabled><i class="bi bi-flag-fill"></i></button>
-                      <button id="swResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise"></i></button>
+                      <button id="swStartBtn" class="btn btn-accent me-1 px-2"><i class="bi bi-play-fill"></i></button>
+                      <button id="swPauseBtn" class="btn btn-secondary me-1 px-2" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="swLapBtn" class="btn btn-info me-1 px-2" disabled><i class="bi bi-flag-fill"></i></button>
+                      <button id="swResetBtn" class="btn btn-outline-danger px-2"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <ul id="lapList" class="list-group list-group-flush text-start small lap-list"></ul>
                   </div>
@@ -261,9 +261,10 @@
               </div>
             </div>
 
+            <!-- To-Do Widget Card -->
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-check2-square me-2"></i>To-Do Section</span>
+                <span><i class="bi bi-check2-square me-2"></i>Quick To-Do</span>
                 <span id="todoCount" class="badge bg-secondary">0 Left</span>
               </div>
               <div class="card-body">
@@ -276,10 +277,11 @@
             </div>
           </div>
 
+          <!-- Chapters Section -->
           <div class="col-lg-8">
             <div class="card h-100">
               <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                <span><i class="bi bi-journals me-2"></i>Add & Track Chapters</span>
+                <span><i class="bi bi-journals me-2"></i>Unlimited Chapter Tracker</span>
                 <div class="btn-group btn-group-sm flex-wrap" role="group" id="subjectFilter">
                   <button type="button" class="btn btn-outline-primary active" onclick="filterSubject('all')">All</button>
                   <button type="button" class="btn btn-outline-primary" onclick="filterSubject('Physics')">Physics</button>
@@ -289,10 +291,10 @@
               </div>
               <div class="card-body">
                 <form id="addChapterForm" class="row g-2 mb-3">
-                  <div class="col-md-7">
+                  <div class="col-md-6">
                     <input type="text" id="chapterNameInput" class="form-control form-control-sm" placeholder="Enter chapter name..." required>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <select id="chapterSubjectInput" class="form-select form-select-sm" required>
                       <option value="Physics">Physics</option>
                       <option value="Chemistry">Chemistry</option>
@@ -304,19 +306,19 @@
                   </div>
                 </form>
                 <div class="mb-3">
-                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search added chapter name...">
+                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search chapter name...">
                 </div>
-                <div id="syllabusContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2"></div>
+                <div id="syllabusContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab 2 -->
+      <!-- Tab 2: Big Screen Timer -->
       <div class="tab-pane fade" id="tab-focus-timer" role="tabpanel">
         <div class="card text-center p-5">
-          <div class="d-flex justify-content-center mb-3">
+          <div class="d-flex justify-content-center mb-4">
             <div class="btn-group" role="group">
               <button type="button" class="btn btn-outline-primary active" id="bigModePomoBtn" onclick="switchBigTimerMode('pomo')"><i class="bi bi-cup-hot me-1"></i>Big Pomodoro</button>
               <button type="button" class="btn btn-outline-primary" id="bigModeSwBtn" onclick="switchBigTimerMode('sw')"><i class="bi bi-stopwatch me-1"></i>Big Stopwatch</button>
@@ -351,15 +353,15 @@
         </div>
       </div>
 
-      <!-- Tab 3 -->
+      <!-- Tab 3: Full To-Do Section -->
       <div class="tab-pane fade" id="tab-full-todo" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Full To-Do Section</h3>
+            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Unlimited To-Do Section</h3>
             <button class="btn btn-sm btn-outline-danger" onclick="clearCompletedTodos()"><i class="bi bi-trash me-1"></i>Clear Completed</button>
           </div>
           <form id="fullTodoForm" class="d-flex gap-2 mb-4">
-            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add study objective..." required>
+            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add unlimited study task..." required>
             <button type="submit" class="btn btn-accent text-nowrap px-4"><i class="bi bi-plus-lg me-1"></i> Add Task</button>
           </form>
           <div class="table-responsive">
@@ -368,22 +370,26 @@
         </div>
       </div>
 
-      <!-- Tab 4 -->
+      <!-- Tab 4: Test Tracker & Graph -->
       <div class="tab-pane fade" id="tab-tests" role="tabpanel">
         <div class="row g-4">
           <div class="col-lg-5">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule or Add NEET Test</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule & Add Test Score</h3>
               <form id="testScheduleForm">
                 <div class="mb-3">
-                  <label for="testName" class="form-label small fw-bold text-muted">Test Name / Chapters:</label>
+                  <label for="testName" class="form-label small fw-bold text-muted">Test Name:</label>
                   <input type="text" id="testName" class="form-control" placeholder="e.g. Mock Test 1" required>
                 </div>
                 <div class="mb-3">
                   <label for="testDate" class="form-label small fw-bold text-muted">Test Date:</label>
                   <input type="date" id="testDate" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Schedule Test</button>
+                <div class="mb-3">
+                  <label for="testMarks" class="form-label small fw-bold text-muted">Marks Obtained (/720):</label>
+                  <input type="number" id="testMarks" class="form-control" placeholder="e.g. 540" min="0" max="720" value="0" required>
+                </div>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Update Graph</button>
               </form>
             </div>
           </div>
@@ -399,7 +405,7 @@
         </div>
 
         <div class="card p-4 mt-2">
-          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>My Scheduled & Completed Tests</h3>
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests Record</h3>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
@@ -417,18 +423,18 @@
         </div>
       </div>
 
-      <!-- Tab 5 -->
+      <!-- Tab 5: Auto Study Calendar -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Automated Daily Study History Log</h3>
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
-          <div id="calendarHistoryContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2"></div>
+          <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
         </div>
       </div>
 
-      <!-- Tab 6 -->
+      <!-- Tab 6: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
         <div class="card p-4 text-center">
           <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
@@ -447,17 +453,29 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-shield-lock me-2"></i>Cloud Sync & Login</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Login & Profile</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small">Log in with your Email OTP to back up your data to the cloud and retrieve it anytime.</p>
-          <div class="mb-3">
-            <label for="authEmail" class="form-label small fw-bold">Email Address:</label>
-            <input type="email" id="authEmail" class="form-control" placeholder="doctor@aspirant.com">
+          <div id="loggedOutView">
+            <p class="text-muted small">Log in with your email to sync and back up your dashboard data.</p>
+            <div class="mb-3">
+              <label for="authEmail" class="form-label small fw-bold">Email Address:</label>
+              <input type="email" id="authEmail" class="form-control" placeholder="doctor@aspirant.com">
+            </div>
+            <button id="sendOtpBtn" class="btn btn-accent w-100 mb-3" onclick="sendOtpLogin()"><i class="bi bi-envelope-check me-1"></i> Send Login Link</button>
+            <div id="otpStatusMsg" class="text-center small text-success fw-semibold"></div>
           </div>
-          <button id="sendOtpBtn" class="btn btn-accent w-100 mb-3" onclick="sendOtpLogin()"><i class="bi bi-envelope-check me-1"></i> Send OTP / Magic Link</button>
-          <div id="otpStatusMsg" class="text-center small text-success fw-semibold"></div>
+
+          <div id="loggedInView" class="d-none">
+            <p class="text-muted small">You are logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
+            <div class="mb-3">
+              <label for="userNameInput" class="form-label small fw-bold">Your Name / Username:</label>
+              <input type="text" id="userNameInput" class="form-control" placeholder="Enter your name">
+            </div>
+            <button class="btn btn-success w-100 mb-2" onclick="saveUsername()"><i class="bi bi-check-circle me-1"></i> Save Username</button>
+            <button class="btn btn-outline-danger w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+          </div>
         </div>
       </div>
     </div>
@@ -477,23 +495,11 @@
 
     // --- APPLICATION STATE ---
     let appData = {
+      userName: '',
       neetDate: '2026-05-07',
-      chapters: [
-        { id: 1, name: 'Mechanics (Kinematics & Laws of Motion)', subject: 'Physics', completed: false, rev1: false, rev2: false },
-        { id: 2, name: 'Electrostatics & Current Electricity', subject: 'Physics', completed: false, rev1: false, rev2: false },
-        { id: 3, name: 'Organic Chemistry: GOC & Hydrocarbons', subject: 'Chemistry', completed: false, rev1: false, rev2: false },
-        { id: 4, name: 'Chemical Bonding & Periodic Table', subject: 'Chemistry', completed: false, rev1: false, rev2: false },
-        { id: 5, name: 'Human Physiology (Digestion, Breathing, Circulation)', subject: 'Biology', completed: false, rev1: false, rev2: false },
-        { id: 6, name: 'Genetics & Evolution', subject: 'Biology', completed: false, rev1: false, rev2: false }
-      ],
-      todos: [
-        { id: 1, text: 'Solve 90 questions of Physics Mechanics', completed: false },
-        { id: 2, name: 'Revise NCERT Biology Chapter 5 & 6', completed: true }
-      ],
-      tests: [
-        { id: 1, name: 'Full Mock Test 1', date: '2026-03-01', marks: 540, status: 'Completed' },
-        { id: 2, name: 'Full Mock Test 2', date: '2026-03-15', marks: 580, status: 'Completed' }
-      ],
+      chapters: [],
+      todos: [],
+      tests: [],
       history: {}
     };
 
@@ -518,7 +524,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      initCountdown();
+      initISTCountdown();
       initTimers();
       renderChapters();
       renderTodos();
@@ -532,10 +538,10 @@
       document.getElementById('neetDate').addEventListener('change', (e) => {
         appData.neetDate = e.target.value;
         saveData();
-        initCountdown();
+        initISTCountdown();
       });
 
-      // Chapter Form listener
+      // Chapter Form listener (Unlimited)
       document.getElementById('addChapterForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const name = document.getElementById('chapterNameInput').value.trim();
@@ -554,7 +560,7 @@
         renderChapters();
       });
 
-      // To-Do Form listener
+      // To-Do Form listener (Unlimited)
       document.getElementById('todoForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const text = document.getElementById('todoInput').value.trim();
@@ -578,17 +584,18 @@
         }
       });
 
-      // Test Schedule Form listener
+      // Test Schedule & Marks Form listener
       document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const name = document.getElementById('testName').value.trim();
         const date = document.getElementById('testDate').value;
+        const marks = Number(document.getElementById('testMarks').value);
         if (name && date) {
-          appData.tests.push({ id: Date.now(), name, date, marks: 0, status: 'Scheduled' });
+          appData.tests.push({ id: Date.now(), name, date, marks, status: marks > 0 ? 'Completed' : 'Scheduled' });
           document.getElementById('testScheduleForm').reset();
+          document.getElementById('testMarks').value = '0';
           saveData();
           renderTests();
-          updateScoreChart();
         }
       });
 
@@ -617,7 +624,7 @@
 
     // --- LOCAL STORAGE & SYNC ---
     function loadLocalStorageData() {
-      const saved = localStorage.getItem('akki_neet_data');
+      const saved = localStorage.getItem('endorank_neet_data');
       if (saved) {
         try { appData = JSON.parse(saved); } catch (e) { console.error(e); }
       }
@@ -625,7 +632,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('akki_neet_data', JSON.stringify(appData));
+      localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
       updateProgress();
       recordTodayActivity();
       if (currentUser && supabaseClient) {
@@ -657,12 +664,12 @@
         if (data && data.payload) {
           appData = data.payload;
           if (appData.neetDate) document.getElementById('neetDate').value = appData.neetDate;
+          updateAuthUI();
           renderChapters();
           renderTodos();
           renderTests();
-          updateScoreChart();
           renderCalendarHistory();
-          initCountdown();
+          initISTCountdown();
         }
       } catch (err) {
         console.log('No existing cloud data found, initializing fresh payload.');
@@ -670,7 +677,7 @@
       }
     }
 
-    // --- AUTHENTICATION (OTP) ---
+    // --- AUTHENTICATION & USERNAME ---
     async function sendOtpLogin() {
       const email = document.getElementById('authEmail').value.trim();
       const statusMsg = document.getElementById('otpStatusMsg');
@@ -688,23 +695,62 @@
         statusMsg.innerText = error.message;
       } else {
         statusMsg.className = 'text-center small text-success fw-semibold';
-        statusMsg.innerText = 'Magic link / OTP sent! Check your email inbox.';
+        statusMsg.innerText = 'Login link sent! Check your email inbox.';
       }
+    }
+
+    function saveUsername() {
+      const nameInput = document.getElementById('userNameInput').value.trim();
+      if (nameInput) {
+        appData.userName = nameInput;
+        saveData();
+        updateAuthUI();
+        alert('Username updated successfully!');
+      } else {
+        alert('Please enter a valid name.');
+      }
+    }
+
+    async function logoutUser() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      currentUser = null;
+      updateAuthUI();
+      location.reload();
     }
 
     function updateAuthUI() {
       const authBtnText = document.getElementById('authButtonText');
+      const loggedOutView = document.getElementById('loggedOutView');
+      const loggedInView = document.getElementById('loggedInView');
+      const userEmailDisplay = document.getElementById('userEmailDisplay');
+      const userNameInput = document.getElementById('userNameInput');
+
       if (currentUser) {
-        authBtnText.innerText = currentUser.email.split('@')[0];
+        authBtnText.innerText = appData.userName || currentUser.email.split('@')[0];
+        loggedOutView.classList.add('d-none');
+        loggedInView.classList.remove('d-none');
+        userEmailDisplay.innerText = currentUser.email;
+        if (!appData.userName) {
+          appData.userName = currentUser.email.split('@')[0];
+        }
+        userNameInput.value = appData.userName;
       } else {
-        authBtnText.innerText = 'Cloud Login / OTP';
+        authBtnText.innerText = 'Login';
+        loggedOutView.classList.remove('d-none');
+        loggedInView.classList.add('d-none');
       }
     }
 
-    // --- COUNTDOWN ---
-    function initCountdown() {
+    // --- IST COUNTDOWN ---
+    function initISTCountdown() {
       setInterval(() => {
-        const targetDate = new Date(appData.neetDate + 'T09:00:00').getTime();
+        // Target exam date in IST (Asia/Kolkata)
+        const targetStr = appData.neetDate + 'T09:00:00+05:30';
+        const targetDate = new Date(targetStr).getTime();
+        
+        // Current time adjusted for IST
         const now = new Date().getTime();
         const diff = targetDate - now;
 
@@ -727,7 +773,7 @@
       }, 1000);
     }
 
-    // --- TIMERS (Pomodoro & Stopwatch) ---
+    // --- TIMERS ---
     let pomoTimeLeft = 25 * 60;
     let pomoTimerId = null;
     let pomoRunning = false;
@@ -739,12 +785,10 @@
     let currentBigTimerMode = 'pomo';
 
     function initTimers() {
-      // Pomodoro Controls
       document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
       document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
       document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
 
-      // Stopwatch Controls
       document.getElementById('swStartBtn').addEventListener('click', startSw);
       document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
       document.getElementById('swLapBtn').addEventListener('click', lapSw);
@@ -900,12 +944,11 @@
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-muted text-center py-3 small">No chapters found.</p>';
+        container.innerHTML = '<p class="text-muted text-center py-4 small">No chapters added yet. Use the form above to add chapters!</p>';
         updateProgress();
         return;
       }
 
-      // Group by Subject
       const subjects = ['Physics', 'Chemistry', 'Biology'];
       subjects.forEach(sub => {
         if (currentFilter !== 'all' && currentFilter !== sub) return;
@@ -919,14 +962,14 @@
 
         subChapters.forEach(ch => {
           const item = document.createElement('div');
-          item.className = 'card mb-2 p-2';
+          item.className = 'card mb-2 p-2 border-0 shadow-sm';
           item.innerHTML = `
             <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
               <div class="small fw-semibold text-dark ${ch.completed ? 'todo-completed' : ''}">${ch.name}</div>
               <div class="d-flex align-items-center gap-2 flex-wrap">
                 <button class="btn btn-sm ${ch.rev1 ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleRev(${ch.id}, 'rev1')">Rev 1</button>
                 <button class="btn btn-sm ${ch.rev2 ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleRev(${ch.id}, 'rev2')">Rev 2</button>
-                <button class="btn btn-sm ${ch.completed ? 'btn-complete-active' : 'btn-outline-success'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleChapter(${ch.id})">
+                <button class="btn btn-sm ${ch.completed ? 'btn-success' : 'btn-outline-success'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleChapter(${ch.id})">
                   <i class="bi ${ch.completed ? 'bi-check-all' : 'bi-check'} me-1"></i>${ch.completed ? 'Done' : 'Complete'}
                 </button>
                 <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="deleteChapter(${ch.id})"><i class="bi bi-trash"></i></button>
@@ -985,8 +1028,8 @@
       fullTodoList.innerHTML = '';
 
       if (appData.todos.length === 0) {
-        todoList.innerHTML = '<li class="list-group-item text-muted text-center small">No tasks pending.</li>';
-        fullTodoList.innerHTML = '<li class="list-group-item text-muted text-center">No tasks pending.</li>';
+        todoList.innerHTML = '<li class="list-group-item text-muted text-center small border-0">No tasks pending.</li>';
+        fullTodoList.innerHTML = '<li class="list-group-item text-muted text-center border-0">No tasks pending.</li>';
         document.getElementById('todoCount').innerText = '0 Left';
         return;
       }
@@ -997,7 +1040,7 @@
 
         // Widget view
         const li1 = document.createElement('li');
-        li1.className = 'list-group-item px-0 py-2 d-flex justify-content-between align-items-center';
+        li1.className = 'list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0';
         li1.innerHTML = `
           <div class="form-check">
             <input class="form-check-input" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTodo(${t.id})" id="todoWidget_${t.id}">
@@ -1052,7 +1095,8 @@
       tbody.innerHTML = '';
 
       if (appData.tests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No tests scheduled or added yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No tests added yet. Add a test to start the graph!</td></tr>';
+        updateScoreChart();
         return;
       }
 
@@ -1078,8 +1122,9 @@
       const test = appData.tests.find(t => t.id === id);
       if (test) {
         test.marks = Number(val);
+        test.status = test.marks > 0 ? 'Completed' : test.status;
         saveData();
-        updateScoreChart();
+        renderTests();
       }
     }
 
@@ -1135,7 +1180,7 @@
 
     // --- AUTO STUDY CALENDAR HISTORY ---
     function recordTodayActivity() {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
       const completedCount = appData.chapters.filter(c => c.completed).length;
       const totalCount = appData.chapters.length;
 
@@ -1143,7 +1188,7 @@
       appData.history[todayStr] = {
         completedChapters: completedCount,
         totalChapters: totalCount,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })
       };
       renderCalendarHistory();
     }
@@ -1153,7 +1198,7 @@
       container.innerHTML = '';
 
       if (!appData.history || Object.keys(appData.history).length === 0) {
-        container.innerHTML = '<p class="text-muted text-center py-3 small">No study history recorded yet.</p>';
+        container.innerHTML = '<p class="text-muted text-center py-4 small">No study history recorded yet. Complete tasks or chapters to log your activity!</p>';
         document.getElementById('totalLoggedDays').innerText = '0 Days Logged';
         return;
       }
@@ -1164,7 +1209,7 @@
       dates.forEach(date => {
         const info = appData.history[date];
         const item = document.createElement('div');
-        item.className = 'card mb-2 p-3 history-card';
+        item.className = 'card mb-2 p-3 history-card shadow-sm border-0';
         item.innerHTML = `
           <div class="d-flex justify-content-between align-items-center">
             <div>
