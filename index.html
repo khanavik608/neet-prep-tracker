@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ENDORANK | NEET Prep & Focus Dashboard</title>
+  <title>AKKI | NEET Prep & Focus Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Chart.js for Test Score Graph -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg-light: #f8fafc;
+      --bg-light: #f1f5f9;
       --card-bg: #ffffff;
       --accent: #0284c7;
       --accent-hover: #0369a1;
       --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
     }
 
     body {
@@ -32,34 +32,30 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       color: var(--text-main);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .card-header {
-      background-color: #ffffff;
+      background-color: #f8fafc;
       border-bottom: 1px solid var(--border-color);
       font-weight: 600;
       color: var(--text-main);
-      padding: 1rem 1.25rem;
     }
 
-    .endorank-brand {
+    .akki-brand {
       font-weight: 900;
-      letter-spacing: 3px;
-      background: linear-gradient(135deg, #0284c7 0%, #4338ca 100%);
+      letter-spacing: 2px;
+      background: linear-gradient(45deg, #0284c7, #2563eb);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      font-size: 2.1rem;
-      font-family: 'Segoe UI Black', sans-serif;
+      font-size: 1.9rem;
     }
 
     .nav-pills .nav-link {
       color: var(--text-muted);
       font-weight: 600;
       border-radius: 8px;
-      padding: 8px 16px;
-      transition: all 0.2s ease;
     }
 
     .nav-pills .nav-link.active {
@@ -95,17 +91,30 @@
 
     .progress {
       background-color: #e2e8f0;
-      height: 10px;
-      border-radius: 5px;
+      height: 12px;
+      border-radius: 6px;
     }
 
     .progress-bar {
       background-color: #16a34a;
     }
 
+    .form-check-input:checked {
+      background-color: #16a34a !important;
+      border-color: #16a34a !important;
+    }
+
+    .btn-complete-active {
+      background-color: #16a34a !important;
+      border-color: #16a34a !important;
+      color: #ffffff !important;
+    }
+
     .todo-completed {
       text-decoration: line-through;
-      color: #94a3b8 !important;
+      text-decoration-color: #dc2626;
+      text-decoration-thickness: 2px;
+      color: #475569 !important;
     }
 
     .lap-list {
@@ -117,72 +126,75 @@
       background-color: #ffffff;
       border-color: var(--border-color);
       color: var(--text-main);
-      padding: 0.6rem 0.9rem;
     }
 
     .form-control:focus, .form-select:focus {
       background-color: #ffffff;
       border-color: var(--accent);
       color: var(--text-main);
-      box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.2);
     }
 
     .quote-box {
-      border-left: 4px solid var(--accent);
-      background-color: #f0f9ff;
+      border-left: 5px solid var(--accent);
+      background-color: #e0f2fe;
     }
 
     .poster-img {
-      max-height: 420px;
+      max-height: 480px;
       object-fit: cover;
       border-radius: 12px;
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
     }
 
     .history-card {
       border-left: 4px solid #16a34a;
-      background: #ffffff;
     }
   </style>
 </head>
 <body>
 
   <div class="container py-4">
-    <!-- Header -->
-    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+    <!-- Brand Header & Target Date Setting -->
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary-subtle">
       <div class="d-flex align-items-center gap-3">
-        <div class="endorank-brand">ENDORANK</div>
-        <div class="border-start ps-3">
+        <div class="akki-brand">AKKI</div>
+        <div class="border-start border-secondary-subtle ps-3">
           <h1 class="h5 mb-0 fw-bold text-dark">NEET Prep & Focus Dashboard</h1>
           <p class="text-muted small mb-0">Doctor's Mission Control</p>
         </div>
       </div>
-
-      <div class="d-flex align-items-center gap-3 flex-wrap">
-        <div id="authSection">
-          <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-          <label for="neetDate" class="small text-nowrap fw-bold text-dark"><i class="bi bi-calendar-event me-1"></i>Exam Target (IST):</label>
-          <input type="date" id="neetDate" class="form-control form-control-sm text-dark fw-semibold" style="width: auto;">
-        </div>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+        <label for="neetDate" class="small text-nowrap fw-bold text-dark"><i class="bi bi-calendar-event me-1"></i>Exam Target Date:</label>
+        <input type="date" id="neetDate" class="form-control form-control-sm text-dark fw-semibold" style="width: auto;">
       </div>
     </header>
 
     <!-- Navigation Tabs -->
-    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
-      <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
-      <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
-      <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
-      <li class="nav-item"><button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Tracker & Graph</button></li>
-      <li class="nav-item"><button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Auto Study Calendar</button></li>
-      <li class="nav-item"><button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button></li>
+    <ul class="nav nav-pills mb-4 gap-2 border-bottom border-secondary-subtle pb-3 flex-wrap" id="mainAppTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Tracker & Graph</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Auto Study Calendar</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button>
+      </li>
     </ul>
 
-    <!-- Quote Box -->
-    <div class="card mb-4 quote-box border-0 shadow-sm">
-      <div class="card-body d-flex align-items-center justify-content-between py-3 px-4 flex-wrap gap-2">
+    <!-- Motivational Quote Banner -->
+    <div class="card mb-4 quote-box">
+      <div class="card-body d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
           <i class="bi bi-quote fs-2 text-primary"></i>
           <div>
@@ -194,28 +206,40 @@
       </div>
     </div>
 
-    <!-- Main Content Tabs -->
+    <!-- MAIN TAB CONTENT -->
     <div class="tab-content" id="mainAppTabContent">
-      <!-- Tab 1: Dashboard -->
+
+      <!-- TAB 1: DASHBOARD -->
       <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
-        <div class="card mb-4 text-center p-4">
+        
+        <!-- Countdown Banner -->
+        <div class="card mb-4 text-center p-3">
           <div class="row align-items-center">
-            <div class="col-md-3 mb-3 mb-md-0 border-end">
-              <span class="text-muted small d-block fw-bold text-uppercase">DAYS REMAINING (IST)</span>
+            <div class="col-md-3 mb-2 mb-md-0 border-end border-secondary-subtle">
+              <span class="text-muted small d-block fw-bold text-uppercase">DAYS REMAINING</span>
               <span id="countdownDays" class="display-5 fw-bold text-danger">00</span>
               <span class="text-muted small d-block fw-bold">Days</span>
             </div>
-            <div class="col-md-6 mb-3 mb-md-0">
+            <div class="col-md-6 mb-2 mb-md-0">
               <div class="d-flex justify-content-center gap-4">
-                <div><span id="countdownHours" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Hours</span></div>
-                <div><span id="countdownMinutes" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Mins</span></div>
-                <div><span id="countdownSeconds" class="h3 fw-bold mb-0 text-primary">00</span><span class="text-muted small d-block fw-bold">Secs</span></div>
+                <div>
+                  <span id="countdownHours" class="h3 fw-bold mb-0 text-primary">00</span>
+                  <span class="text-muted small d-block fw-bold">Hours</span>
+                </div>
+                <div>
+                  <span id="countdownMinutes" class="h3 fw-bold mb-0 text-primary">00</span>
+                  <span class="text-muted small d-block fw-bold">Mins</span>
+                </div>
+                <div>
+                  <span id="countdownSeconds" class="h3 fw-bold mb-0 text-primary">00</span>
+                  <span class="text-muted small d-block fw-bold">Secs</span>
+                </div>
               </div>
             </div>
-            <div class="col-md-3 border-start">
+            <div class="col-md-3 border-start border-secondary-subtle">
               <span class="text-muted small d-block fw-bold text-uppercase">SYLLABUS PROGRESS</span>
               <span id="overallProgressText" class="h4 fw-bold text-success">0%</span>
-              <div class="progress mt-2">
+              <div class="progress mt-1">
                 <div id="overallProgressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
               </div>
             </div>
@@ -223,23 +247,31 @@
         </div>
 
         <div class="row g-4">
+          <!-- Left Column: Compact Timer & Quick To-Do -->
           <div class="col-lg-4">
-            <!-- Timers Card -->
+            
+            <!-- Compact Timer Card -->
             <div class="card mb-4">
               <div class="card-header p-2">
                 <ul class="nav nav-pills nav-justified" id="timerTabs" role="tablist">
-                  <li class="nav-item"><button class="nav-link active py-1" id="pomodoro-tab" data-bs-toggle="pill" data-bs-target="#pomodoro" type="button"><i class="bi bi-cup-hot me-1"></i>Pomodoro</button></li>
-                  <li class="nav-item"><button class="nav-link py-1" id="stopwatch-tab" data-bs-toggle="pill" data-bs-target="#stopwatch" type="button"><i class="bi bi-stopwatch me-1"></i>Stopwatch</button></li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-1" id="pomodoro-tab" data-bs-toggle="pill" data-bs-target="#pomodoro" type="button"><i class="bi bi-cup-hot me-1"></i>Pomodoro</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link py-1" id="stopwatch-tab" data-bs-toggle="pill" data-bs-target="#stopwatch" type="button"><i class="bi bi-stopwatch me-1"></i>Stopwatch</button>
+                  </li>
                 </ul>
               </div>
               <div class="card-body text-center">
                 <div class="tab-content" id="timerTabContent">
+                  
+                  <!-- Pomodoro -->
                   <div class="tab-pane fade show active" id="pomodoro" role="tabpanel">
-                    <div class="timer-display my-3" id="pomoDisplay">25:00</div>
+                    <div class="timer-display my-2" id="pomoDisplay">25:00</div>
                     <div class="mb-3">
-                      <button id="pomoStartBtn" class="btn btn-accent me-1 px-3"><i class="bi bi-play-fill"></i></button>
-                      <button id="pomoPauseBtn" class="btn btn-secondary me-1 px-3" disabled><i class="bi bi-pause-fill"></i></button>
-                      <button id="pomoResetBtn" class="btn btn-outline-danger px-3"><i class="bi bi-arrow-counterclockwise"></i></button>
+                      <button id="pomoStartBtn" class="btn btn-accent me-1"><i class="bi bi-play-fill"></i></button>
+                      <button id="pomoPauseBtn" class="btn btn-secondary me-1" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="pomoResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
                       <button type="button" class="btn btn-outline-primary" onclick="setPomoTime(25)">25m</button>
@@ -247,24 +279,27 @@
                       <button type="button" class="btn btn-outline-primary" onclick="setPomoTime(10)">Break</button>
                     </div>
                   </div>
+
+                  <!-- Stopwatch -->
                   <div class="tab-pane fade" id="stopwatch" role="tabpanel">
-                    <div class="timer-display my-3" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
+                    <div class="timer-display my-2" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
                     <div class="mb-3">
-                      <button id="swStartBtn" class="btn btn-accent me-1 px-2"><i class="bi bi-play-fill"></i></button>
-                      <button id="swPauseBtn" class="btn btn-secondary me-1 px-2" disabled><i class="bi bi-pause-fill"></i></button>
-                      <button id="swLapBtn" class="btn btn-info me-1 px-2" disabled><i class="bi bi-flag-fill"></i></button>
-                      <button id="swResetBtn" class="btn btn-outline-danger px-2"><i class="bi bi-arrow-counterclockwise"></i></button>
+                      <button id="swStartBtn" class="btn btn-accent me-1"><i class="bi bi-play-fill"></i></button>
+                      <button id="swPauseBtn" class="btn btn-secondary me-1" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="swLapBtn" class="btn btn-info me-1" disabled><i class="bi bi-flag-fill"></i></button>
+                      <button id="swResetBtn" class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <ul id="lapList" class="list-group list-group-flush text-start small lap-list"></ul>
                   </div>
+
                 </div>
               </div>
             </div>
 
-            <!-- To-Do Widget Card -->
+            <!-- Quick To-Do Preview Card -->
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-check2-square me-2"></i>Quick To-Do</span>
+                <span><i class="bi bi-check2-square me-2"></i>To-Do Section</span>
                 <span id="todoCount" class="badge bg-secondary">0 Left</span>
               </div>
               <div class="card-body">
@@ -275,13 +310,14 @@
                 <ul id="todoList" class="list-group list-group-flush"></ul>
               </div>
             </div>
+
           </div>
 
-          <!-- Chapters Section -->
+          <!-- Right Column: NEET Custom Chapters Section -->
           <div class="col-lg-8">
             <div class="card h-100">
               <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                <span><i class="bi bi-journals me-2"></i>Unlimited Chapter Tracker</span>
+                <span><i class="bi bi-journals me-2"></i>Add & Track Chapters</span>
                 <div class="btn-group btn-group-sm flex-wrap" role="group" id="subjectFilter">
                   <button type="button" class="btn btn-outline-primary active" onclick="filterSubject('all')">All</button>
                   <button type="button" class="btn btn-outline-primary" onclick="filterSubject('Physics')">Physics</button>
@@ -290,11 +326,13 @@
                 </div>
               </div>
               <div class="card-body">
+                
+                <!-- Add Chapter Form -->
                 <form id="addChapterForm" class="row g-2 mb-3">
-                  <div class="col-md-6">
-                    <input type="text" id="chapterNameInput" class="form-control form-control-sm" placeholder="Enter chapter name..." required>
+                  <div class="col-md-7">
+                    <input type="text" id="chapterNameInput" class="form-control form-control-sm" placeholder="Enter chapter name (e.g., Vectors, Cell Cycle)..." required>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <select id="chapterSubjectInput" class="form-select form-select-sm" required>
                       <option value="Physics">Physics</option>
                       <option value="Chemistry">Chemistry</option>
@@ -305,34 +343,41 @@
                     <button type="submit" class="btn btn-accent btn-sm w-100"><i class="bi bi-plus-circle me-1"></i>Add</button>
                   </div>
                 </form>
+
                 <div class="mb-3">
-                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search chapter name...">
+                  <input type="text" id="chapterSearch" class="form-control form-control-sm" placeholder="Search added chapter name...">
                 </div>
-                <div id="syllabusContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
+                
+                <div id="syllabusContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2">
+                  <!-- Dynamic render -->
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab 2: Big Screen Timer -->
+      <!-- TAB 2: BIG SCREEN TIMER -->
       <div class="tab-pane fade" id="tab-focus-timer" role="tabpanel">
         <div class="card text-center p-5">
-          <div class="d-flex justify-content-center mb-4">
+          <div class="d-flex justify-content-center mb-3">
             <div class="btn-group" role="group">
               <button type="button" class="btn btn-outline-primary active" id="bigModePomoBtn" onclick="switchBigTimerMode('pomo')"><i class="bi bi-cup-hot me-1"></i>Big Pomodoro</button>
               <button type="button" class="btn btn-outline-primary" id="bigModeSwBtn" onclick="switchBigTimerMode('sw')"><i class="bi bi-stopwatch me-1"></i>Big Stopwatch</button>
             </div>
           </div>
 
+          <!-- Big Pomodoro View -->
           <div id="bigPomoSection">
             <h2 class="h5 text-primary mb-2">Focus Session Timer</h2>
             <div class="timer-display-lg my-3" id="bigTimerDisplay">25:00</div>
+            
             <div class="d-flex justify-content-center gap-3 mb-4">
               <button id="bigStartBtn" class="btn btn-accent btn-lg px-4" onclick="syncBigStart()"><i class="bi bi-play-fill me-1"></i>Start</button>
               <button id="bigPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="syncBigPause()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
               <button id="bigResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="syncBigReset()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
+
             <div class="d-flex justify-content-center gap-2 flex-wrap">
               <button type="button" class="btn btn-outline-primary btn-sm" onclick="setPomoTime(25)">25 Mins Focus</button>
               <button type="button" class="btn btn-outline-primary btn-sm" onclick="setPomoTime(50)">50 Mins Intensive</button>
@@ -340,9 +385,11 @@
             </div>
           </div>
 
+          <!-- Big Stopwatch View -->
           <div id="bigSwSection" class="d-none">
             <h2 class="h5 text-primary mb-2">Elapsed Study Stopwatch</h2>
             <div class="timer-display-lg my-3" id="bigSwDisplay" style="font-size: 5rem;">00:00:00</div>
+            
             <div class="d-flex justify-content-center gap-3 mb-4">
               <button id="bigSwStartBtn" class="btn btn-accent btn-lg px-4" onclick="startSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
               <button id="bigSwPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="pauseSw()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
@@ -350,53 +397,56 @@
               <button id="bigSwResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="resetSw()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Tab 3: Full To-Do Section -->
+      <!-- TAB 3: FULL TO-DO SECTION -->
       <div class="tab-pane fade" id="tab-full-todo" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Unlimited To-Do Section</h3>
+            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Full To-Do Section</h3>
             <button class="btn btn-sm btn-outline-danger" onclick="clearCompletedTodos()"><i class="bi bi-trash me-1"></i>Clear Completed</button>
           </div>
+          
           <form id="fullTodoForm" class="d-flex gap-2 mb-4">
-            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add unlimited study task..." required>
+            <input type="text" id="fullTodoInput" class="form-control" placeholder="Add study objective..." required>
             <button type="submit" class="btn btn-accent text-nowrap px-4"><i class="bi bi-plus-lg me-1"></i> Add Task</button>
           </form>
+
           <div class="table-responsive">
-            <ul id="fullTodoList" class="list-group list-group-flush"></ul>
+            <ul id="fullTodoList" class="list-group list-group-flush">
+              <!-- Full Todo Items -->
+            </ul>
           </div>
         </div>
       </div>
 
-      <!-- Tab 4: Test Tracker & Graph -->
+      <!-- TAB 4: TEST SECTION -->
       <div class="tab-pane fade" id="tab-tests" role="tabpanel">
         <div class="row g-4">
+          <!-- Schedule / Add Test Form -->
           <div class="col-lg-5">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule & Add Test Score</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule or Add NEET Test</h3>
               <form id="testScheduleForm">
                 <div class="mb-3">
-                  <label for="testName" class="form-label small fw-bold text-muted">Test Name:</label>
-                  <input type="text" id="testName" class="form-control" placeholder="e.g. Mock Test 1" required>
+                  <label for="testName" class="form-label small fw-bold text-muted">Test Name / Chapters Included:</label>
+                  <input type="text" id="testName" class="form-control" placeholder="e.g. Full Syllabus Mock Test 1 or Physics: Mechanics" required>
                 </div>
                 <div class="mb-3">
                   <label for="testDate" class="form-label small fw-bold text-muted">Test Date:</label>
                   <input type="date" id="testDate" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                  <label for="testMarks" class="form-label small fw-bold text-muted">Marks Obtained (/720):</label>
-                  <input type="number" id="testMarks" class="form-control" placeholder="e.g. 540" min="0" max="720" value="0" required>
-                </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Update Graph</button>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Schedule Test</button>
               </form>
             </div>
           </div>
 
+          <!-- Test Performance Graph & List -->
           <div class="col-lg-7">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (/720)</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (Out of 720)</h3>
               <div style="height: 250px;">
                 <canvas id="scoreChart"></canvas>
               </div>
@@ -404,856 +454,802 @@
           </div>
         </div>
 
+        <!-- Scheduled Tests List -->
         <div class="card p-4 mt-2">
-          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests Record</h3>
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>My Scheduled & Completed Tests</h3>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Name</th>
+                  <th>Test Name / Syllabus</th>
                   <th>Date</th>
                   <th>Status</th>
-                  <th>Marks (/720)</th>
+                  <th>Marks Obtained (/720)</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody id="testsTableBody"></tbody>
+              <tbody id="testsTableBody">
+                <!-- Dynamic tests list -->
+              </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- Tab 5: Auto Study Calendar -->
+      <!-- TAB 5: AUTOMATED STUDY CALENDAR & RECORDS -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Automated Daily Study History Log</h3>
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
-          <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
+          <p class="text-muted small">Focused study hours & completed tasks are automatically logged. You can also manually add forgotten past tasks or delete individual items!</p>
+          <div id="calendarHistoryContainer" style="max-height: 520px; overflow-y: auto;" class="pe-2">
+            <!-- Automated records rendered here -->
+          </div>
         </div>
       </div>
 
-      <!-- Tab 6: Poster of the Day -->
+      <!-- TAB 6: POSTER OF THE DAY (Auto-changing at 12 AM, no day count, no generate button) -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
         <div class="card p-4 text-center">
-          <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
-          <div class="d-flex justify-content-center my-3">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h3 class="h4 text-primary mb-0"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
+              <p class="text-muted small mb-0">Refreshes automatically at 12:00 AM every single day!</p>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center my-3 position-relative">
             <img id="posterImage" src="" alt="Poster of the Day" class="img-fluid poster-img shadow">
           </div>
+          
           <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
           <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Login Modal -->
-  <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Login & Profile</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div id="loggedOutView">
-            <p class="text-muted small">Log in instantly using a secure email link (No password needed, zero login errors!).</p>
-            <div class="mb-3">
-              <label for="authEmail" class="form-label small fw-bold">Email Address:</label>
-              <input type="email" id="authEmail" class="form-control" placeholder="doctor@aspirant.com">
-            </div>
-            <button id="sendOtpBtn" class="btn btn-accent w-100 mb-3" onclick="sendOtpLogin()">
-              <i class="bi bi-envelope-check me-1"></i> <span id="btnText">Send Login Link</span>
-            </button>
-            <div id="otpStatusMsg" class="text-center small fw-semibold"></div>
-          </div>
-
-          <div id="loggedInView" class="d-none">
-            <p class="text-muted small">You are logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
-            <div class="mb-3">
-              <label for="userNameInput" class="form-label small fw-bold">Your Name / Username:</label>
-              <input type="text" id="userNameInput" class="form-control" placeholder="Enter your name">
-            </div>
-            <button class="btn btn-success w-100 mb-2" onclick="saveUsername()"><i class="bi bi-check-circle me-1"></i> Save Username</button>
-            <button class="btn btn-outline-danger w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_URL = 'https://aohobpcbharzlyhodcsz.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_kuwJzQQQ13HgsBryT_Popg_f8GKIVQV';
-    let supabaseClient = null;
-    let currentUser = null;
+    // Famous Motivational Quotes Only
+    const motivationalQuotes = [
+      { quote: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
+      { quote: "Arise, awake, and do not stop until the goal is reached.", author: "Swami Vivekananda" },
+      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+      { quote: "Success is not final; failure is not fatal: It is the courage to continue that counts.", author: "Winston Churchill" },
+      { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+      { quote: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+      { quote: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+      { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" }
+    ];
 
-    if (SUPABASE_ANON_KEY) {
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+    const thirtyPosters = [
+      { title: "Unstoppable Focus", caption: "Your future is created by what you do today, not tomorrow.", url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Silent Grind", caption: "Work hard in silence, let your success make the noise.", url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80" },
+      { title: "White Coat Dream", caption: "Every hour of study takes you one step closer to your stethoscope.", url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" },
+      { title: "Supreme Discipline", caption: "Discipline is choosing between what you want now and what you want most.", url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80" },
+      { title: "Rise Above", caption: "The pain you feel today will be the strength you feel tomorrow.", url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80" },
+      { title: "Relentless Effort", caption: "Success doesn't just find you. You have to go out and get it.", url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80" },
+      { title: "Future Doctor", caption: "Healers are forged in libraries and testing halls.", url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Push Through", caption: "Great things never come from comfort zones.", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80" },
+      { title: "Laser Sharp", caption: "Eliminate distractions. Your goal requires your absolute focus.", url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Unshakable Will", caption: "Believe in yourself and all that you are capable of achieving.", url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80" },
+      { title: "Consistency is Key", caption: "Small daily improvements over time lead to staggering results.", url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" },
+      { title: "Conquer Physics", caption: "Equations become easy when your determination is unbreakable.", url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop&q=80" },
+      { title: "Master Chemistry", caption: "Reactions and formulas obey those who practice daily.", url: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&auto=format&fit=crop&q=80" },
+      { title: "Biology Supreme", caption: "NCERT is your scripture. Read it line by line.", url: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Halfway Milestone", caption: "Keep going. The view from the top is worth every drop of sweat.", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80" },
+      { title: "Iron Mindset", caption: "Your mind is a weapon. Keep it sharp through rigorous practice.", url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80" },
+      { title: "Zero Excuses", caption: "Excuses don't build a medical career. Hard work does.", url: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80" },
+      { title: "Power Hour", caption: "Make every single study session count towards your dream rank.", url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80" },
+      { title: "Dedicated Vision", caption: "Keep your eyes on the white coat and your hands on the books.", url: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=800&auto=format&fit=crop&q=80" },
+      { title: "Built for Toughness", caption: "Tough times build strong aspirants. Stand tall against challenges.", url: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=80" },
+      { title: "Unbreakable Spirit", caption: "Fall seven times, stand up eight.", url: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&auto=format&fit=crop&q=80" },
+      { title: "Focus & Execute", caption: "Plan your work, execute your plan with supreme dedication.", url: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&auto=format&fit=crop&q=80" },
+      { title: "Target NEET", caption: "One goal. One exam. Infinite determination.", url: "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=800&auto=format&fit=crop&q=80" },
+      { title: "Fearless Mock Tests", caption: "Embrace mistakes in mock tests so you make zero mistakes on exam day.", url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" },
+      { title: "Master Your Time", caption: "Time is your most valuable asset. Spend it wisely on solving MCQs.", url: "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&auto=format&fit=crop&q=80" },
+      { title: "Silent Warriors", caption: "The loudest victory comes after the quietest preparation.", url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&auto=format&fit=crop&q=80" },
+      { title: "Peak Performance", caption: "Push past your perceived limits. You are capable of greatness.", url: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80" },
+      { title: "Destiny Awaits", caption: "Your name belongs on the merit list. Earn it today.", url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" },
+      { title: "Final Stretch", caption: "Almost there. Keep your momentum at maximum speed.", url: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80" },
+      { title: "Champion Mindset", caption: "Champions don't quit when it gets hard. They get better.", url: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&auto=format&fit=crop&q=80" }
+    ];
 
-    // --- APPLICATION STATE ---
-    let appData = {
-      userName: '',
-      neetDate: '2026-05-07',
-      chapters: [],
-      todos: [],
-      tests: [],
-      history: {}
+    const defaultFutureDate = new Date();
+    defaultFutureDate.setFullYear(defaultFutureDate.getFullYear() + 1);
+    defaultFutureDate.setMonth(4); 
+    defaultFutureDate.setDate(5);  
+    const formattedDefaultDate = defaultFutureDate.toISOString().split('T')[0];
+
+    // State Management
+    let state = {
+      targetDate: localStorage.getItem('neetTargetDate') || formattedDefaultDate,
+      todos: JSON.parse(localStorage.getItem('neetTodos')) || [],
+      customChapters: JSON.parse(localStorage.getItem('neetCustomChapters')) || [
+        { id: '1', name: 'Vectors & Basic Maths', subject: 'Physics', completed: false },
+        { id: '2', name: 'Physical Chemistry Basics', subject: 'Chemistry', completed: false },
+        { id: '3', name: 'Cell: The Unit of Life', subject: 'Biology', completed: false }
+      ],
+      tests: JSON.parse(localStorage.getItem('neetTests')) || [],
+      studyMinutesToday: parseInt(localStorage.getItem('neetStudyMinutesToday') || '0'),
+      lastActiveDate: localStorage.getItem('neetLastActiveDate') || new Date().toISOString().split('T')[0],
+      studyHistory: JSON.parse(localStorage.getItem('neetStudyHistory')) || []
     };
 
-    let currentFilter = 'all';
-    let chapterSearchQuery = '';
-
-    // Quotes Array
-    const quotes = [
-      { text: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
-      { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-      { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-      { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
-      { text: "Your future is created by what you do today, not tomorrow.", author: "Anonymous" }
-    ];
-
-    // Motivational Posters Array
-    const posters = [
-      { title: "Future Doctor in the Making", caption: "Every single page you read today brings you one step closer to your White Coat and Stethoscope.", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80" },
-      { title: "Pain of Discipline vs Regret", caption: "Discipline weighs ounces, while regret weighs tons. Stay focused on your NEET goal!", image: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=80" },
-      { title: "Unstoppable Focus", caption: "Shut out the noise. Your competition is reading right now. Keep pushing forward.", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80" }
-    ];
+    let scoreChartInstance = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadLocalStorageData();
-      initISTCountdown();
-      initTimers();
-      renderChapters();
-      renderTodos();
-      renderTests();
-      initScoreChart();
-      renderCalendarHistory();
-      renderPoster();
+      checkNewDayReset();
+      initCountdown();
+      initSyllabus();
+      initTodos();
+      initPomodoro();
+      initStopwatch();
+      initTestSection();
+      initCalendarHistory();
       getRandomQuote();
-
-      // Exam Date listener
-      document.getElementById('neetDate').addEventListener('change', (e) => {
-        appData.neetDate = e.target.value;
-        saveData();
-        initISTCountdown();
-      });
-
-      // Chapter Form listener (Unlimited)
-      document.getElementById('addChapterForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('chapterNameInput').value.trim();
-        const subject = document.getElementById('chapterSubjectInput').value;
-        if (name) {
-          appData.chapters.push({ id: Date.now(), name, subject, completed: false, rev1: false, rev2: false });
-          document.getElementById('chapterNameInput').value = '';
-          saveData();
-          renderChapters();
-        }
-      });
-
-      // Chapter Search listener
-      document.getElementById('chapterSearch').addEventListener('input', (e) => {
-        chapterSearchQuery = e.target.value.toLowerCase();
-        renderChapters();
-      });
-
-      // To-Do Form listener (Unlimited)
-      document.getElementById('todoForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = document.getElementById('todoInput').value.trim();
-        if (text) {
-          appData.todos.push({ id: Date.now(), text, completed: false });
-          document.getElementById('todoInput').value = '';
-          saveData();
-          renderTodos();
-        }
-      });
-
-      // Full To-Do Form listener
-      document.getElementById('fullTodoForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = document.getElementById('fullTodoInput').value.trim();
-        if (text) {
-          appData.todos.push({ id: Date.now(), text, completed: false });
-          document.getElementById('fullTodoInput').value = '';
-          saveData();
-          renderTodos();
-        }
-      });
-
-      // Test Schedule & Marks Form listener
-      document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('testName').value.trim();
-        const date = document.getElementById('testDate').value;
-        const marks = Number(document.getElementById('testMarks').value);
-        if (name && date) {
-          appData.tests.push({ id: Date.now(), name, date, marks, status: marks > 0 ? 'Completed' : 'Scheduled' });
-          document.getElementById('testScheduleForm').reset();
-          document.getElementById('testMarks').value = '0';
-          saveData();
-          renderTests();
-        }
-      });
-
-      // Check active auth session
-      if (supabaseClient) {
-        supabaseClient.auth.getSession().then(({ data: { session } }) => {
-          if (session) {
-            currentUser = session.user;
-            updateAuthUI();
-            fetchCloudData();
-          }
-        });
-
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-          if (session) {
-            currentUser = session.user;
-            updateAuthUI();
-            fetchCloudData();
-          } else {
-            currentUser = null;
-            updateAuthUI();
-          }
-        });
-      }
+      loadPosterOfTheDay();
+      
+      // Check every minute if midnight (12:00 AM) has passed to auto-update the poster
+      setInterval(checkMidnightPosterUpdate, 60000);
     });
 
-    // --- LOCAL STORAGE & SYNC ---
-    function loadLocalStorageData() {
-      const saved = localStorage.getItem('endorank_neet_data');
-      if (saved) {
-        try { appData = JSON.parse(saved); } catch (e) { console.error(e); }
-      }
-      document.getElementById('neetDate').value = appData.neetDate || '2026-05-07';
-    }
-
-    function saveData() {
-      localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
-      updateProgress();
-      recordTodayActivity();
-      if (currentUser && supabaseClient) {
-        syncToCloud();
+    function checkNewDayReset() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (state.lastActiveDate !== todayStr) {
+        saveAutomatedDayRecord(state.lastActiveDate);
+        state.studyMinutesToday = 0;
+        state.lastActiveDate = todayStr;
+        localStorage.setItem('neetLastActiveDate', todayStr);
+        localStorage.setItem('neetStudyMinutesToday', '0');
+        // Automatically update poster when a new day begins
+        loadPosterOfTheDay();
       }
     }
 
-    async function syncToCloud() {
-      if (!currentUser) return;
-      try {
-        await supabaseClient.from('user_data').upsert({
-          user_id: currentUser.id,
-          payload: appData,
-          updated_at: new Date()
-        }, { onConflict: 'user_id' });
-      } catch (err) {
-        console.error('Cloud sync error:', err);
+    function checkMidnightPosterUpdate() {
+      const currentStoredDate = localStorage.getItem('neetLastPosterDate');
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (currentStoredDate !== todayStr) {
+        loadPosterOfTheDay();
+        localStorage.setItem('neetLastPosterDate', todayStr);
       }
     }
 
-    async function fetchCloudData() {
-      if (!currentUser || !supabaseClient) return;
-      try {
-        let { data, error } = await supabaseClient
-          .from('user_data')
-          .select('payload')
-          .eq('user_id', currentUser.id)
-          .single();
-        if (data && data.payload) {
-          appData = data.payload;
-          if (appData.neetDate) document.getElementById('neetDate').value = appData.neetDate;
-          updateAuthUI();
-          renderChapters();
-          renderTodos();
-          renderTests();
-          renderCalendarHistory();
-          initISTCountdown();
+    function saveAutomatedDayRecord(dateStr) {
+      const hours = (state.studyMinutesToday / 60).toFixed(1);
+      const completedTasks = state.todos.filter(t => t.completed).map(t => t.text);
+
+      const existingIdx = state.studyHistory.findIndex(h => h.date === dateStr);
+      if (existingIdx >= 0) {
+        const existingRecord = state.studyHistory[existingIdx];
+        const mergedTasks = Array.from(new Set([...(existingRecord.tasksList || []), ...completedTasks]));
+        state.studyHistory[existingIdx] = { 
+          date: dateStr, 
+          hours, 
+          tasksList: mergedTasks 
+        };
+      } else {
+        if (parseFloat(hours) > 0 || completedTasks.length > 0) {
+          state.studyHistory.push({ 
+            date: dateStr, 
+            hours, 
+            tasksList: completedTasks 
+          });
         }
-      } catch (err) {
-        console.log('No existing cloud data found, initializing fresh payload.');
-        syncToCloud();
+      }
+      state.studyHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+      localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
+    }
+
+    // --- Automatic Poster Selector (Changes daily at 12 AM) ---
+    function loadPosterOfTheDay() {
+      const todayDate = new Date();
+      const dayOfMonth = todayDate.getDate(); // 1 to 31
+      const posterIndex = (dayOfMonth - 1) % thirtyPosters.length;
+      
+      const poster = thirtyPosters[posterIndex];
+      document.getElementById('posterImage').src = poster.url;
+      document.getElementById('posterTitle').innerText = poster.title;
+      document.getElementById('posterCaption').innerText = poster.caption;
+      
+      localStorage.setItem('neetLastPosterDate', todayDate.toISOString().split('T')[0]);
+    }
+
+    // --- Big Screen Timer Mode Switcher ---
+    function switchBigTimerMode(mode) {
+      const pomoSec = document.getElementById('bigPomoSection');
+      const swSec = document.getElementById('bigSwSection');
+      const pomoBtn = document.getElementById('bigModePomoBtn');
+      const swBtn = document.getElementById('bigModeSwBtn');
+
+      if (mode === 'pomo') {
+        pomoSec.classList.remove('d-none');
+        swSec.classList.add('d-none');
+        pomoBtn.classList.add('active');
+        swBtn.classList.remove('active');
+      } else {
+        pomoSec.classList.add('d-none');
+        swSec.classList.remove('d-none');
+        swBtn.classList.add('active');
+        pomoBtn.classList.remove('active');
       }
     }
 
-    // --- AUTHENTICATION (MAGIC LINK / OTP) ---
-    async function sendOtpLogin() {
-      const email = document.getElementById('authEmail').value.trim();
-      const statusMsg = document.getElementById('otpStatusMsg');
-      const sendBtn = document.getElementById('sendOtpBtn');
-      const btnText = document.getElementById('btnText');
+    // --- Motivational Quotes ---
+    function getRandomQuote() {
+      const idx = Math.floor(Math.random() * motivationalQuotes.length);
+      document.getElementById('quoteText').innerText = `"${motivationalQuotes[idx].quote}"`;
+      document.getElementById('quoteAuthor').innerText = `— ${motivationalQuotes[idx].author}`;
+    }
 
-      if (!email) {
-        alert('Kripya apna email address bharein!');
-        return;
-      }
-      if (!supabaseClient) {
-        alert('Supabase client not configured properly.');
-        return;
-      }
+    // --- Countdown Timer ---
+    let countdownInterval;
+    function initCountdown() {
+      const dateInput = document.getElementById('neetDate');
+      dateInput.value = state.targetDate;
 
-      // Button ko loading state mein daalein taaki baar-baar click na ho
-      sendBtn.disabled = true;
-      btnText.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sending Link...`;
-      statusMsg.className = 'text-center small text-muted fw-semibold';
-      statusMsg.innerText = 'Please wait, generating secure link...';
-
-      const { error } = await supabaseClient.auth.signInWithOtp({ 
-        email,
-        options: { emailRedirectTo: window.location.href }
+      dateInput.addEventListener('change', (e) => {
+        state.targetDate = e.target.value;
+        localStorage.setItem('neetTargetDate', state.targetDate);
+        updateCountdown();
       });
 
-      // Button ko wapas normal karein
-      sendBtn.disabled = false;
-      btnText.innerText = 'Send Login Link';
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
 
-      if (error) {
-        statusMsg.className = 'text-center small text-danger fw-semibold';
-        if (error.message.includes('rate limit')) {
-          statusMsg.innerText = 'Bohot saari requests bhej di gayi hain! Kripya 2-3 minute wait karke dobara try karein.';
-        } else {
-          statusMsg.innerText = error.message;
-        }
-      } else {
-        statusMsg.className = 'text-center small text-success fw-semibold';
-        statusMsg.innerText = '✓ Login link successfully sent! Check your email inbox and click the link.';
+    function updateCountdown() {
+      const target = new Date(state.targetDate + "T00:00:00").getTime();
+      const now = new Date().getTime();
+      const difference = target - now;
+
+      if (difference <= 0) {
+        document.getElementById('countdownDays').innerText = "00";
+        document.getElementById('countdownHours').innerText = "00";
+        document.getElementById('countdownMinutes').innerText = "00";
+        document.getElementById('countdownSeconds').innerText = "00";
+        return;
       }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
+      document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
+      document.getElementById('countdownMinutes').innerText = String(minutes).padStart(2, '0');
+      document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
     }
 
-    function saveUsername() {
-      const nameInput = document.getElementById('userNameInput').value.trim();
-      if (nameInput) {
-        appData.userName = nameInput;
-        saveData();
-        updateAuthUI();
-        alert('Username updated successfully!');
-      } else {
-        alert('Please enter a valid name.');
-      }
-    }
+    // --- Chapter Manager ---
+    let activeFilter = 'all';
 
-    async function logoutUser() {
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-      }
-      currentUser = null;
-      updateAuthUI();
-      location.reload();
-    }
-
-    function updateAuthUI() {
-      const authBtnText = document.getElementById('authButtonText');
-      const loggedOutView = document.getElementById('loggedOutView');
-      const loggedInView = document.getElementById('loggedInView');
-      const userEmailDisplay = document.getElementById('userEmailDisplay');
-      const userNameInput = document.getElementById('userNameInput');
-
-      if (currentUser) {
-        authBtnText.innerText = appData.userName || currentUser.email.split('@')[0];
-        loggedOutView.classList.add('d-none');
-        loggedInView.classList.remove('d-none');
-        userEmailDisplay.innerText = currentUser.email;
-        if (!appData.userName) {
-          appData.userName = currentUser.email.split('@')[0];
-        }
-        userNameInput.value = appData.userName;
-      } else {
-        authBtnText.innerText = 'Login';
-        loggedOutView.classList.remove('d-none');
-        loggedInView.classList.add('d-none');
-      }
-    }
-
-    // --- IST COUNTDOWN ---
-    function initISTCountdown() {
-      setInterval(() => {
-        const targetStr = appData.neetDate + 'T09:00:00+05:30';
-        const targetDate = new Date(targetStr).getTime();
-        const now = new Date().getTime();
-        const diff = targetDate - now;
-
-        if (diff > 0) {
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-          document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
-          document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
-          document.getElementById('countdownMinutes').innerText = String(minutes).padStart(2, '0');
-          document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
-        } else {
-          document.getElementById('countdownDays').innerText = '00';
-          document.getElementById('countdownHours').innerText = '00';
-          document.getElementById('countdownMinutes').innerText = '00';
-          document.getElementById('countdownSeconds').innerText = '00';
-        }
-      }, 1000);
-    }
-
-    // --- TIMERS ---
-    let pomoTimeLeft = 25 * 60;
-    let pomoTimerId = null;
-    let pomoRunning = false;
-
-    let swSeconds = 0;
-    let swTimerId = null;
-    let swRunning = false;
-    let lapCount = 1;
-    let currentBigTimerMode = 'pomo';
-
-    function initTimers() {
-      document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
-      document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
-      document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
-
-      document.getElementById('swStartBtn').addEventListener('click', startSw);
-      document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
-      document.getElementById('swLapBtn').addEventListener('click', lapSw);
-      document.getElementById('swResetBtn').addEventListener('click', resetSw);
-
-      updatePomoDisplay();
-      updateSwDisplay();
-    }
-
-    function setPomoTime(mins) {
-      pausePomo();
-      pomoTimeLeft = mins * 60;
-      updatePomoDisplay();
-    }
-
-    function updatePomoDisplay() {
-      const m = Math.floor(pomoTimeLeft / 60);
-      const s = pomoTimeLeft % 60;
-      const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      document.getElementById('pomoDisplay').innerText = formatted;
-      document.getElementById('bigTimerDisplay').innerText = formatted;
-    }
-
-    function startPomo() {
-      if (pomoRunning) return;
-      pomoRunning = true;
-      document.getElementById('pomoStartBtn').disabled = true;
-      document.getElementById('bigStartBtn').disabled = true;
-      document.getElementById('pomoPauseBtn').disabled = false;
-      document.getElementById('bigPauseBtn').disabled = false;
-
-      pomoTimerId = setInterval(() => {
-        if (pomoTimeLeft > 0) {
-          pomoTimeLeft--;
-          updatePomoDisplay();
-        } else {
-          pausePomo();
-          alert('Pomodoro session completed! Take a well-deserved break.');
-        }
-      }, 1000);
-    }
-
-    function pausePomo() {
-      pomoRunning = false;
-      clearInterval(pomoTimerId);
-      document.getElementById('pomoStartBtn').disabled = false;
-      document.getElementById('bigStartBtn').disabled = false;
-      document.getElementById('pomoPauseBtn').disabled = true;
-      document.getElementById('bigPauseBtn').disabled = true;
-    }
-
-    function resetPomo() {
-      pausePomo();
-      pomoTimeLeft = 25 * 60;
-      updatePomoDisplay();
-    }
-
-    function switchBigTimerMode(mode) {
-      currentBigTimerMode = mode;
-      if (mode === 'pomo') {
-        document.getElementById('bigModePomoBtn').classList.add('active');
-        document.getElementById('bigModeSwBtn').classList.remove('active');
-        document.getElementById('bigPomoSection').classList.remove('d-none');
-        document.getElementById('bigSwSection').classList.add('d-none');
-      } else {
-        document.getElementById('bigModeSwBtn').classList.add('active');
-        document.getElementById('bigModePomoBtn').classList.remove('active');
-        document.getElementById('bigSwSection').classList.remove('d-none');
-        document.getElementById('bigPomoSection').classList.add('d-none');
-      }
-    }
-
-    function syncBigStart() { startPomo(); }
-    function syncBigPause() { pausePomo(); }
-    function syncBigReset() { resetPomo(); }
-
-    function updateSwDisplay() {
-      const h = Math.floor(swSeconds / 3600);
-      const m = Math.floor((swSeconds % 3600) / 60);
-      const s = swSeconds % 60;
-      const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      document.getElementById('swDisplay').innerText = formatted;
-      document.getElementById('bigSwDisplay').innerText = formatted;
-    }
-
-    function startSw() {
-      if (swRunning) return;
-      swRunning = true;
-      document.getElementById('swStartBtn').disabled = true;
-      document.getElementById('bigSwStartBtn').disabled = true;
-      document.getElementById('swPauseBtn').disabled = false;
-      document.getElementById('bigSwPauseBtn').disabled = false;
-      document.getElementById('swLapBtn').disabled = false;
-      document.getElementById('bigSwLapBtn').disabled = false;
-
-      swTimerId = setInterval(() => {
-        swSeconds++;
-        updateSwDisplay();
-      }, 1000);
-    }
-
-    function pauseSw() {
-      swRunning = false;
-      clearInterval(swTimerId);
-      document.getElementById('swStartBtn').disabled = false;
-      document.getElementById('bigSwStartBtn').disabled = false;
-      document.getElementById('swPauseBtn').disabled = true;
-      document.getElementById('bigSwPauseBtn').disabled = true;
-    }
-
-    function lapSw() {
-      const h = Math.floor(swSeconds / 3600);
-      const m = Math.floor((swSeconds % 3600) / 60);
-      const s = swSeconds % 60;
-      const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    function initSyllabus() {
+      renderSyllabus();
+      document.getElementById('chapterSearch').addEventListener('input', renderSyllabus);
       
-      const lapList = document.getElementById('lapList');
-      const li = document.createElement('li');
-      li.className = 'list-group-item px-2 py-1 d-flex justify-content-between align-items-center small';
-      li.innerHTML = `<span>Lap ${lapCount++}</span><span class="fw-bold">${formatted}</span>`;
-      lapList.prepend(li);
+      document.getElementById('addChapterForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('chapterNameInput');
+        const subjectInput = document.getElementById('chapterSubjectInput');
+        
+        const newChapter = {
+          id: Date.now().toString(),
+          name: nameInput.value.trim(),
+          subject: subjectInput.value,
+          completed: false
+        };
+
+        state.customChapters.push(newChapter);
+        localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
+        nameInput.value = '';
+        renderSyllabus();
+      });
     }
 
-    function resetSw() {
-      pauseSw();
-      swSeconds = 0;
-      lapCount = 1;
-      document.getElementById('lapList').innerHTML = '';
-      updateSwDisplay();
-      document.getElementById('swLapBtn').disabled = true;
-      document.getElementById('bigSwLapBtn').disabled = true;
-    }
-
-    // --- CHAPTER TRACKER ---
-    function filterSubject(sub) {
-      currentFilter = sub;
-      const buttons = document.querySelectorAll('#subjectFilter button');
-      buttons.forEach(btn => btn.classList.remove('active'));
+    function filterSubject(subject) {
+      activeFilter = subject;
+      const btns = document.querySelectorAll('#subjectFilter button');
+      btns.forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-      renderChapters();
+      renderSyllabus();
     }
 
-    function renderChapters() {
+    function renderSyllabus() {
       const container = document.getElementById('syllabusContainer');
+      const searchQuery = document.getElementById('chapterSearch').value.toLowerCase();
       container.innerHTML = '';
 
-      let filtered = appData.chapters;
-      if (currentFilter !== 'all') {
-        filtered = filtered.filter(c => c.subject === currentFilter);
-      }
-      if (chapterSearchQuery) {
-        filtered = filtered.filter(c => c.name.toLowerCase().includes(chapterSearchQuery));
-      }
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-muted text-center py-4 small">No chapters added yet. Use the form above to add chapters!</p>';
-        updateProgress();
-        return;
-      }
-
-      const subjects = ['Physics', 'Chemistry', 'Biology'];
-      subjects.forEach(sub => {
-        if (currentFilter !== 'all' && currentFilter !== sub) return;
-        const subChapters = filtered.filter(c => c.subject === sub);
-        if (subChapters.length === 0) return;
-
-        const subHeader = document.createElement('h6');
-        subHeader.className = 'text-primary fw-bold mt-3 mb-2';
-        subHeader.innerHTML = `<i class="bi bi-book me-1"></i>${sub}`;
-        container.appendChild(subHeader);
-
-        subChapters.forEach(ch => {
-          const item = document.createElement('div');
-          item.className = 'card mb-2 p-2 border-0 shadow-sm';
-          item.innerHTML = `
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-              <div class="small fw-semibold text-dark ${ch.completed ? 'todo-completed' : ''}">${ch.name}</div>
-              <div class="d-flex align-items-center gap-2 flex-wrap">
-                <button class="btn btn-sm ${ch.rev1 ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleRev(${ch.id}, 'rev1')">Rev 1</button>
-                <button class="btn btn-sm ${ch.rev2 ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleRev(${ch.id}, 'rev2')">Rev 2</button>
-                <button class="btn btn-sm ${ch.completed ? 'btn-success' : 'btn-outline-success'} py-0 px-2" style="font-size: 0.75rem;" onclick="toggleChapter(${ch.id})">
-                  <i class="bi ${ch.completed ? 'bi-check-all' : 'bi-check'} me-1"></i>${ch.completed ? 'Done' : 'Complete'}
-                </button>
-                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="deleteChapter(${ch.id})"><i class="bi bi-trash"></i></button>
-              </div>
-            </div>
-          `;
-          container.appendChild(item);
-        });
+      const filtered = state.customChapters.filter(item => {
+        const matchesSubject = activeFilter === 'all' || item.subject === activeFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery);
+        return matchesSubject && matchesSearch;
       });
 
-      updateProgress();
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted py-4">No chapters found. Add a chapter using the form above!</div>`;
+      }
+
+      filtered.forEach(ch => {
+        let badgeColor = 'bg-primary text-white';
+        if(ch.subject === 'Chemistry') badgeColor = 'bg-warning text-dark';
+        if(ch.subject === 'Biology') badgeColor = 'bg-success text-white';
+
+        const card = document.createElement('div');
+        card.className = 'card mb-2 p-2 bg-light border-secondary-subtle';
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center gap-2">
+            <div>
+              <span class="badge ${badgeColor} mb-1">${ch.subject}</span>
+              <h6 class="mb-0 text-dark small fw-bold">${ch.name}</h6>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <button class="btn btn-sm ${ch.completed ? 'btn-complete-active' : 'btn-outline-secondary'} text-nowrap" onclick="toggleChapter('${ch.id}')">
+                <i class="bi ${ch.completed ? 'bi-check-circle-fill' : 'bi-circle'} me-1"></i>${ch.completed ? 'Completed' : 'Not Complete'}
+              </button>
+              <button class="btn btn-sm text-danger p-0 border-0" onclick="deleteChapter('${ch.id}')"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      let overallTotal = state.customChapters.length;
+      let overallDone = state.customChapters.filter(c => c.completed).length;
+      const percentage = overallTotal > 0 ? Math.round((overallDone / overallTotal) * 100) : 0;
+      
+      document.getElementById('overallProgressText').innerText = `${percentage}%`;
+      document.getElementById('overallProgressBar').style.width = `${percentage}%`;
     }
 
     function toggleChapter(id) {
-      const ch = appData.chapters.find(c => c.id === id);
-      if (ch) {
-        ch.completed = !ch.completed;
-        saveData();
-        renderChapters();
-      }
-    }
-
-    function toggleRev(id, revField) {
-      const ch = appData.chapters.find(c => c.id === id);
-      if (ch) {
-        ch[revField] = !ch[revField];
-        saveData();
-        renderChapters();
-      }
+      state.customChapters = state.customChapters.map(c => c.id === id ? { ...c, completed: !c.completed } : c);
+      localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
+      renderSyllabus();
     }
 
     function deleteChapter(id) {
-      appData.chapters = appData.chapters.filter(c => c.id !== id);
-      saveData();
-      renderChapters();
+      state.customChapters = state.customChapters.filter(c => c.id !== id);
+      localStorage.setItem('neetCustomChapters', JSON.stringify(state.customChapters));
+      renderSyllabus();
     }
 
-    function updateProgress() {
-      const total = appData.chapters.length;
-      if (total === 0) {
-        document.getElementById('overallProgressText').innerText = '0%';
-        document.getElementById('overallProgressBar').style.width = '0%';
+    // --- Automated Study Calendar with Manual Add/Delete Task Controls ---
+    function initCalendarHistory() {
+      renderStudyHistory();
+    }
+
+    function renderStudyHistory() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      saveAutomatedDayRecord(todayStr);
+
+      const container = document.getElementById('calendarHistoryContainer');
+      container.innerHTML = '';
+
+      document.getElementById('totalLoggedDays').innerText = `${state.studyHistory.length} Days Logged`;
+
+      if (state.studyHistory.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted py-5">No study records yet. Use the Pomodoro timer or complete tasks to automatically log your days!</div>`;
         return;
       }
-      const completed = appData.chapters.filter(c => c.completed).length;
-      const pct = Math.round((completed / total) * 100);
-      document.getElementById('overallProgressText').innerText = `${pct}%`;
-      document.getElementById('overallProgressBar').style.width = `${pct}%`;
+
+      state.studyHistory.forEach(record => {
+        const tasks = record.tasksList || [];
+        let tasksHtml = '';
+
+        if (tasks.length > 0) {
+          tasksHtml = `<ul class="list-group list-group-flush mt-2">`;
+          tasks.forEach((t, tIdx) => {
+            tasksHtml += `
+              <li class="list-group-item bg-transparent text-dark border-secondary-subtle py-1 px-0 d-flex justify-content-between align-items-center small">
+                <span><i class="bi bi-check-circle-fill text-success me-2"></i>${t}</span>
+                <button class="btn btn-sm text-danger p-0 border-0" onclick="removeHistoryTask('${record.date}', ${tIdx})"><i class="bi bi-x-circle"></i></button>
+              </li>
+            `;
+          });
+          tasksHtml += `</ul>`;
+        } else {
+          tasksHtml = `<p class="text-muted small italic my-2">No tasks recorded for this date.</p>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card mb-3 p-3 bg-light border-secondary-subtle history-card';
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="badge bg-success"><i class="bi bi-calendar-event me-1"></i>${record.date}</span>
+            <span class="badge bg-primary text-white fw-bold"><i class="bi bi-clock me-1"></i>${record.hours} Hours Studied</span>
+          </div>
+          <div class="mt-2">
+            <strong class="small text-dark">Completed Tasks Log:</strong>
+            ${tasksHtml}
+          </div>
+          <div class="mt-2 text-end">
+            <button class="btn btn-sm btn-outline-primary" onclick="addManualTaskToHistory('${record.date}')"><i class="bi bi-plus-circle me-1"></i>Add Past Completed Task</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    // --- TO-DO SECTION ---
+    function removeHistoryTask(dateStr, taskIndex) {
+      const recIdx = state.studyHistory.findIndex(h => h.date === dateStr);
+      if (recIdx >= 0 && state.studyHistory[recIdx].tasksList) {
+        state.studyHistory[recIdx].tasksList.splice(taskIndex, 1);
+        localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
+        renderStudyHistory();
+      }
+    }
+
+    function addManualTaskToHistory(dateStr) {
+      const newTask = prompt(`Enter completed task for ${dateStr}:`);
+      if (newTask && newTask.trim() !== '') {
+        const recIdx = state.studyHistory.findIndex(h => h.date === dateStr);
+        if (recIdx >= 0) {
+          if (!state.studyHistory[recIdx].tasksList) state.studyHistory[recIdx].tasksList = [];
+          state.studyHistory[recIdx].tasksList.push(newTask.trim());
+          localStorage.setItem('neetStudyHistory', JSON.stringify(state.studyHistory));
+          renderStudyHistory();
+        }
+      }
+    }
+
+    // --- To-Do List with Automatic Calendar Sync ---
+    function initTodos() {
+      renderTodos();
+      
+      document.getElementById('todoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        addTodoItem(document.getElementById('todoInput'));
+      });
+
+      document.getElementById('fullTodoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        addTodoItem(document.getElementById('fullTodoInput'));
+      });
+    }
+
+    function addTodoItem(inputElement) {
+      const text = inputElement.value.trim();
+      if (text) {
+        state.todos.push({ id: Date.now(), text, completed: false });
+        localStorage.setItem('neetTodos', JSON.stringify(state.todos));
+        inputElement.value = '';
+        renderTodos();
+      }
+    }
+
     function renderTodos() {
-      const todoList = document.getElementById('todoList');
-      const fullTodoList = document.getElementById('fullTodoList');
-      todoList.innerHTML = '';
-      fullTodoList.innerHTML = '';
-
-      if (appData.todos.length === 0) {
-        todoList.innerHTML = '<li class="list-group-item text-muted text-center small border-0">No tasks pending.</li>';
-        fullTodoList.innerHTML = '<li class="list-group-item text-muted text-center border-0">No tasks pending.</li>';
-        document.getElementById('todoCount').innerText = '0 Left';
-        return;
-      }
-
+      const quickList = document.getElementById('todoList');
+      const fullList = document.getElementById('fullTodoList');
+      quickList.innerHTML = '';
+      fullList.innerHTML = '';
+      
       let leftCount = 0;
-      appData.todos.forEach(t => {
-        if (!t.completed) leftCount++;
 
-        const li1 = document.createElement('li');
-        li1.className = 'list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0';
-        li1.innerHTML = `
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTodo(${t.id})" id="todoWidget_${t.id}">
-            <label class="form-check-label small ${t.completed ? 'todo-completed' : ''}" for="todoWidget_${t.id}">${t.text}</label>
-          </div>
-          <button class="btn btn-sm btn-link text-danger p-0" onclick="deleteTodo(${t.id})"><i class="bi bi-x-lg"></i></button>
-        `;
-        todoList.appendChild(li1);
+      state.todos.forEach(todo => {
+        if (!todo.completed) leftCount++;
 
-        const li2 = document.createElement('li');
-        li2.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
-        li2.innerHTML = `
-          <div class="form-check">
-            <input class="form-check-input fs-5" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTodo(${t.id})" id="todoFull_${t.id}">
-            <label class="form-check-label fs-6 ${t.completed ? 'todo-completed' : ''}" for="todoFull_${t.id}">${t.text}</label>
+        const liQuick = document.createElement('li');
+        liQuick.className = 'list-group-item bg-transparent text-dark border-secondary-subtle d-flex justify-content-between align-items-center px-0 py-1';
+        liQuick.innerHTML = `
+          <div class="form-check me-2">
+            <input class="form-check-input" type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${todo.id})">
+            <label class="form-check-label small fw-semibold ${todo.completed ? 'todo-completed' : ''}">${todo.text}</label>
           </div>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteTodo(${t.id})"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm text-danger p-0 border-0" onclick="deleteTodo(${todo.id})"><i class="bi bi-trash"></i></button>
         `;
-        fullTodoList.appendChild(li2);
+        quickList.appendChild(liQuick);
+
+        const liFull = document.createElement('li');
+        liFull.className = 'list-group-item bg-light text-dark border-secondary-subtle d-flex justify-content-between align-items-center p-3 mb-2 rounded';
+        liFull.innerHTML = `
+          <div class="form-check">
+            <input class="form-check-input me-2" type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${todo.id})">
+            <label class="form-check-label fw-semibold ${todo.completed ? 'todo-completed' : ''}">${todo.text}</label>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteTodo(${todo.id})"><i class="bi bi-trash me-1"></i>Delete</button>
+        `;
+        fullList.appendChild(liFull);
       });
 
       document.getElementById('todoCount').innerText = `${leftCount} Left`;
     }
 
     function toggleTodo(id) {
-      const t = appData.todos.find(x => x.id === id);
-      if (t) {
-        t.completed = !t.completed;
-        saveData();
-        renderTodos();
-      }
+      state.todos = state.todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+      localStorage.setItem('neetTodos', JSON.stringify(state.todos));
+      renderTodos();
+      const todayStr = new Date().toISOString().split('T')[0];
+      saveAutomatedDayRecord(todayStr);
+      renderStudyHistory();
     }
 
     function deleteTodo(id) {
-      appData.todos = appData.todos.filter(x => x.id !== id);
-      saveData();
+      state.todos = state.todos.filter(t => t.id !== id);
+      localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
     }
 
     function clearCompletedTodos() {
-      appData.todos = appData.todos.filter(x => !x.completed);
-      saveData();
+      state.todos = state.todos.filter(t => !t.completed);
+      localStorage.setItem('neetTodos', JSON.stringify(state.todos));
       renderTodos();
     }
 
-    // --- TEST TRACKER & GRAPH ---
-    let scoreChartInstance = null;
+    // --- Test Section & Graph Tracker ---
+    function initTestSection() {
+      document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+      renderTests();
+
+      document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('testName').value.trim();
+        const date = document.getElementById('testDate').value;
+
+        const newTest = {
+          id: Date.now().toString(),
+          name,
+          date,
+          completed: false,
+          marks: null
+        };
+
+        state.tests.push(newTest);
+        state.tests.sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem('neetTests', JSON.stringify(state.tests));
+
+        document.getElementById('testName').value = '';
+        renderTests();
+      });
+    }
 
     function renderTests() {
       const tbody = document.getElementById('testsTableBody');
       tbody.innerHTML = '';
 
-      if (appData.tests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No tests added yet. Add a test to start the graph!</td></tr>';
-        updateScoreChart();
+      if (state.tests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No tests scheduled yet. Add a test using the form!</td></tr>`;
+        updateScoreChart([]);
         return;
       }
 
-      appData.tests.forEach(test => {
+      state.tests.forEach(test => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="fw-semibold">${test.name}</td>
           <td>${test.date}</td>
-          <td><span class="badge ${test.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark'}">${test.status}</span></td>
-          <td><input type="number" class="form-control form-control-sm" style="width: 90px;" value="${test.marks}" min="0" max="720" onchange="updateTestMarks(${test.id}, this.value)"> / 720</td>
           <td>
-            <button class="btn btn-sm ${test.status === 'Completed' ? 'btn-outline-warning' : 'btn-outline-success'} me-1" onclick="toggleTestStatus(${test.id})">${test.status === 'Completed' ? 'Mark Pending' : 'Mark Done'}</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash"></i></button>
+            <span class="badge ${test.completed ? 'bg-success' : 'bg-warning text-dark'}">
+              ${test.completed ? 'Completed' : 'Upcoming'}
+            </span>
+          </td>
+          <td class="fw-bold">${test.completed ? `${test.marks} / 720` : '—'}</td>
+          <td>
+            ${!test.completed ? `<button class="btn btn-sm btn-outline-success text-nowrap" onclick="completeTest('${test.id}')"><i class="bi bi-check-circle me-1"></i>Give Test</button>` : `<button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="resetTest('${test.id}')">Edit Marks</button>`}
+            <button class="btn btn-sm text-danger border-0 ms-2" onclick="deleteTest('${test.id}')"><i class="bi bi-trash"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      updateScoreChart();
+      const completedTests = state.tests.filter(t => t.completed && t.marks !== null);
+      updateScoreChart(completedTests);
     }
 
-    function updateTestMarks(id, val) {
-      const test = appData.tests.find(t => t.id === id);
-      if (test) {
-        test.marks = Number(val);
-        test.status = test.marks > 0 ? 'Completed' : test.status;
-        saveData();
-        renderTests();
+    function completeTest(id) {
+      const marksInput = prompt("Enter your obtained marks out of 720:");
+      if (marksInput !== null) {
+        const marks = parseFloat(marksInput);
+        if (!isNaN(marks) && marks >= 0 && marks <= 720) {
+          state.tests = state.tests.map(t => t.id === id ? { ...t, completed: true, marks } : t);
+          localStorage.setItem('neetTests', JSON.stringify(state.tests));
+          renderTests();
+        } else {
+          alert("Please enter a valid number between 0 and 720.");
+        }
       }
     }
 
-    function toggleTestStatus(id) {
-      const test = appData.tests.find(t => t.id === id);
-      if (test) {
-        test.status = test.status === 'Completed' ? 'Scheduled' : 'Completed';
-        saveData();
-        renderTests();
+    function resetTest(id) {
+      const marksInput = prompt("Update your obtained marks out of 720:");
+      if (marksInput !== null) {
+        const marks = parseFloat(marksInput);
+        if (!isNaN(marks) && marks >= 0 && marks <= 720) {
+          state.tests = state.tests.map(t => t.id === id ? { ...t, completed: true, marks } : t);
+          localStorage.setItem('neetTests', JSON.stringify(state.tests));
+          renderTests();
+        } else {
+          alert("Please enter a valid number between 0 and 720.");
+        }
       }
     }
 
     function deleteTest(id) {
-      appData.tests = appData.tests.filter(t => t.id !== id);
-      saveData();
+      state.tests = state.tests.filter(t => t.id !== id);
+      localStorage.setItem('neetTests', JSON.stringify(state.tests));
       renderTests();
     }
 
-    function initScoreChart() {
+    function updateScoreChart(completedTests) {
       const ctx = document.getElementById('scoreChart').getContext('2d');
+      const labels = completedTests.map(t => t.name.length > 15 ? t.name.substring(0, 15) + '...' : t.name);
+      const data = completedTests.map(t => t.marks);
+
+      if (scoreChartInstance) {
+        scoreChartInstance.destroy();
+      }
+
       scoreChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: [],
+          labels: labels.length > 0 ? labels : ['No Tests Yet'],
           datasets: [{
-            label: 'Marks (/720)',
-            data: [],
+            label: 'Marks Obtained (/720)',
+            data: data.length > 0 ? data : [0],
             borderColor: '#0284c7',
             backgroundColor: 'rgba(2, 132, 199, 0.1)',
             borderWidth: 3,
             fill: true,
-            tension: 0.3
+            tension: 0.2,
+            pointRadius: 5,
+            pointBackgroundColor: '#0284c7'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { min: 0, max: 720 }
+            y: {
+              min: 0,
+              max: 720,
+              grid: { color: '#e2e8f0' }
+            },
+            x: {
+              grid: { display: false }
+            }
           }
         }
       });
-      updateScoreChart();
     }
 
-    function updateScoreChart() {
-      if (!scoreChartInstance) return;
-      const sorted = [...appData.tests].sort((a, b) => new Date(a.date) - new Date(b.date));
-      scoreChartInstance.data.labels = sorted.map(t => t.name);
-      scoreChartInstance.data.datasets[0].data = sorted.map(t => t.marks);
-      scoreChartInstance.update();
+    // --- Pomodoro Timer ---
+    let pomoTime = 25 * 60;
+    let pomoTimer = null;
+
+    function initPomodoro() {
+      document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
+      document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
+      document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
+      updatePomoDisplay();
     }
 
-    // --- AUTO STUDY CALENDAR HISTORY ---
-    function recordTodayActivity() {
-      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-      const completedCount = appData.chapters.filter(c => c.completed).length;
-      const totalCount = appData.chapters.length;
-
-      if (!appData.history) appData.history = {};
-      appData.history[todayStr] = {
-        completedChapters: completedCount,
-        totalChapters: totalCount,
-        timestamp: new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })
-      };
-      renderCalendarHistory();
+    function setPomoTime(minutes) {
+      pausePomo();
+      pomoTime = minutes * 60;
+      updatePomoDisplay();
     }
 
-    function renderCalendarHistory() {
-      const container = document.getElementById('calendarHistoryContainer');
-      container.innerHTML = '';
-
-      if (!appData.history || Object.keys(appData.history).length === 0) {
-        container.innerHTML = '<p class="text-muted text-center py-4 small">No study history recorded yet. Complete tasks or chapters to log your activity!</p>';
-        document.getElementById('totalLoggedDays').innerText = '0 Days Logged';
-        return;
-      }
-
-      const dates = Object.keys(appData.history).sort((a, b) => new Date(b) - new Date(a));
-      document.getElementById('totalLoggedDays').innerText = `${dates.length} Days Logged`;
-
-      dates.forEach(date => {
-        const info = appData.history[date];
-        const item = document.createElement('div');
-        item.className = 'card mb-2 p-3 history-card shadow-sm border-0';
-        item.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h6 class="fw-bold mb-1 text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${date}</h6>
-              <p class="text-muted small mb-0">Completed Chapters Progress: <strong>${info.completedChapters} / ${info.totalChapters}</strong></p>
-            </div>
-            <span class="badge bg-success">Active Day</span>
-          </div>
-        `;
-        container.appendChild(item);
-      });
+    function updatePomoDisplay() {
+      const mins = Math.floor(pomoTime / 60);
+      const secs = pomoTime % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById('pomoDisplay').innerText = formatted;
+      document.getElementById('bigTimerDisplay').innerText = formatted;
     }
 
-    // --- MOTIVATION QUOTES & POSTER ---
-    function getRandomQuote() {
-      const q = quotes[Math.floor(Math.random() * quotes.length)];
-      document.getElementById('quoteText').innerText = `"${q.text}"`;
-      document.getElementById('quoteAuthor').innerText = `— ${q.author}`;
+    function startPomo() {
+      if (pomoTimer) return;
+      document.getElementById('pomoStartBtn').disabled = true;
+      document.getElementById('pomoPauseBtn').disabled = false;
+      pomoTimer = setInterval(() => {
+        if (pomoTime > 0) {
+          pomoTime--;
+          updatePomoDisplay();
+        } else {
+          clearInterval(pomoTimer);
+          pomoTimer = null;
+          state.studyMinutesToday += 25;
+          localStorage.setItem('neetStudyMinutesToday', state.studyMinutesToday);
+          renderStudyHistory();
+          alert('Focus session completed! Logged to your study calendar.');
+          resetPomo();
+        }
+      }, 1000);
     }
 
-    function renderPoster() {
-      const poster = posters[Math.floor(Math.random() * posters.length)];
-      document.getElementById('posterImage').src = poster.image;
-      document.getElementById('posterTitle').innerText = poster.title;
-      document.getElementById('posterCaption').innerText = poster.caption;
+    function pausePomo() {
+      clearInterval(pomoTimer);
+      pomoTimer = null;
+      document.getElementById('pomoStartBtn').disabled = false;
+      document.getElementById('pomoPauseBtn').disabled = true;
+    }
+
+    function resetPomo() {
+      pausePomo();
+      pomoTime = 25 * 60;
+      updatePomoDisplay();
+    }
+
+    function syncBigStart() { startPomo(); }
+    function syncBigPause() { pausePomo(); }
+    function syncBigReset() { resetPomo(); }
+
+    // --- Stopwatch ---
+    let swTime = 0;
+    let swTimer = null;
+    let swIntervalMinutesTracker = 0;
+
+    function initStopwatch() {
+      document.getElementById('swStartBtn').addEventListener('click', startSw);
+      document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
+      document.getElementById('swLapBtn').addEventListener('click', lapSw);
+      document.getElementById('swResetBtn').addEventListener('click', resetSw);
+    }
+
+    function updateSwDisplay() {
+      const hrs = Math.floor(swTime / 3600);
+      const mins = Math.floor((swTime % 3600) / 60);
+      const secs = swTime % 60;
+      const formatted = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById('swDisplay').innerText = formatted;
+      document.getElementById('bigSwDisplay').innerText = formatted;
+    }
+
+    function startSw() {
+      if (swTimer) return;
+      document.getElementById('swStartBtn').disabled = true;
+      document.getElementById('swPauseBtn').disabled = false;
+      document.getElementById('swLapBtn').disabled = false;
+      
+      document.getElementById('bigSwStartBtn').disabled = true;
+      document.getElementById('bigSwPauseBtn').disabled = false;
+      document.getElementById('bigSwLapBtn').disabled = false;
+
+      swTimer = setInterval(() => {
+        swTime++;
+        swIntervalMinutesTracker++;
+        if (swIntervalMinutesTracker >= 60) {
+          state.studyMinutesToday += 1;
+          localStorage.setItem('neetStudyMinutesToday', state.studyMinutesToday);
+          swIntervalMinutesTracker = 0;
+          renderStudyHistory();
+        }
+        updateSwDisplay();
+      }, 1000);
+    }
+
+    function pauseSw() {
+      clearInterval(swTimer);
+      swTimer = null;
+      document.getElementById('swStartBtn').disabled = false;
+      document.getElementById('swPauseBtn').disabled = true;
+      document.getElementById('swLapBtn').disabled = true;
+
+      document.getElementById('bigSwStartBtn').disabled = false;
+      document.getElementById('bigSwPauseBtn').disabled = true;
+      document.getElementById('bigSwLapBtn').disabled = true;
+    }
+
+    function lapSw() {
+      const lapList = document.getElementById('lapList');
+      const li = document.createElement('li');
+      li.className = 'list-group-item bg-transparent text-dark border-secondary-subtle py-1 px-0 small fw-semibold';
+      li.innerText = `Lap ${lapList.children.length + 1}: ${document.getElementById('swDisplay').innerText}`;
+      lapList.prepend(li);
+    }
+
+    function resetSw() {
+      pauseSw();
+      swTime = 0;
+      swIntervalMinutesTracker = 0;
+      updateSwDisplay();
+      document.getElementById('lapList').innerHTML = '';
     }
   </script>
 </body>
