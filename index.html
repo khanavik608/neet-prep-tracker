@@ -458,13 +458,15 @@
         </div>
         <div class="modal-body">
           <div id="loggedOutView">
-            <p class="text-muted small">Log in with your email to sync and back up your dashboard data.</p>
+            <p class="text-muted small">Log in instantly using a secure email link (No password needed, zero login errors!).</p>
             <div class="mb-3">
               <label for="authEmail" class="form-label small fw-bold">Email Address:</label>
               <input type="email" id="authEmail" class="form-control" placeholder="doctor@aspirant.com">
             </div>
-            <button id="sendOtpBtn" class="btn btn-accent w-100 mb-3" onclick="sendOtpLogin()"><i class="bi bi-envelope-check me-1"></i> Send Login Link</button>
-            <div id="otpStatusMsg" class="text-center small text-success fw-semibold"></div>
+            <button id="sendOtpBtn" class="btn btn-accent w-100 mb-3" onclick="sendOtpLogin()">
+              <i class="bi bi-envelope-check me-1"></i> <span id="btnText">Send Login Link</span>
+            </button>
+            <div id="otpStatusMsg" class="text-center small fw-semibold"></div>
           </div>
 
           <div id="loggedInView" class="d-none">
@@ -677,25 +679,47 @@
       }
     }
 
-    // --- AUTHENTICATION & USERNAME ---
+    // --- AUTHENTICATION (MAGIC LINK / OTP) ---
     async function sendOtpLogin() {
       const email = document.getElementById('authEmail').value.trim();
       const statusMsg = document.getElementById('otpStatusMsg');
+      const sendBtn = document.getElementById('sendOtpBtn');
+      const btnText = document.getElementById('btnText');
+
       if (!email) {
-        alert('Please enter a valid email address.');
+        alert('Kripya apna email address bharein!');
         return;
       }
       if (!supabaseClient) {
         alert('Supabase client not configured properly.');
         return;
       }
-      const { error } = await supabaseClient.auth.signInWithOtp({ email });
+
+      // Button ko loading state mein daalein taaki baar-baar click na ho
+      sendBtn.disabled = true;
+      btnText.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sending Link...`;
+      statusMsg.className = 'text-center small text-muted fw-semibold';
+      statusMsg.innerText = 'Please wait, generating secure link...';
+
+      const { error } = await supabaseClient.auth.signInWithOtp({ 
+        email,
+        options: { emailRedirectTo: window.location.href }
+      });
+
+      // Button ko wapas normal karein
+      sendBtn.disabled = false;
+      btnText.innerText = 'Send Login Link';
+
       if (error) {
         statusMsg.className = 'text-center small text-danger fw-semibold';
-        statusMsg.innerText = error.message;
+        if (error.message.includes('rate limit')) {
+          statusMsg.innerText = 'Bohot saari requests bhej di gayi hain! Kripya 2-3 minute wait karke dobara try karein.';
+        } else {
+          statusMsg.innerText = error.message;
+        }
       } else {
         statusMsg.className = 'text-center small text-success fw-semibold';
-        statusMsg.innerText = 'Login link sent! Check your email inbox.';
+        statusMsg.innerText = '✓ Login link successfully sent! Check your email inbox and click the link.';
       }
     }
 
@@ -746,11 +770,8 @@
     // --- IST COUNTDOWN ---
     function initISTCountdown() {
       setInterval(() => {
-        // Target exam date in IST (Asia/Kolkata)
         const targetStr = appData.neetDate + 'T09:00:00+05:30';
         const targetDate = new Date(targetStr).getTime();
-        
-        // Current time adjusted for IST
         const now = new Date().getTime();
         const diff = targetDate - now;
 
@@ -1038,7 +1059,6 @@
       appData.todos.forEach(t => {
         if (!t.completed) leftCount++;
 
-        // Widget view
         const li1 = document.createElement('li');
         li1.className = 'list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0';
         li1.innerHTML = `
@@ -1050,7 +1070,6 @@
         `;
         todoList.appendChild(li1);
 
-        // Full view
         const li2 = document.createElement('li');
         li2.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
         li2.innerHTML = `
