@@ -484,6 +484,7 @@
 
     let currentFilter = 'all';
     let chapterSearchQuery = '';
+    let scoreChartInstance = null;
 
     const quotes = [
       { text: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
@@ -491,8 +492,15 @@
       { text: "It always seems impossible until it's done.", author: "Nelson Mandela" }
     ];
 
+    // 30-Day Rotation Posters Array
     const posters = [
-      { title: "Future Doctor in the Making", caption: "Every single page brings you one step closer to your White Coat.", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80" }
+      { title: "Future Doctor in the Making", caption: "Every single page brings you one step closer to your White Coat.", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80" },
+      { title: "Consistency is Key", caption: "Small daily improvements over time lead to stunning results.", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80" },
+      { title: "Believe in Yourself", caption: "Your limitation—it's only your imagination. Push beyond it.", image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80" },
+      { title: "Hard Work Beats Talent", caption: "When talent doesn't work hard, hard work beats talent.", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" },
+      { title: "Focus on Your Goal", caption: "Don't look at the mountains, look at the path right in front of you.", image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80" },
+      { title: "Strive for Progress", caption: "Not perfection. Every hour studied is a step towards AIIMS/Govt Medical College.", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" },
+      { title: "Unstoppable Drive", caption: "Pain is temporary, a Doctor's title is permanent.", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80" }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -513,6 +521,66 @@
         updateAuthUI();
         fetchCloudData();
       }
+
+      // Event Listeners for forms & filters
+      document.getElementById('neetDate').value = appData.neetDate;
+      document.getElementById('neetDate').addEventListener('change', (e) => {
+        appData.neetDate = e.target.value;
+        saveData();
+      });
+
+      document.getElementById('addChapterForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('chapterNameInput').value.trim();
+        const subject = document.getElementById('chapterSubjectInput').value;
+        if(name) {
+          appData.chapters.push({ id: Date.now(), name, subject, completed: false });
+          document.getElementById('chapterNameInput').value = '';
+          saveData();
+          renderChapters();
+        }
+      });
+
+      document.getElementById('chapterSearch').addEventListener('input', (e) => {
+        chapterSearchQuery = e.target.value.toLowerCase();
+        renderChapters();
+      });
+
+      document.getElementById('todoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = document.getElementById('todoInput').value.trim();
+        if(text) {
+          appData.todos.push({ id: Date.now(), text, completed: false });
+          document.getElementById('todoInput').value = '';
+          saveData();
+          renderTodos();
+        }
+      });
+
+      document.getElementById('fullTodoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = document.getElementById('fullTodoInput').value.trim();
+        if(text) {
+          appData.todos.push({ id: Date.now(), text, completed: false });
+          document.getElementById('fullTodoInput').value = '';
+          saveData();
+          renderTodos();
+        }
+      });
+
+      document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('testName').value.trim();
+        const date = document.getElementById('testDate').value;
+        const marks = parseInt(document.getElementById('testMarks').value) || 0;
+        if(name && date) {
+          appData.tests.push({ id: Date.now(), name, date, marks, status: 'Completed' });
+          document.getElementById('testScheduleForm').reset();
+          saveData();
+          renderTests();
+          updateScoreChart();
+        }
+      });
     });
 
     // --- CLOUDFLARE D1 SYNC ---
@@ -552,9 +620,11 @@
         const data = await res.json();
         if (data && data.payload) {
           appData = data.payload;
+          document.getElementById('neetDate').value = appData.neetDate;
           renderChapters();
           renderTodos();
           renderTests();
+          updateScoreChart();
           renderCalendarHistory();
         }
       } catch (err) {
@@ -644,10 +714,17 @@
       pomoRunning = true;
       pomoTimerId = setInterval(() => {
         if (pomoTimeLeft > 0) { pomoTimeLeft--; updatePomoDisplay(); }
-        else { pausePomo(); alert('Focus time complete!'); }
+        else { pausePomo(); alert('Focus time complete!'); recordStudyTime(25); }
       }, 1000);
+      document.getElementById('pomoStartBtn').disabled = true;
+      document.getElementById('pomoPauseBtn').disabled = false;
     }
-    function pausePomo() { pomoRunning = false; clearInterval(pomoTimerId); }
+    function pausePomo() { 
+      pomoRunning = false; 
+      clearInterval(pomoTimerId); 
+      document.getElementById('pomoStartBtn').disabled = false;
+      document.getElementById('pomoPauseBtn').disabled = true;
+    }
     function resetPomo() { pausePomo(); pomoTimeLeft = 25 * 60; updatePomoDisplay(); }
 
     function updateSwDisplay() {
@@ -655,8 +732,25 @@
       document.getElementById('swDisplay').innerText = formatted;
       document.getElementById('bigSwDisplay').innerText = formatted;
     }
-    function startSw() { if (swRunning) return; swRunning = true; swTimerId = setInterval(() => { swSeconds++; updateSwDisplay(); }, 1000); }
-    function pauseSw() { swRunning = false; clearInterval(swTimerId); }
+    function startSw() { 
+      if (swRunning) return; 
+      swRunning = true; 
+      swTimerId = setInterval(() => { swSeconds++; updateSwDisplay(); }, 1000); 
+      document.getElementById('swStartBtn').disabled = true;
+      document.getElementById('swPauseBtn').disabled = false;
+      document.getElementById('swLapBtn').disabled = false;
+      document.getElementById('bigSwStartBtn').disabled = true;
+      document.getElementById('bigSwPauseBtn').disabled = false;
+    }
+    function pauseSw() { 
+      swRunning = false; 
+      clearInterval(swTimerId); 
+      document.getElementById('swStartBtn').disabled = false;
+      document.getElementById('swPauseBtn').disabled = true;
+      document.getElementById('bigSwStartBtn').disabled = false;
+      document.getElementById('bigSwPauseBtn').disabled = true;
+      if(swSeconds > 60) recordStudyTime(Math.round(swSeconds / 60));
+    }
     function lapSw() {
       const li = document.createElement('li');
       li.className = 'list-group-item px-2 py-1 d-flex justify-content-between align-items-center small';
@@ -665,20 +759,280 @@
     }
     function resetSw() { pauseSw(); swSeconds = 0; lapCount = 1; document.getElementById('lapList').innerHTML = ''; updateSwDisplay(); }
 
-    function renderChapters() { updateProgress(); }
+    function switchBigTimerMode(mode) {
+      if(mode === 'pomo') {
+        document.getElementById('bigModePomoBtn').classList.add('active');
+        document.getElementById('bigModeSwBtn').classList.remove('active');
+        document.getElementById('bigPomoSection').classList.remove('d-none');
+        document.getElementById('bigSwSection').classList.add('d-none');
+      } else {
+        document.getElementById('bigModeSwBtn').classList.add('active');
+        document.getElementById('bigModePomoBtn').classList.remove('active');
+        document.getElementById('bigSwSection').classList.remove('d-none');
+        document.getElementById('bigPomoSection').classList.add('d-none');
+      }
+    }
+
+    function syncBigStart() { startPomo(); }
+    function syncBigPause() { pausePomo(); }
+    function syncBigReset() { resetPomo(); }
+
+    // --- CHAPTERS & SYLLABUS ---
+    function filterSubject(subj) {
+      currentFilter = subj;
+      const buttons = document.querySelectorAll('#subjectFilter button');
+      buttons.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderChapters();
+    }
+
+    function renderChapters() {
+      const container = document.getElementById('syllabusContainer');
+      container.innerHTML = '';
+      
+      const filtered = appData.chapters.filter(c => {
+        const matchesSubj = currentFilter === 'all' || c.subject === currentFilter;
+        const matchesSearch = c.name.toLowerCase().includes(chapterSearchQuery);
+        return matchesSubj && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-muted small text-center my-3">No chapters added yet. Add your chapters above!</p>';
+        updateProgress();
+        return;
+      }
+
+      filtered.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+        div.innerHTML = `
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" ${ch.completed ? 'checked' : ''} onchange="toggleChapter(${ch.id})">
+            <label class="form-check-label ${ch.completed ? 'todo-completed' : ''} fw-semibold">${ch.name} <span class="badge bg-light text-primary border ms-2">${ch.subject}</span></label>
+          </div>
+          <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteChapter(${ch.id})"><i class="bi bi-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+      updateProgress();
+    }
+
+    function toggleChapter(id) {
+      const ch = appData.chapters.find(c => c.id === id);
+      if (ch) {
+        ch.completed = !ch.completed;
+        saveData();
+        renderChapters();
+      }
+    }
+
+    function deleteChapter(id) {
+      appData.chapters = appData.chapters.filter(c => c.id !== id);
+      saveData();
+      renderChapters();
+    }
+
     function updateProgress() {
       const total = appData.chapters.length;
-      const pct = total === 0 ? 0 : Math.round((appData.chapters.filter(c => c.completed).length / total) * 100);
+      const completed = appData.chapters.filter(c => c.completed).length;
+      const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
       document.getElementById('overallProgressText').innerText = `${pct}%`;
       document.getElementById('overallProgressBar').style.width = `${pct}%`;
     }
-    function renderTodos() {}
-    function renderTests() {}
-    function initScoreChart() {}
-    function recordTodayActivity() {}
-    function renderCalendarHistory() {}
-    function getRandomQuote() {}
-    function renderPoster() {}
+
+    // --- TODOS ---
+    function renderTodos() {
+      const list = document.getElementById('todoList');
+      const fullList = document.getElementById('fullTodoList');
+      list.innerHTML = '';
+      if(fullList) fullList.innerHTML = '';
+
+      const leftCount = appData.todos.filter(t => !t.completed).length;
+      document.getElementById('todoCount').innerText = `${leftCount} Left`;
+
+      if(appData.todos.length === 0) {
+        list.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks pending.</li>';
+        if(fullList) fullList.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks added yet.</li>';
+        return;
+      }
+
+      appData.todos.forEach(t => {
+        const itemHtml = `
+          <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTodo(${t.id})">
+              <label class="form-check-label ${t.completed ? 'todo-completed' : ''}">${t.text}</label>
+            </div>
+            <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteTodo(${t.id})"><i class="bi bi-trash"></i></button>
+          </div>
+        `;
+        const li1 = document.createElement('li');
+        li1.className = 'list-group-item p-0';
+        li1.innerHTML = itemHtml;
+        list.appendChild(li1);
+
+        if(fullList) {
+          const li2 = document.createElement('li');
+          li2.className = 'list-group-item p-0';
+          li2.innerHTML = itemHtml;
+          fullList.appendChild(li2);
+        }
+      });
+    }
+
+    function toggleTodo(id) {
+      const t = appData.todos.find(x => x.id === id);
+      if(t) {
+        t.completed = !t.completed;
+        saveData();
+        renderTodos();
+      }
+    }
+
+    function deleteTodo(id) {
+      appData.todos = appData.todos.filter(x => x.id !== id);
+      saveData();
+      renderTodos();
+    }
+
+    function clearCompletedTodos() {
+      appData.todos = appData.todos.filter(t => !t.completed);
+      saveData();
+      renderTodos();
+    }
+
+    // --- TESTS & SCORE GRAPH ---
+    function initScoreChart() {
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      scoreChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Marks Obtained (/720)',
+            data: [],
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 720 }
+          }
+        }
+      });
+      updateScoreChart();
+    }
+
+    function updateScoreChart() {
+      if(!scoreChartInstance) return;
+      const sorted = [...appData.tests].sort((a,b) => new Date(a.date) - new Date(b.date));
+      scoreChartInstance.data.labels = sorted.map(t => t.name);
+      scoreChartInstance.data.datasets[0].data = sorted.map(t => t.marks);
+      scoreChartInstance.update();
+    }
+
+    function renderTests() {
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+      if(appData.tests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted small">No tests recorded yet.</td></tr>';
+        return;
+      }
+      appData.tests.forEach(test => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold">${test.name}</td>
+          <td>${test.date}</td>
+          <td><span class="badge bg-success">${test.status}</span></td>
+          <td class="fw-bold text-primary">${test.marks} / 720</td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteTest(id) {
+      appData.tests = appData.tests.filter(t => t.id !== id);
+      saveData();
+      renderTests();
+      updateScoreChart();
+    }
+
+    // --- AUTO STUDY CALENDAR & HISTORY ---
+    function getTodayKey() {
+      const d = new Date();
+      return d.toISOString().split('T')[0];
+    }
+
+    function recordTodayActivity() {
+      const today = getTodayKey();
+      if(!appData.history[today]) {
+        appData.history[today] = { studyMinutes: 0, completedTasks: 0 };
+      }
+      appData.history[today].completedTasks = appData.todos.filter(t => t.completed).length;
+      renderCalendarHistory();
+    }
+
+    function recordStudyTime(mins) {
+      const today = getTodayKey();
+      if(!appData.history[today]) {
+        appData.history[today] = { studyMinutes: 0, completedTasks: 0 };
+      }
+      appData.history[today].studyMinutes += mins;
+      saveData();
+      renderCalendarHistory();
+    }
+
+    function renderCalendarHistory() {
+      const container = document.getElementById('calendarHistoryContainer');
+      container.innerHTML = '';
+      const dates = Object.keys(appData.history).sort((a,b) => new Date(b) - new Date(a));
+      
+      document.getElementById('totalLoggedDays').innerText = `${dates.length} Days Logged`;
+
+      if(dates.length === 0) {
+        container.innerHTML = '<p class="text-muted small text-center my-3">No study history logged yet. Start studying with timers or complete tasks!</p>';
+        return;
+      }
+
+      dates.forEach(dateStr => {
+        const dayData = appData.history[dateStr];
+        const div = document.createElement('div');
+        div.className = 'card history-card mb-2 p-3 shadow-sm';
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${dateStr}</span>
+            <span class="badge bg-primary">${dayData.studyMinutes || 0} Mins Studied</span>
+          </div>
+          <small class="text-muted mt-1 d-block">Completed tasks recorded: ${dayData.completedTasks || 0}</small>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // --- QUOTES & 30-DAY POSTER ROTATION ---
+    function getRandomQuote() {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('quoteText').innerText = `"${q.text}"`;
+      document.getElementById('quoteAuthor').innerText = `— ${q.author}`;
+    }
+
+    function renderPoster() {
+      // 30-Day Poster Rotation based on day of the month
+      const dayOfMonth = new Date().getDate();
+      const posterIndex = (dayOfMonth - 1) % posters.length;
+      const currentPoster = posters[posterIndex];
+
+      document.getElementById('posterImage').src = currentPoster.image;
+      document.getElementById('posterTitle').innerText = currentPoster.title;
+      document.getElementById('posterCaption').innerText = currentPoster.caption;
+    }
   </script>
 </body>
 </html>
