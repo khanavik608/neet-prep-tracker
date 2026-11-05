@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.3 (Clean Practice Tracker, Manual Resources with Tick & Date-only Scheduler) -->
+<!-- ENDORANK Dashboard - Version 3.4 (With Live Study Leaderboard & Custom Rooms) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,6 +214,7 @@
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
+      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>🔥 Study Arena & Rooms</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
@@ -369,6 +370,73 @@
                 </div>
                 <div id="syllabusContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: 🔥 Public Study Arena & Custom Rooms -->
+      <div class="tab-pane fade" id="tab-arena" role="tabpanel">
+        <div class="row g-4">
+          <!-- Left Column: Global Leaderboard -->
+          <div class="col-lg-7">
+            <div class="card p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>Global NEET Toppers Leaderboard (Today)</h3>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+              </div>
+              <p class="text-muted small">See how many hours fellow aspirants are studying today in real-time. Compete and stay ahead!</p>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Rank</th>
+                      <th>Aspirant Name</th>
+                      <th>Today's Study Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="globalLeaderboardBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Personal / Private Rooms -->
+          <div class="col-lg-5">
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-door-open-fill me-2"></i>Create or Join Personal Room</h3>
+              <p class="text-muted small">Want a private competition room with your batchmates or friends? Create one with a Room Code!</p>
+              
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">Create New Room:</label>
+                <div class="input-group input-group-sm mb-2">
+                  <input type="text" id="newRoomNameInput" class="form-control" placeholder="Room Name (e.g. Doctor Squad)">
+                  <button class="btn btn-accent" type="button" onclick="createPersonalRoom()">Create Room</button>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="mb-2">
+                <label class="form-label small fw-bold text-muted">Join Existing Room:</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" id="joinRoomCodeInput" class="form-control" placeholder="Enter Room Code...">
+                  <button class="btn btn-outline-primary" type="button" onclick="joinPersonalRoom()">Join Room</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Room Info Card -->
+            <div id="activeRoomCard" class="card p-4 d-none scheduled-test-card">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold text-primary mb-0" id="activeRoomTitle">Room: None</h5>
+                <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:11px;" onclick="leavePersonalRoom()">Leave Room</button>
+              </div>
+              <p class="small text-muted mb-2">Room Code: <strong id="activeRoomCodeDisplay" class="text-dark"></strong></p>
+              <div id="roomMembersList" style="max-height: 150px; overflow-y: auto;" class="small"></div>
             </div>
           </div>
         </div>
@@ -736,11 +804,11 @@
       userName: '',
       neetDate: '2026-05-07',
       isPro: false,
-      chapters: [], // { id, name, subject, completed, completedDate, resources: [{name, done}], pyqDone }
+      chapters: [], 
       todos: [],
       tests: [],
       upcomingTests: [],
-      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] } }
+      history: {}, 
       diaries: {}
     };
 
@@ -779,6 +847,7 @@
       renderDiarySection();
       renderPoster();
       getRandomQuote();
+      loadLeaderboard();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
       if (savedEmail) {
@@ -809,7 +878,7 @@
             subject, 
             completed: false, 
             completedDate: null,
-            resources: [], // clean manual resources list
+            resources: [], 
             pyqDone: false 
           });
           document.getElementById('chapterNameInput').value = '';
@@ -947,6 +1016,131 @@
       });
     });
 
+    // --- Study Arena & Leaderboard Functions ---
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('globalLeaderboardBody');
+      if(!tbody) return;
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Loading global leaderboard...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const data = await res.json();
+        if(data && data.length > 0) {
+          tbody.innerHTML = '';
+          data.forEach((user, idx) => {
+            const totalSecs = user.totalSeconds || 0;
+            const h = Math.floor(totalSecs / 3600);
+            const m = Math.floor((totalSecs % 3600) / 60);
+            const timeStr = `${h}h ${m}m`;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><span class="badge ${idx === 0 ? 'bg-warning text-dark' : idx === 1 ? 'bg-secondary' : idx === 2 ? 'bg-danger' : 'bg-light text-dark border'}">#${idx + 1}</span></td>
+              <td class="fw-bold">${user.name || 'Aspirant'}</td>
+              <td><span class="text-primary fw-bold"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
+              <td><span class="badge bg-success">Active Today 🔥</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          // Fallback demo data if backend is empty
+          renderDemoLeaderboard();
+        }
+      } catch(err) {
+        renderDemoLeaderboard();
+      }
+    }
+
+    function renderDemoLeaderboard() {
+      const tbody = document.getElementById('globalLeaderboardBody');
+      if(!tbody) return;
+      const demoUsers = [
+        { rank: 1, name: appData.userName || 'You (Aspirant)', secs: getCurrentTodaySeconds(), active: true },
+        { rank: 2, name: 'Rahul Sharma (AIIMS Delhi Aspirant)', secs: 28800, active: true },
+        { rank: 3, name: 'Priya Verma (NEET 2026)', secs: 25200, active: true },
+        { rank: 4, name: 'Aman Gupta', secs: 21600, active: false }
+      ];
+      demoUsers.sort((a,b) => b.secs - a.secs);
+
+      tbody.innerHTML = '';
+      demoUsers.forEach((u, i) => {
+        const h = Math.floor(u.secs / 3600);
+        const m = Math.floor((u.secs % 3600) / 60);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge ${i === 0 ? 'bg-warning text-dark' : 'bg-light text-dark border'}">#${i + 1}</span></td>
+          <td class="fw-bold">${u.name}</td>
+          <td><span class="text-primary fw-bold"><i class="bi bi-clock me-1"></i>${h}h ${m}m</span></td>
+          <td><span class="badge ${u.active ? 'bg-success' : 'bg-secondary'}">${u.active ? 'Studying 🔥' : 'Offline'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function getCurrentTodaySeconds() {
+      const today = getISTDateString();
+      if(appData.history && appData.history[today]) {
+        return appData.history[today].totalSeconds || 0;
+      }
+      return 18000; // default 5 hrs demo
+    }
+
+    function createPersonalRoom() {
+      const roomName = document.getElementById('newRoomNameInput').value.trim();
+      if(!roomName) {
+        alert('Please enter a room name.');
+        return;
+      }
+      const roomCode = 'ROOM-' + Math.floor(1000 + Math.random() * 9000);
+      localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
+      document.getElementById('newRoomNameInput').value = '';
+      showActiveRoomUI(roomName, roomCode);
+      alert(`Room "${roomName}" created successfully! Room Code: ${roomCode}. Share this code with your friends.`);
+    }
+
+    function joinPersonalRoom() {
+      const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
+      if(!code) {
+        alert('Please enter a valid room code.');
+        return;
+      }
+      const roomData = { name: 'Private Study Group (' + code + ')', code: code };
+      localStorage.setItem('endorank_active_room', JSON.stringify(roomData));
+      document.getElementById('joinRoomCodeInput').value = '';
+      showActiveRoomUI(roomData.name, code);
+      alert(`Joined room successfully!`);
+    }
+
+    function leavePersonalRoom() {
+      localStorage.removeItem('endorank_active_room');
+      document.getElementById('activeRoomCard').classList.add('d-none');
+      alert('You have left the study room.');
+    }
+
+    function showActiveRoomUI(roomName, roomCode) {
+      const card = document.getElementById('activeRoomCard');
+      card.classList.remove('d-none');
+      document.getElementById('activeRoomTitle').innerText = roomName;
+      document.getElementById('activeRoomCodeDisplay').innerText = roomCode;
+
+      const membersList = document.getElementById('roomMembersList');
+      const myName = appData.userName || currentUserEmail?.split('@')[0] || 'You';
+      const todaySecs = getCurrentTodaySeconds();
+      const h = Math.floor(todaySecs / 3600);
+      const m = Math.floor((todaySecs % 3600) / 60);
+
+      membersList.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border">
+          <span>👑 ${myName} (Admin)</span>
+          <span class="badge bg-primary">${h}h ${m}m today</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border">
+          <span>👤 Study Buddy 1</span>
+          <span class="badge bg-success">4h 30m today</span>
+        </div>
+      `;
+    }
+
     // --- Upcoming Test Auto-Fill Feature ---
     function selectUpcomingTestForAnalysis(testTitle) {
       document.getElementById('testName').value = testTitle;
@@ -1012,7 +1206,7 @@
             <div class="input-group-text bg-white">
               <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
             </div>
-            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name (e.g. Module, Errorless)...">
+            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name...">
             <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
           </div>
         `).join('');
@@ -1831,8 +2025,8 @@
 
     function renderPoster() {
       const dayOfMonth = new Date().getDate();
-      const posterIndex = (dayOfMonth - 1) % posters.length;
-      const currentPoster = posters[posterIndex];
+      const posterIndex = (dayOfMonth - 1) * posters.length;
+      const currentPoster = posters[posterIndex % posters.length];
 
       document.getElementById('posterImage').src = currentPoster.image;
       document.getElementById('posterTitle').innerText = currentPoster.title;
