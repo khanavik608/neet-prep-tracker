@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.3 (Automatic Sync + Manual Flexibility Restored) -->
+<!-- ENDORANK Dashboard - Version 4.4 (Automatic Midnight To-Do Refresh Added) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -322,7 +322,7 @@
             <!-- To-Do Widget Card -->
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-check2-square me-2"></i>Quick To-Do</span>
+                <span><i class="bi bi-check2-square me-2"></i>Quick To-Do <small class="text-muted" style="font-size:10px;">(Auto-Refreshes 12 AM)</small></span>
                 <span id="todoCount" class="badge bg-secondary">0 Left</span>
               </div>
               <div class="card-body">
@@ -517,7 +517,7 @@
       <div class="tab-pane fade" id="tab-full-todo" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Unlimited To-Do Section</h3>
+            <h3 class="h4 text-primary mb-0"><i class="bi bi-list-check me-2"></i>Unlimited To-Do Section <small class="text-muted fs-6">(Auto-Refreshes Daily 12 AM)</small></h3>
             <button class="btn btn-sm btn-outline-danger" onclick="clearCompletedTodos()"><i class="bi bi-trash me-1"></i>Clear Completed</button>
           </div>
           <form id="fullTodoForm" class="d-flex gap-2 mb-4">
@@ -791,7 +791,8 @@
       tests: [],
       upcomingTests: [],
       history: {}, 
-      diaries: {}
+      diaries: {},
+      lastActiveDate: ''
     };
 
     let currentFilter = 'all';
@@ -814,6 +815,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
+      checkMidnightRefresh(); // Auto refresh to-do if date changed past 12 AM
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -1012,6 +1014,34 @@
         }
       });
     });
+
+    // --- Automatic Midnight To-Do Refresh Check ---
+    function checkMidnightRefresh() {
+      const todayStr = getISTDateString();
+      if (!appData.lastActiveDate) {
+        appData.lastActiveDate = todayStr;
+        saveData();
+        return;
+      }
+
+      if (appData.lastActiveDate !== todayStr) {
+        // Date has changed (past 12 AM / New Day!) -> Refresh To-Do List
+        appData.todos = []; // Clear previous day tasks for a fresh new day
+        appData.lastActiveDate = todayStr;
+        saveData();
+      }
+    }
+
+    // Also run a background interval to catch midnight live if the app is kept open past 12 AM
+    setInterval(() => {
+      const todayStr = getISTDateString();
+      if (appData.lastActiveDate && appData.lastActiveDate !== todayStr) {
+        appData.todos = [];
+        appData.lastActiveDate = todayStr;
+        saveData();
+        renderTodos();
+      }
+    }, 60000); // Check every 1 minute
 
     function loadManualActivityForDate(dateStr) {
       if(appData.history && appData.history[dateStr]) {
@@ -1982,7 +2012,7 @@
       document.getElementById('todoCount').innerText = `${leftCount} Left`;
 
       if(appData.todos.length === 0) {
-        list.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks pending.</li>';
+        list.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks pending for today.</li>';
         if(fullList) fullList.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks added yet.</li>';
         return;
       }
@@ -2140,7 +2170,6 @@
         }
       });
 
-      // Merge automatic lists with any existing manual entries without losing them
       const existingManualTasks = appData.history[today].completedTasksList || [];
       const mergedTasks = Array.from(new Set([...completedTaskNames, ...existingManualTasks]));
 
