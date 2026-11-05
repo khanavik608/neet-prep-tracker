@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 2.2 (Manual Counts & Separate Countdown/Clock) -->
+<!-- ENDORANK Dashboard - Version 2.3 (Dedicated Clock Tab, Guess & Skip Q-Analysis) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,16 +138,6 @@
       background: #ffffff;
     }
 
-    .ist-badge-box {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      color: #0369a1;
-      font-weight: 700;
-      font-family: monospace;
-      padding: 6px 14px;
-      border-radius: 8px;
-    }
-
     .revision-alert-box {
       background-color: #fff7ed;
       border-left: 4px solid #f97316;
@@ -168,12 +158,6 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Separate IST Clock Display Section -->
-        <div class="ist-badge-box d-flex align-items-center gap-2">
-          <i class="bi bi-clock"></i>
-          <span id="istClockDisplay">00:00:00 AM IST</span>
-        </div>
-
         <div id="authSection">
           <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
         </div>
@@ -188,6 +172,7 @@
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
+      <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
       <li class="nav-item"><button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Analysis & Graph</button></li>
@@ -227,7 +212,7 @@
       <!-- Tab 1: Dashboard -->
       <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
         
-        <!-- Original Front Page Exam Countdown Card -->
+        <!-- Exam Countdown Card -->
         <div class="card mb-4 text-center p-4">
           <div class="row align-items-center">
             <div class="col-md-3 mb-3 mb-md-0 border-end">
@@ -345,6 +330,18 @@
         </div>
       </div>
 
+      <!-- Tab: IST Clock Section -->
+      <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
+        <div class="card text-center p-5">
+          <h3 class="h4 text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Watch</h3>
+          <p class="text-muted small">Live IST clock synchronized with Indian Standard Time zone (UTC+5:30)</p>
+          <div class="my-4">
+            <span id="tabIstClockDisplay" class="display-3 fw-bold font-monospace text-dark bg-light p-4 border rounded shadow-sm d-inline-block">00:00:00 AM IST</span>
+          </div>
+          <p class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i> New day starts automatically at 12:00 AM IST.</p>
+        </div>
+      </div>
+
       <!-- Tab 2: Big Screen Timer -->
       <div class="tab-pane fade" id="tab-focus-timer" role="tabpanel">
         <div class="card text-center p-5">
@@ -424,19 +421,23 @@
 
                 <!-- Manual Counts -->
                 <div class="row g-2 mb-2">
-                  <div class="col-6">
+                  <div class="col-4">
                     <label for="testCorrectCount" class="form-label small fw-bold text-success">Correct Count:</label>
                     <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="e.g. 140" min="0" max="180">
                   </div>
-                  <div class="col-6">
+                  <div class="col-4">
                     <label for="testWrongCount" class="form-label small fw-bold text-danger">Wrong Count:</label>
                     <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="e.g. 30" min="0" max="180">
+                  </div>
+                  <div class="col-4">
+                    <label for="testGuessCount" class="form-label small fw-bold text-warning">Guess Count:</label>
+                    <input type="number" id="testGuessCount" class="form-control form-control-sm" placeholder="e.g. 5" min="0" max="180">
                   </div>
                 </div>
 
                 <div class="mb-2">
-                  <label for="testTukkaCount" class="form-label small fw-bold text-warning">Tukka Count:</label>
-                  <input type="number" id="testTukkaCount" class="form-control form-control-sm" placeholder="e.g. 5" min="0" max="180">
+                  <label for="testSkipCount" class="form-label small fw-bold text-secondary">Skip Count:</label>
+                  <input type="number" id="testSkipCount" class="form-control form-control-sm" placeholder="e.g. 10" min="0" max="180">
                 </div>
 
                 <!-- Incorrect Questions Q-Numbers -->
@@ -445,10 +446,16 @@
                   <input type="text" id="testIncorrectList" class="form-control form-control-sm" placeholder="e.g. Q12, Q45, Q89">
                 </div>
 
-                <!-- Tukka / Guesswork Q-Numbers -->
+                <!-- Guess Questions Q-Numbers -->
+                <div class="mb-2">
+                  <label for="testGuessList" class="form-label small fw-bold text-warning">Guess Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testGuessList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
+                </div>
+
+                <!-- Skip Questions Q-Numbers -->
                 <div class="mb-3">
-                  <label for="testTukkaList" class="form-label small fw-bold text-warning">Tukka Question Numbers (Comma Separated):</label>
-                  <input type="text" id="testTukkaList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
+                  <label for="testSkipList" class="form-label small fw-bold text-secondary">Skip Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testSkipList" class="form-control form-control-sm" placeholder="e.g. Q15, Q22">
                 </div>
 
                 <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Analysis</button>
@@ -476,7 +483,8 @@
                   <th>Marks (/720)</th>
                   <th>Correct Count</th>
                   <th>Wrong Count & Q.Nos</th>
-                  <th>Tukka Count & Q.Nos</th>
+                  <th>Guess Count & Q.Nos</th>
+                  <th>Skip Count & Q.Nos</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -657,13 +665,17 @@
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
         const correctCount = parseInt(document.getElementById('testCorrectCount').value) || 0;
         const wrongCount = parseInt(document.getElementById('testWrongCount').value) || 0;
-        const tukkaCount = parseInt(document.getElementById('testTukkaCount').value) || 0;
+        const guessCount = parseInt(document.getElementById('testGuessCount').value) || 0;
+        const skipCount = parseInt(document.getElementById('testSkipCount').value) || 0;
         
         const incRaw = document.getElementById('testIncorrectList').value;
         const incorrectQ = incRaw ? incRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
 
-        const tukkaRaw = document.getElementById('testTukkaList').value;
-        const tukkaQ = tukkaRaw ? tukkaRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+        const guessRaw = document.getElementById('testGuessList').value;
+        const guessQ = guessRaw ? guessRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+
+        const skipRaw = document.getElementById('testSkipList').value;
+        const skipQ = skipRaw ? skipRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
 
         if(name && date) {
           appData.tests.push({ 
@@ -673,9 +685,11 @@
             marks, 
             correctCount,
             wrongCount,
-            tukkaCount,
+            guessCount,
+            skipCount,
             incorrectQ, 
-            tukkaQ 
+            guessQ,
+            skipQ
           });
           document.getElementById('testScheduleForm').reset();
           saveData();
@@ -694,13 +708,14 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Top Header Separate IST Clock
+    // Dedicated IST Clock Section & Tab
     function initISTClock() {
       setInterval(() => {
         const now = new Date();
         const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const el = document.getElementById('istClockDisplay');
-        if(el) el.innerText = now.toLocaleTimeString('en-US', options) + ' IST';
+        const timeString = now.toLocaleTimeString('en-US', options) + ' IST';
+        const tabEl = document.getElementById('tabIstClockDisplay');
+        if(tabEl) tabEl.innerText = timeString;
       }, 1000);
     }
 
@@ -1127,7 +1142,8 @@
                     `Marks: ${test.marks} / 720`,
                     `Correct: ${test.correctCount || 0}`,
                     `Wrong: ${test.wrongCount || 0}`,
-                    `Tukka: ${test.tukkaCount || 0}`
+                    `Guess: ${test.guessCount || 0}`,
+                    `Skip: ${test.skipCount || 0}`
                   ];
                 }
               }
@@ -1150,7 +1166,7 @@
       const tbody = document.getElementById('testsTableBody');
       tbody.innerHTML = '';
       if(appData.tests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted small">No tests recorded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted small">No tests recorded yet.</td></tr>';
         return;
       }
       appData.tests.forEach(test => {
@@ -1158,8 +1174,12 @@
           ? test.incorrectQ.map((q, idx) => `<span class="badge bg-danger text-white me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteIncorrectQuestion(${test.id}, ${idx})"></i></span>`).join('')
           : '<span class="text-muted small">None</span>';
 
-        const tukkaBadges = (test.tukkaQ && test.tukkaQ.length > 0)
-          ? test.tukkaQ.map((q, idx) => `<span class="badge bg-warning text-dark me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteTukkaQuestion(${test.id}, ${idx})"></i></span>`).join('')
+        const guessBadges = (test.guessQ && test.guessQ.length > 0)
+          ? test.guessQ.map((q, idx) => `<span class="badge bg-warning text-dark me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteGuessQuestion(${test.id}, ${idx})"></i></span>`).join('')
+          : '<span class="text-muted small">None</span>';
+
+        const skipBadges = (test.skipQ && test.skipQ.length > 0)
+          ? test.skipQ.map((q, idx) => `<span class="badge bg-secondary text-white me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteSkipQuestion(${test.id}, ${idx})"></i></span>`).join('')
           : '<span class="text-muted small">None</span>';
 
         const tr = document.createElement('tr');
@@ -1175,8 +1195,12 @@
             <div>${incBadges}</div>
           </td>
           <td>
-            <span class="badge bg-warning text-dark mb-1">Count: ${test.tukkaCount || 0}</span>
-            <div>${tukkaBadges}</div>
+            <span class="badge bg-warning text-dark mb-1">Count: ${test.guessCount || 0}</span>
+            <div>${guessBadges}</div>
+          </td>
+          <td>
+            <span class="badge bg-secondary mb-1">Count: ${test.skipCount || 0}</span>
+            <div>${skipBadges}</div>
           </td>
           <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete Test</button></td>
         `;
@@ -1193,10 +1217,19 @@
       }
     }
 
-    function deleteTukkaQuestion(testId, qIndex) {
+    function deleteGuessQuestion(testId, qIndex) {
       const test = appData.tests.find(t => t.id === testId);
-      if(test && test.tukkaQ) {
-        test.tukkaQ.splice(qIndex, 1);
+      if(test && test.guessQ) {
+        test.guessQ.splice(qIndex, 1);
+        saveData();
+        renderTests();
+      }
+    }
+
+    function deleteSkipQuestion(testId, qIndex) {
+      const test = appData.tests.find(t => t.id === testId);
+      if(test && test.skipQ) {
+        test.skipQ.splice(qIndex, 1);
         saveData();
         renderTests();
       }
