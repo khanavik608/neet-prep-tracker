@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.2 (Manual Study Time & Complete Activity Logging Fix) -->
+<!-- ENDORANK Dashboard - Version 4.3 (Automatic Sync + Manual Flexibility Restored) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -687,7 +687,7 @@
         <div class="row g-4">
           <div class="col-lg-5">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study & Activity Log</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study & Activity Adjust (For Missed Work)</h3>
               <form id="manualActivityForm">
                 <div class="mb-3">
                   <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
@@ -695,28 +695,28 @@
                 </div>
                 <div class="mb-3">
                   <label for="manualHours" class="form-label small fw-bold text-muted">Study Time (Hours):</label>
-                  <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" step="0.5" value="0" placeholder="e.g. 6.5">
+                  <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" step="0.5" value="0" placeholder="e.g. 6">
                 </div>
                 
                 <hr class="my-3">
-                <div class="small fw-bold text-primary mb-2">Mark Completed Items for this Date:</div>
+                <div class="small fw-bold text-primary mb-2">Manually Add Missed Tasks / Work for this Date:</div>
                 
                 <div class="mb-2">
-                  <label class="form-label small fw-semibold text-dark mb-1">To-Do Tasks (Comma separated or custom):</label>
+                  <label class="form-label small fw-semibold text-dark mb-1">Missed To-Do Tasks (comma separated):</label>
                   <input type="text" id="manualTodosInput" class="form-control form-control-sm" placeholder="e.g. Revise Physics, Solve DPP">
                 </div>
 
                 <div class="mb-2">
-                  <label class="form-label small fw-semibold text-dark mb-1">Chapters Completed:</label>
+                  <label class="form-label small fw-semibold text-dark mb-1">Missed Chapters Completed (comma separated):</label>
                   <input type="text" id="manualChaptersInput" class="form-control form-control-sm" placeholder="e.g. Kinematics (Physics), Mole Concept (Chem)">
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label small fw-semibold text-dark mb-1">Question Practice & PYQs:</label>
+                  <label class="form-label small fw-semibold text-dark mb-1">Missed Practice / PYQs (comma separated):</label>
                   <input type="text" id="manualPracticeInput" class="form-control form-control-sm" placeholder="e.g. Kinematics - DC Pandey, NEET PYQs">
                 </div>
 
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Save Manual Activity Log</button>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Save Manual Activity & Work</button>
               </form>
             </div>
           </div>
@@ -932,25 +932,17 @@
           
           if(todosStr) {
             appData.history[date].completedTasksList = todosStr.split(',').map(s => s.trim()).filter(Boolean);
-          } else {
-            appData.history[date].completedTasksList = [];
           }
-
           if(chaptersStr) {
             appData.history[date].completedChaptersList = chaptersStr.split(',').map(s => s.trim()).filter(Boolean);
-          } else {
-            appData.history[date].completedChaptersList = [];
           }
-
           if(practiceStr) {
             appData.history[date].completedPracticeList = practiceStr.split(',').map(s => s.trim()).filter(Boolean);
-          } else {
-            appData.history[date].completedPracticeList = [];
           }
 
           saveData();
           renderCalendarHistory();
-          alert('Study activity & logs updated successfully!');
+          alert('Manual activity & missed work updated successfully!');
         }
       });
 
@@ -1361,6 +1353,7 @@
           ch.resources.push({ name: resName.trim(), done: false });
           saveData();
           renderPracticeTable();
+          recordTodayActivity();
         }
       }
     }
@@ -1933,6 +1926,7 @@
         saveData();
         renderChapters();
         renderPracticeTable();
+        recordTodayActivity();
       }
     }
 
@@ -1941,6 +1935,7 @@
       saveData();
       renderChapters();
       renderPracticeTable();
+      recordTodayActivity();
     }
 
     function checkSmartRevisionAlerts() {
@@ -2030,12 +2025,14 @@
       appData.todos = appData.todos.filter(x => x.id !== id);
       saveData();
       renderTodos();
+      recordTodayActivity();
     }
 
     function clearCompletedTodos() {
       appData.todos = appData.todos.filter(t => !t.completed);
       saveData();
       renderTodos();
+      recordTodayActivity();
     }
 
     function initScoreChart() {
@@ -2125,9 +2122,6 @@
 
     function recordTodayActivity() {
       const today = getISTDateString();
-      if(document.getElementById('manualActivityDate') && document.getElementById('manualActivityDate').value === today) {
-        return; // Don't overwrite manual override for today if actively edited
-      }
       if(!appData.history[today]) {
         appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
@@ -2146,9 +2140,20 @@
         }
       });
 
-      appData.history[today].completedTasksList = completedTaskNames;
-      appData.history[today].completedChaptersList = completedChapterNames;
-      appData.history[today].completedPracticeList = completedPracticeNames;
+      // Merge automatic lists with any existing manual entries without losing them
+      const existingManualTasks = appData.history[today].completedTasksList || [];
+      const mergedTasks = Array.from(new Set([...completedTaskNames, ...existingManualTasks]));
+
+      const existingManualChapters = appData.history[today].completedChaptersList || [];
+      const mergedChapters = Array.from(new Set([...completedChapterNames, ...existingManualChapters]));
+
+      const existingManualPractice = appData.history[today].completedPracticeList || [];
+      const mergedPractice = Array.from(new Set([...completedPracticeNames, ...existingManualPractice]));
+
+      appData.history[today].completedTasksList = mergedTasks;
+      appData.history[today].completedChaptersList = mergedChapters;
+      appData.history[today].completedPracticeList = mergedPractice;
+      
       renderCalendarHistory();
     }
 
