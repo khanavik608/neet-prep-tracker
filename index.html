@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.1 (Fixed Upcoming Test Checkbox Persistence) -->
+<!-- ENDORANK Dashboard - Version 4.2 (Manual Study Time & Complete Activity Logging Fix) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -685,33 +685,42 @@
       <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="row g-4">
-          <div class="col-lg-4">
+          <div class="col-lg-5">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study Time Adjust</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study & Activity Log</h3>
               <form id="manualActivityForm">
                 <div class="mb-3">
                   <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
-                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required onchange="loadManualActivityForDate(this.value)">
                 </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-4">
-                    <label class="form-label small fw-bold text-muted">Hours:</label>
-                    <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" value="0">
-                  </div>
-                  <div class="col-4">
-                    <label class="form-label small fw-bold text-muted">Minutes:</label>
-                    <input type="number" id="manualMins" class="form-control form-control-sm" min="0" max="59" value="0">
-                  </div>
-                  <div class="col-4">
-                    <label class="form-label small fw-bold text-muted">Seconds:</label>
-                    <input type="number" id="manualSecs" class="form-control form-control-sm" min="0" max="59" value="0">
-                  </div>
+                <div class="mb-3">
+                  <label for="manualHours" class="form-label small fw-bold text-muted">Study Time (Hours):</label>
+                  <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" step="0.5" value="0" placeholder="e.g. 6.5">
                 </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Update Study Time</button>
+                
+                <hr class="my-3">
+                <div class="small fw-bold text-primary mb-2">Mark Completed Items for this Date:</div>
+                
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold text-dark mb-1">To-Do Tasks (Comma separated or custom):</label>
+                  <input type="text" id="manualTodosInput" class="form-control form-control-sm" placeholder="e.g. Revise Physics, Solve DPP">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold text-dark mb-1">Chapters Completed:</label>
+                  <input type="text" id="manualChaptersInput" class="form-control form-control-sm" placeholder="e.g. Kinematics (Physics), Mole Concept (Chem)">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-dark mb-1">Question Practice & PYQs:</label>
+                  <input type="text" id="manualPracticeInput" class="form-control form-control-sm" placeholder="e.g. Kinematics - DC Pandey, NEET PYQs">
+                </div>
+
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Save Manual Activity Log</button>
               </form>
             </div>
           </div>
-          <div class="col-lg-8">
+          <div class="col-lg-7">
             <div class="card p-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Study Activity & Focus Log History</h3>
@@ -840,6 +849,7 @@
       document.getElementById('diaryDate').value = todayStr;
       document.getElementById('manualActivityDate').value = todayStr;
       loadDiaryForDate(todayStr);
+      loadManualActivityForDate(todayStr);
 
       document.getElementById('addChapterForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -907,19 +917,40 @@
       document.getElementById('manualActivityForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const date = document.getElementById('manualActivityDate').value;
-        const hrs = parseInt(document.getElementById('manualHours').value) || 0;
-        const mins = parseInt(document.getElementById('manualMins').value) || 0;
-        const secs = parseInt(document.getElementById('manualSecs').value) || 0;
-        const totalSecs = (hrs * 3600) + (mins * 60) + secs;
+        const hours = parseFloat(document.getElementById('manualHours').value) || 0;
+        const totalSecs = Math.round(hours * 3600);
+
+        const todosStr = document.getElementById('manualTodosInput').value.trim();
+        const chaptersStr = document.getElementById('manualChaptersInput').value.trim();
+        const practiceStr = document.getElementById('manualPracticeInput').value.trim();
 
         if(date) {
           if(!appData.history[date]) {
             appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
+          
+          if(todosStr) {
+            appData.history[date].completedTasksList = todosStr.split(',').map(s => s.trim()).filter(Boolean);
+          } else {
+            appData.history[date].completedTasksList = [];
+          }
+
+          if(chaptersStr) {
+            appData.history[date].completedChaptersList = chaptersStr.split(',').map(s => s.trim()).filter(Boolean);
+          } else {
+            appData.history[date].completedChaptersList = [];
+          }
+
+          if(practiceStr) {
+            appData.history[date].completedPracticeList = practiceStr.split(',').map(s => s.trim()).filter(Boolean);
+          } else {
+            appData.history[date].completedPracticeList = [];
+          }
+
           saveData();
           renderCalendarHistory();
-          alert('Study activity time updated successfully!');
+          alert('Study activity & logs updated successfully!');
         }
       });
 
@@ -990,6 +1021,22 @@
       });
     });
 
+    function loadManualActivityForDate(dateStr) {
+      if(appData.history && appData.history[dateStr]) {
+        const hData = appData.history[dateStr];
+        const hours = (hData.totalSeconds || 0) / 3600;
+        document.getElementById('manualHours').value = hours;
+        document.getElementById('manualTodosInput').value = hData.completedTasksList ? hData.completedTasksList.join(', ') : '';
+        document.getElementById('manualChaptersInput').value = hData.completedChaptersList ? hData.completedChaptersList.join(', ') : '';
+        document.getElementById('manualPracticeInput').value = hData.completedPracticeList ? hData.completedPracticeList.join(', ') : '';
+      } else {
+        document.getElementById('manualHours').value = 0;
+        document.getElementById('manualTodosInput').value = '';
+        document.getElementById('manualChaptersInput').value = '';
+        document.getElementById('manualPracticeInput').value = '';
+      }
+    }
+
     // --- Helper to format total seconds into Hours, Minutes, Seconds (H:M:S) ---
     function formatHMS(totalSecs) {
       const h = Math.floor(totalSecs / 3600);
@@ -1012,7 +1059,7 @@
           tbody.innerHTML = '';
           data.forEach((user, idx) => {
             const totalSecs = user.totalSeconds || 0;
-            const timeStr = formatHMS(totalSecs); // H:M:S Format
+            const timeStr = formatHMS(totalSecs);
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -1037,7 +1084,7 @@
       
       const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
       const totalSecsToday = getTotalCombinedTodaySeconds();
-      const timeStr = formatHMS(totalSecsToday); // H:M:S Format
+      const timeStr = formatHMS(totalSecsToday);
 
       tbody.innerHTML = `
         <tr>
@@ -1208,11 +1255,11 @@
       });
     }
 
-    // --- Upcoming Test Auto-Fill Feature (Fixed Permanent Tick Persistence) ---
+    // --- Upcoming Test Auto-Fill Feature ---
     function selectUpcomingTestForAnalysis(testTitle, testId) {
       const ut = appData.upcomingTests.find(t => t.id === testId);
       if(ut) {
-        ut.checked = !ut.checked; // Toggle/Persist checked state
+        ut.checked = !ut.checked;
         saveData();
         renderUpcomingTests();
       }
@@ -2078,6 +2125,9 @@
 
     function recordTodayActivity() {
       const today = getISTDateString();
+      if(document.getElementById('manualActivityDate') && document.getElementById('manualActivityDate').value === today) {
+        return; // Don't overwrite manual override for today if actively edited
+      }
       if(!appData.history[today]) {
         appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
@@ -2151,11 +2201,11 @@
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Chapters:</div>
           <div class="mb-2">${chaptersList}</div>
-          <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs:</div>
           <div class="mb-2">${practiceList}</div>
-          <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks:</div>
           <div>${tasksList}</div>
         `;
         container.appendChild(div);
