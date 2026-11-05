@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.7 (Toggle Buttons, Mutual Exclusion Timers & Combined Activity Log) -->
+<!-- ENDORANK Dashboard - Version 3.9 (Live Real-Time Room Join/Leave Auto-Sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +214,7 @@
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
-      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>🇮🇳 India NEET Arena & Rooms</button></li>
+      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>NEET Arena</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
@@ -373,17 +373,17 @@
         </div>
       </div>
 
-      <!-- Tab: 🇮🇳 India NEET Arena & Real Rooms -->
+      <!-- Tab: NEET Arena & Real Rooms -->
       <div class="tab-pane fade" id="tab-arena" role="tabpanel">
         <div class="row g-4">
-          <!-- Left Column: India Real Leaderboard -->
+          <!-- Left Column: NEET Arena Leaderboard -->
           <div class="col-lg-7">
             <div class="card p-4 h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>India NEET Aspirants Leaderboard</h3>
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard</h3>
                 <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
               </div>
-              <p class="text-muted small">Real Indian aspirants using ENDORANK appear here when active.</p>
+              <p class="text-muted small">Real aspirants using ENDORANK appear here when active.</p>
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead class="table-light">
@@ -400,10 +400,10 @@
             </div>
           </div>
 
-          <!-- Right Column: Real Student Study Rooms -->
+          <!-- Right Column: NEET Arena Rooms -->
           <div class="col-lg-5">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-door-open-fill me-2"></i>Real Study Rooms (Live Joining)</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-door-open-fill me-2"></i>NEET Arena Rooms</h3>
               <p class="text-muted small">Create or join a room code to study and compete with real student friends live.</p>
               
               <div class="mb-3">
@@ -783,6 +783,7 @@
   <script>
     const API_BASE_URL = "https://flat-shadow-fd78.khanavik608.workers.dev";
     let currentUserEmail = null;
+    let roomPollInterval = null; // Auto-sync interval for live room member updates
 
     let appData = {
       userName: '',
@@ -1000,11 +1001,11 @@
       });
     });
 
-    // --- India NEET Leaderboard & Real Rooms (Backend Sync) ---
+    // --- NEET Arena Leaderboard & Real Rooms (Backend Sync) ---
     async function loadLeaderboard() {
       const tbody = document.getElementById('globalLeaderboardBody');
       if(!tbody) return;
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching real Indian student records...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching real student records...</td></tr>`;
 
       try {
         const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
@@ -1062,7 +1063,7 @@
       return 0; 
     }
 
-    // --- Real Student Rooms API Functions ---
+    // --- Real Student Rooms API Functions (With Live Auto-Sync / Auto-Leave Popup) ---
     async function createPersonalRoom() {
       const roomName = document.getElementById('newRoomNameInput').value.trim();
       if(!roomName) {
@@ -1082,7 +1083,7 @@
         if(data.success || res.ok) {
           localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
           document.getElementById('newRoomNameInput').value = '';
-          fetchRoomMembers(roomCode, roomName);
+          startRoomAutoSync(roomCode, roomName);
           alert(`Room "${roomName}" created successfully! Room Code: ${roomCode}`);
         } else {
           localRoomSave(roomName, roomCode);
@@ -1117,7 +1118,7 @@
         if(data && (data.success || data.members)) {
           localStorage.setItem('endorank_active_room', JSON.stringify({ name: data.roomName || 'Study Room', code }));
           document.getElementById('joinRoomCodeInput').value = '';
-          showActiveRoomUI(data.roomName || 'Study Room', code, data.members);
+          startRoomAutoSync(code, data.roomName || 'Study Room');
           alert(`Joined room successfully!`);
         } else {
           alert('Room not found or invalid code.');
@@ -1141,20 +1142,43 @@
       }
     }
 
+    function startRoomAutoSync(roomCode, roomName) {
+      if(roomPollInterval) clearInterval(roomPollInterval);
+      fetchRoomMembers(roomCode, roomName);
+      // Auto poll every 3 seconds to instantly popup or disappear room members live without refresh
+      roomPollInterval = setInterval(() => {
+        fetchRoomMembers(roomCode, roomName);
+      }, 3000);
+    }
+
     function checkActiveRoomOnLoad() {
       const active = localStorage.getItem('endorank_active_room');
       if(active) {
         try {
           const room = JSON.parse(active);
-          fetchRoomMembers(room.code, room.name);
+          startRoomAutoSync(room.code, room.name);
         } catch(e) {}
       }
     }
 
-    function leavePersonalRoom() {
+    async function leavePersonalRoom() {
+      const active = localStorage.getItem('endorank_active_room');
+      if(active && currentUserEmail) {
+        try {
+          const room = JSON.parse(active);
+          const myName = appData.userName || currentUserEmail.split('@')[0];
+          // Send leave request to backend to instantly remove from active room list
+          await fetch(`${API_BASE_URL}/api/room/leave`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomCode: room.code, userName: myName })
+          });
+        } catch(err) {}
+      }
+
+      if(roomPollInterval) clearInterval(roomPollInterval);
       localStorage.removeItem('endorank_active_room');
       document.getElementById('activeRoomCard').classList.add('d-none');
-      alert('You have left the study room.');
     }
 
     function showActiveRoomUI(roomName, roomCode, members) {
@@ -1628,7 +1652,6 @@
     let pomoTimeLeft = 25 * 60, pomoTimerId = null, pomoRunning = false;
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
-    // Track active session seconds separately for combined aggregation
     let currentSessionPomodoroSeconds = 0;
     let currentSessionStopwatchSeconds = 0;
 
@@ -1656,7 +1679,6 @@
       if (pomoRunning) {
         pausePomo();
       } else {
-        // Mutual Exclusion: If stopwatch is running, pause it first
         if (swRunning) {
           pauseSw();
         }
@@ -1683,7 +1705,6 @@
           pomoTimeLeft--; 
           currentSessionPomodoroSeconds++;
           updatePomoDisplay(); 
-          // Accumulate combined time into daily history every second
           recordCombinedStudySeconds(1);
         } else { 
           pausePomo(); 
@@ -1727,7 +1748,6 @@
       if (swRunning) {
         pauseSw();
       } else {
-        // Mutual Exclusion: If pomodoro is running, pause it first
         if (pomoRunning) {
           pausePomo();
         }
@@ -1757,7 +1777,6 @@
         swSeconds++; 
         currentSessionStopwatchSeconds++;
         updateSwDisplay(); 
-        // Accumulate combined time into daily history every second
         recordCombinedStudySeconds(1);
       }, 1000); 
     }
@@ -2082,7 +2101,6 @@
       if(!appData.history[today]) {
         appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
-      // Pomodoro + Stopwatch combined total seconds incremented seamlessly
       appData.history[today].totalSeconds += secs;
       saveData();
       renderCalendarHistory();
