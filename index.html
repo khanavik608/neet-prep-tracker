@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 2.3 (Dedicated Clock Tab, Guess & Skip Q-Analysis) -->
+<!-- ENDORANK Dashboard - Version 2.4 (IST Clock with Auto Date & Clean UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -330,15 +330,15 @@
         </div>
       </div>
 
-      <!-- Tab: IST Clock Section -->
+      <!-- Tab: IST Clock & Date Section -->
       <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
         <div class="card text-center p-5">
-          <h3 class="h4 text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Watch</h3>
-          <p class="text-muted small">Live IST clock synchronized with Indian Standard Time zone (UTC+5:30)</p>
-          <div class="my-4">
+          <h3 class="h4 text-primary mb-3"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Clock & Date</h3>
+          <p class="text-muted small">Synchronized automatically with Indian Standard Time zone (UTC+5:30)</p>
+          <div class="my-3">
+            <span id="tabIstDateDisplay" class="h4 fw-bold text-secondary d-block mb-2">Loading Date...</span>
             <span id="tabIstClockDisplay" class="display-3 fw-bold font-monospace text-dark bg-light p-4 border rounded shadow-sm d-inline-block">00:00:00 AM IST</span>
           </div>
-          <p class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i> New day starts automatically at 12:00 AM IST.</p>
         </div>
       </div>
 
@@ -592,7 +592,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      initISTClock();
+      initISTClockAndDate();
       initISTCountdown();
       initTimers();
       renderChapters();
@@ -708,14 +708,21 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Dedicated IST Clock Section & Tab
-    function initISTClock() {
+    // Dedicated IST Clock & Date Tab
+    function initISTClockAndDate() {
       setInterval(() => {
         const now = new Date();
-        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const timeString = now.toLocaleTimeString('en-US', options) + ' IST';
-        const tabEl = document.getElementById('tabIstClockDisplay');
-        if(tabEl) tabEl.innerText = timeString;
+        const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        
+        const timeString = now.toLocaleTimeString('en-US', timeOptions) + ' IST';
+        const dateString = now.toLocaleDateString('en-US', dateOptions);
+
+        const clockEl = document.getElementById('tabIstClockDisplay');
+        const dateEl = document.getElementById('tabIstDateDisplay');
+
+        if(clockEl) clockEl.innerText = timeString;
+        if(dateEl) dateEl.innerText = dateString;
       }, 1000);
     }
 
