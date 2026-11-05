@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.0 (Live Hours, Minutes & Seconds Time Display) -->
+<!-- ENDORANK Dashboard - Version 4.1 (Fixed Upcoming Test Checkbox Persistence) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -626,12 +626,12 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Details</th>
-                  <th>Marks (/720)</th>
+                  <th>Test Name & Date</th>
+                  <th>Total Marks</th>
                   <th>Correct</th>
-                  <th>Wrong Count</th>
-                  <th>Guess Count</th>
-                  <th>Skip Count</th>
+                  <th>Wrong</th>
+                  <th>Guess</th>
+                  <th>Skip</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -641,45 +641,42 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood Tracker -->
+      <!-- Tab: Daily Diary & Mood -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
-          <div class="col-lg-6">
+          <div class="col-lg-5">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Tracker</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Log</h3>
               <form id="diaryForm">
                 <div class="mb-3">
-                  <label class="form-label small fw-bold text-muted">Select Date:</label>
+                  <label for="diaryDate" class="form-label small fw-bold text-muted">Date:</label>
                   <input type="date" id="diaryDate" class="form-control form-control-sm" required onchange="loadDiaryForDate(this.value)">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label small fw-bold text-muted">How are you feeling today?</label>
-                  <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-success mood-btn flex-fill py-2" onclick="selectMood('Happy', '#16a34a', this)">😄 Happy</button>
-                    <button type="button" class="btn btn-warning text-dark mood-btn flex-fill py-2" onclick="selectMood('Okay', '#eab308', this)">🙂 Okay</button>
-                    <button type="button" class="btn btn-danger mood-btn flex-fill py-2" onclick="selectMood('Stressed', '#dc2626', this)">😰 Stressed</button>
-                    <button type="button" class="btn btn-primary mood-btn flex-fill py-2" onclick="selectMood('Low', '#0284c7', this)">😔 Low</button>
+                  <label class="form-label small fw-bold text-muted">Select Mood:</label>
+                  <div class="d-flex gap-2 flex-wrap mb-2">
+                    <button type="button" class="btn btn-sm btn-success mood-btn selected" onclick="selectMood('Happy', '#16a34a', this)">😊 Happy</button>
+                    <button type="button" class="btn btn-sm btn-primary mood-btn" onclick="selectMood('Motivated', '#0284c7', this)">🔥 Motivated</button>
+                    <button type="button" class="btn btn-sm btn-warning mood-btn text-dark" onclick="selectMood('Anxious', '#ca8a04', this)">😰 Anxious</button>
+                    <button type="button" class="btn btn-sm btn-danger mood-btn" onclick="selectMood('Tired', '#dc2626', this)">😴 Tired</button>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="diaryContent" class="form-label small fw-bold text-muted">Your Diary Entry / Thoughts:</label>
-                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write about your study progress, challenges, or thoughts today..." required></textarea>
+                  <label for="diaryContent" class="form-label small fw-bold text-muted">Write Thoughts / Reflections:</label>
+                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="How did today go? What did you learn?" required></textarea>
                 </div>
                 <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save / Update Diary Entry</button>
+                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i>Save Entry</button>
                   <button type="button" class="btn btn-outline-danger" onclick="deleteDiaryEntry()"><i class="bi bi-trash"></i></button>
                 </div>
               </form>
             </div>
           </div>
-
-          <div class="col-lg-6">
+          <div class="col-lg-7">
             <div class="card p-4 h-100">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & Past Entries</h3>
-              <div class="mb-3 small text-muted">Click any past date to edit or view:</div>
-              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-4" style="max-height: 180px; overflow-y: auto;"></div>
-              <hr>
-              <div id="diaryHistoryList" style="max-height: 250px; overflow-y: auto;" class="pe-2"></div>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & History</h3>
+              <div id="moodCalendarGrid" class="d-flex gap-2 flex-wrap mb-4 p-3 bg-light rounded border"></div>
+              <div id="diaryHistoryList" style="max-height: 350px; overflow-y: auto;"></div>
             </div>
           </div>
         </div>
@@ -687,73 +684,65 @@
 
       <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
-        <div class="card p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Daily Activity & Focus Log (IST)</h3>
-            <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study Time Adjust</h3>
+              <form id="manualActivityForm">
+                <div class="mb-3">
+                  <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
+                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-4">
+                    <label class="form-label small fw-bold text-muted">Hours:</label>
+                    <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" value="0">
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label small fw-bold text-muted">Minutes:</label>
+                    <input type="number" id="manualMins" class="form-control form-control-sm" min="0" max="59" value="0">
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label small fw-bold text-muted">Seconds:</label>
+                    <input type="number" id="manualSecs" class="form-control form-control-sm" min="0" max="59" value="0">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Update Study Time</button>
+              </form>
+            </div>
           </div>
-          <div class="mb-3">
-            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity (H:M:S)</button>
+          <div class="col-lg-8">
+            <div class="card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Study Activity & Focus Log History</h3>
+                <span id="totalLoggedDays" class="badge bg-primary">0 Days Logged</span>
+              </div>
+              <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;"></div>
+            </div>
           </div>
-          <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
       </div>
 
       <!-- Tab: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
-        <div class="card p-4 text-center">
+        <div class="card text-center p-4">
           <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
-          <div class="d-flex justify-content-center my-3">
-            <img id="posterImage" src="" alt="Poster of the Day" class="img-fluid poster-img shadow">
+          <div class="mb-3">
+            <img id="posterImage" src="" alt="Poster" class="img-fluid poster-img shadow-sm w-100" style="max-height: 400px; object-fit: cover;">
           </div>
-          <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
-          <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
+          <h5 id="posterTitle" class="fw-bold text-dark"></h5>
+          <p id="posterCaption" class="text-muted"></p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Manual Activity & Focus Log Edit Modal -->
-  <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity (H:M:S)</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="manualActivityForm">
-            <div class="mb-3">
-              <label class="form-label small fw-bold text-muted">Date:</label>
-              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
-            </div>
-            <div class="row g-2 mb-3">
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Hours:</label>
-                <input type="number" id="manualHours" class="form-control form-control-sm" placeholder="0" min="0" value="0">
-              </div>
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Minutes:</label>
-                <input type="number" id="manualMins" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
-              </div>
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Seconds:</label>
-                <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
-              </div>
-            </div>
-            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Modal -->
+  <!-- Auth Modal -->
   <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Google Sync & Settings</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>ENDORANK Account Sync</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center py-4">
@@ -908,7 +897,7 @@
         const date = document.getElementById('upcomingDate').value;
         if(title && date) {
           if(!appData.upcomingTests) appData.upcomingTests = [];
-          appData.upcomingTests.push({ id: Date.now(), title, date });
+          appData.upcomingTests.push({ id: Date.now(), title, date, checked: false });
           document.getElementById('upcomingTestForm').reset();
           saveData();
           renderUpcomingTests();
@@ -1138,7 +1127,6 @@
 
     async function fetchRoomMembers(roomCode, roomName) {
       try {
-        // Also update backend with our latest ticking seconds on every poll sync heartbeat
         if(currentUserEmail || appData.userName) {
           const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
           await fetch(`${API_BASE_URL}/api/room/join`, {
@@ -1160,7 +1148,6 @@
     function startRoomAutoSync(roomCode, roomName) {
       if(roomPollInterval) clearInterval(roomPollInterval);
       fetchRoomMembers(roomCode, roomName);
-      // Auto poll every 3 seconds to instantly popup/disappear members and update seconds live
       roomPollInterval = setInterval(() => {
         fetchRoomMembers(roomCode, roomName);
       }, 3000);
@@ -1210,7 +1197,7 @@
       }
 
       members.forEach(m => {
-        const timeFormatted = formatHMS(m.time || 0); // H:M:S Format for Room Members
+        const timeFormatted = formatHMS(m.time || 0);
         const div = document.createElement('div');
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
         div.innerHTML = `
@@ -1221,8 +1208,14 @@
       });
     }
 
-    // --- Upcoming Test Auto-Fill Feature ---
-    function selectUpcomingTestForAnalysis(testTitle) {
+    // --- Upcoming Test Auto-Fill Feature (Fixed Permanent Tick Persistence) ---
+    function selectUpcomingTestForAnalysis(testTitle, testId) {
+      const ut = appData.upcomingTests.find(t => t.id === testId);
+      if(ut) {
+        ut.checked = !ut.checked; // Toggle/Persist checked state
+        saveData();
+        renderUpcomingTests();
+      }
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
       document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1242,8 +1235,8 @@
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
         div.innerHTML = `
           <div class="d-flex align-items-center gap-2">
-            <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
-            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
+            <input class="form-check-input mt-0" type="checkbox" ${ut.checked ? 'checked' : ''} title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}', ${ut.id})">
+            <div><strong class="${ut.checked ? 'text-success text-decoration-line-through' : ''}">${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
           </div>
           <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
         `;
@@ -2134,7 +2127,7 @@
       dates.forEach(dateStr => {
         const dayData = appData.history[dateStr];
         const totalSecs = dayData.totalSeconds || 0;
-        const timeFormatted = formatHMS(totalSecs); // H:M:S format
+        const timeFormatted = formatHMS(totalSecs);
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
@@ -2177,7 +2170,7 @@
 
     function renderPoster() {
       const dayOfMonth = new Date().getDate();
-      const posterIndex = (dayOfMonth - 1) * posters.length;
+      const posterIndex = (dayOfMonth - 1) % posters.length;
       const currentPoster = posters[posterIndex % posters.length];
 
       document.getElementById('posterImage').src = currentPoster.image;
