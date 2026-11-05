@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 2.0 (IST Clock, Heatmap, Smart Revision & Error Log) -->
+<!-- ENDORANK Dashboard - Version 2.2 (Manual Counts & Separate Countdown/Clock) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,13 +138,13 @@
       background: #ffffff;
     }
 
-    .ist-clock-badge {
-      background: #e0f2fe;
-      color: #0369a1;
+    .ist-badge-box {
+      background: #f0f9ff;
       border: 1px solid #bae6fd;
+      color: #0369a1;
       font-weight: 700;
       font-family: monospace;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 8px;
     }
 
@@ -168,9 +168,9 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Live IST Clock -->
-        <div class="ist-clock-badge d-flex align-items-center gap-2">
-          <i class="bi bi-clock-history"></i>
+        <!-- Separate IST Clock Display Section -->
+        <div class="ist-badge-box d-flex align-items-center gap-2">
+          <i class="bi bi-clock"></i>
           <span id="istClockDisplay">00:00:00 AM IST</span>
         </div>
 
@@ -226,6 +226,8 @@
     <div class="tab-content" id="mainAppTabContent">
       <!-- Tab 1: Dashboard -->
       <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
+        
+        <!-- Original Front Page Exam Countdown Card -->
         <div class="card mb-4 text-center p-4">
           <div class="row align-items-center">
             <div class="col-md-3 mb-3 mb-md-0 border-end">
@@ -420,21 +422,32 @@
                   </div>
                 </div>
 
-                <!-- Correct Count -->
+                <!-- Manual Counts -->
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label for="testCorrectCount" class="form-label small fw-bold text-success">Correct Count:</label>
+                    <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="e.g. 140" min="0" max="180">
+                  </div>
+                  <div class="col-6">
+                    <label for="testWrongCount" class="form-label small fw-bold text-danger">Wrong Count:</label>
+                    <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="e.g. 30" min="0" max="180">
+                  </div>
+                </div>
+
                 <div class="mb-2">
-                  <label for="testCorrectCount" class="form-label small fw-bold text-success">Total Correct Questions Count:</label>
-                  <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="e.g. 150" min="0" max="180">
+                  <label for="testTukkaCount" class="form-label small fw-bold text-warning">Tukka Count:</label>
+                  <input type="number" id="testTukkaCount" class="form-control form-control-sm" placeholder="e.g. 5" min="0" max="180">
                 </div>
 
                 <!-- Incorrect Questions Q-Numbers -->
                 <div class="mb-2">
-                  <label for="testIncorrectList" class="form-label small fw-bold text-danger">Incorrect Question Numbers (Comma Separated):</label>
+                  <label for="testIncorrectList" class="form-label small fw-bold text-danger">Wrong Question Numbers (Comma Separated):</label>
                   <input type="text" id="testIncorrectList" class="form-control form-control-sm" placeholder="e.g. Q12, Q45, Q89">
                 </div>
 
                 <!-- Tukka / Guesswork Q-Numbers -->
                 <div class="mb-3">
-                  <label for="testTukkaList" class="form-label small fw-bold text-warning">Tukka / Guesswork Question Numbers (Comma Separated):</label>
+                  <label for="testTukkaList" class="form-label small fw-bold text-warning">Tukka Question Numbers (Comma Separated):</label>
                   <input type="text" id="testTukkaList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
                 </div>
 
@@ -462,8 +475,8 @@
                   <th>Test Details</th>
                   <th>Marks (/720)</th>
                   <th>Correct Count</th>
-                  <th>Incorrect Q. Nos</th>
-                  <th>Tukka Q. Nos</th>
+                  <th>Wrong Count & Q.Nos</th>
+                  <th>Tukka Count & Q.Nos</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -571,7 +584,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      initLiveISTClock();
+      initISTClock();
       initISTCountdown();
       initTimers();
       renderChapters();
@@ -643,6 +656,8 @@
         const date = document.getElementById('testDate').value;
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
         const correctCount = parseInt(document.getElementById('testCorrectCount').value) || 0;
+        const wrongCount = parseInt(document.getElementById('testWrongCount').value) || 0;
+        const tukkaCount = parseInt(document.getElementById('testTukkaCount').value) || 0;
         
         const incRaw = document.getElementById('testIncorrectList').value;
         const incorrectQ = incRaw ? incRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
@@ -656,7 +671,9 @@
             name, 
             date, 
             marks, 
-            correctCount, 
+            correctCount,
+            wrongCount,
+            tukkaCount,
             incorrectQ, 
             tukkaQ 
           });
@@ -668,7 +685,6 @@
       });
     });
 
-    // Helper: Get Current Date in IST string YYYY-MM-DD
     function getISTDateString() {
       const now = new Date();
       const istDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -678,16 +694,17 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Live IST Clock Widget
-    function initLiveISTClock() {
+    // Top Header Separate IST Clock
+    function initISTClock() {
       setInterval(() => {
         const now = new Date();
         const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        document.getElementById('istClockDisplay').innerText = now.toLocaleTimeString('en-US', options) + ' IST';
+        const el = document.getElementById('istClockDisplay');
+        if(el) el.innerText = now.toLocaleTimeString('en-US', options) + ' IST';
       }, 1000);
     }
 
-    // IST Countdown Calculator (resets at exact Midnight 12:00 AM IST)
+    // Front Page IST Countdown Calculator
     function initISTCountdown() {
       setInterval(() => {
         const now = new Date();
@@ -982,7 +999,6 @@
       renderChapters();
     }
 
-    // Smart Revision Reminder Engine (30-day rule alert)
     function checkSmartRevisionAlerts() {
       const alertBox = document.getElementById('revisionAlertContainer');
       const alertList = document.getElementById('revisionAlertList');
@@ -1099,6 +1115,23 @@
           maintainAspectRatio: false,
           scales: {
             y: { beginAtZero: true, max: 720 }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const sorted = [...appData.tests].sort((a,b) => new Date(a.date) - new Date(b.date));
+                  const test = sorted[context.dataIndex];
+                  if(!test) return `Marks: ${context.raw}`;
+                  return [
+                    `Marks: ${test.marks} / 720`,
+                    `Correct: ${test.correctCount || 0}`,
+                    `Wrong: ${test.wrongCount || 0}`,
+                    `Tukka: ${test.tukkaCount || 0}`
+                  ];
+                }
+              }
+            }
           }
         }
       });
@@ -1113,7 +1146,6 @@
       scoreChartInstance.update();
     }
 
-    // Render Tests with Error & Tukka Analysis and Delete badges
     function renderTests() {
       const tbody = document.getElementById('testsTableBody');
       tbody.innerHTML = '';
@@ -1138,8 +1170,14 @@
           </td>
           <td class="fw-bold text-primary fs-6">${test.marks} / 720</td>
           <td><span class="badge bg-success fs-6">${test.correctCount || 0}</span></td>
-          <td><div>${incBadges}</div></td>
-          <td><div>${tukkaBadges}</div></td>
+          <td>
+            <span class="badge bg-danger mb-1">Count: ${test.wrongCount || 0}</span>
+            <div>${incBadges}</div>
+          </td>
+          <td>
+            <span class="badge bg-warning text-dark mb-1">Count: ${test.tukkaCount || 0}</span>
+            <div>${tukkaBadges}</div>
+          </td>
           <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete Test</button></td>
         `;
         tbody.appendChild(tr);
