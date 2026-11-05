@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 2.8 (Editable & Deletable Diary & Focus Log) -->
+<!-- ENDORANK Dashboard - Version 3.0 (H:M:S Focus Log & Auto-Sync To-Dos) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,7 +144,7 @@
     }
 
     .bubble-grid-box {
-      max-height: 200px;
+      max-height: 180px;
       overflow-y: auto;
       border: 1px solid var(--border-color);
       background: #f8fafc;
@@ -492,22 +492,6 @@
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
                 </div>
 
-                <!-- Question Numbers Lists -->
-                <div class="mb-2">
-                  <label for="testIncorrectList" class="form-label small fw-bold text-danger">Wrong Question Numbers (Comma Separated):</label>
-                  <input type="text" id="testIncorrectList" class="form-control form-control-sm" placeholder="e.g. Q12, Q45">
-                </div>
-
-                <div class="mb-2">
-                  <label for="testGuessList" class="form-label small fw-bold text-warning">Guess Question Numbers (Comma Separated):</label>
-                  <input type="text" id="testGuessList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
-                </div>
-
-                <div class="mb-3">
-                  <label for="testSkipList" class="form-label small fw-bold text-secondary">Skip Question Numbers (Comma Separated):</label>
-                  <input type="text" id="testSkipList" class="form-control form-control-sm" placeholder="e.g. Q15, Q22">
-                </div>
-
                 <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Save Test & Analysis</button>
               </form>
             </div>
@@ -515,9 +499,9 @@
 
           <!-- Right Column: Upcoming Test Scheduler & Graph -->
           <div class="col-lg-6">
-            <!-- Upcoming Test Scheduler Card -->
+            <!-- Upcoming Test Scheduler Card (24-Hour Time) -->
             <div class="card p-4 mb-4 scheduled-test-card">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test (24-Hr)</h3>
               <form id="upcomingTestForm">
                 <div class="mb-2">
                   <label for="upcomingName" class="form-label small fw-bold text-muted">Test Title / Platform:</label>
@@ -525,7 +509,7 @@
                 </div>
                 <div class="row g-2 mb-3">
                   <div class="col-7">
-                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & Time:</label>
+                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & 24-Hr Time:</label>
                     <input type="datetime-local" id="upcomingDate" class="form-control form-control-sm" required>
                   </div>
                   <div class="col-5 d-flex align-items-end">
@@ -554,10 +538,10 @@
                 <tr>
                   <th>Test Details</th>
                   <th>Marks (/720)</th>
-                  <th>Correct Count</th>
-                  <th>Wrong Count & Q.Nos</th>
-                  <th>Guess Count & Q.Nos</th>
-                  <th>Skip Count & Q.Nos</th>
+                  <th>Correct</th>
+                  <th>Wrong Count</th>
+                  <th>Guess Count</th>
+                  <th>Skip Count</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -567,7 +551,7 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood Tracker (Editable & Deletable) -->
+      <!-- Tab: Daily Diary & Mood Tracker -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
           <div class="col-lg-6">
@@ -611,7 +595,7 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Activity & Focus Log (Editable study minutes & Delete) -->
+      <!-- Tab: Daily Activity & Focus Log (Hours, Minutes, Seconds + Manual Add/Edit + Delete) -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
@@ -619,7 +603,7 @@
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
           <div class="mb-3">
-            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity (H:M:S)</button>
           </div>
           <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
@@ -639,12 +623,12 @@
     </div>
   </div>
 
-  <!-- Manual Activity Edit Modal -->
+  <!-- Manual Activity & Focus Log Edit Modal (Hours + Mins + Secs) -->
   <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity (H:M:S)</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -653,9 +637,19 @@
               <label class="form-label small fw-bold text-muted">Date:</label>
               <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
             </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold text-muted">Study Minutes:</label>
-              <input type="number" id="manualActivityMins" class="form-control form-control-sm" placeholder="e.g. 120" min="0" required>
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Hours:</label>
+                <input type="number" id="manualHours" class="form-control form-control-sm" placeholder="0" min="0" value="0">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Minutes:</label>
+                <input type="number" id="manualMins" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Seconds:</label>
+                <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
+              </div>
             </div>
             <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
           </form>
@@ -718,7 +712,7 @@
       todos: [],
       tests: [],
       upcomingTests: [],
-      history: {},
+      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [] } }
       diaries: {}
     };
 
@@ -828,23 +822,26 @@
         }
       });
 
-      // Manual Activity Log Submit
+      // Manual Activity Log Submit (Hours, Mins, Secs)
       document.getElementById('manualActivityForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const date = document.getElementById('manualActivityDate').value;
-        const mins = parseInt(document.getElementById('manualActivityMins').value) || 0;
+        const hrs = parseInt(document.getElementById('manualHours').value) || 0;
+        const mins = parseInt(document.getElementById('manualMins').value) || 0;
+        const secs = parseInt(document.getElementById('manualSecs').value) || 0;
+        const totalSecs = (hrs * 3600) + (mins * 60) + secs;
+
         if(date) {
           if(!appData.history[date]) {
-            appData.history[date] = { studyMinutes: 0, completedTasksList: [] };
+            appData.history[date] = { totalSeconds: 0, completedTasksList: [] };
           }
-          appData.history[date].studyMinutes = mins;
+          appData.history[date].totalSeconds = totalSecs;
           saveData();
           renderCalendarHistory();
-          alert('Study activity updated successfully!');
+          alert('Study activity time updated successfully!');
         }
       });
 
-      // Diary Form Submit (Save or Update)
       document.getElementById('diaryForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const date = document.getElementById('diaryDate').value;
@@ -868,37 +865,27 @@
         const date = document.getElementById('testDate').value;
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
         
-        let correctCount = parseInt(document.getElementById('testCorrectCount').value);
+        let correctCount = parseInt(document.getElementById('testCorrectCount').value) || 0;
         let wrongCount = parseInt(document.getElementById('testWrongCount').value);
         let guessCount = parseInt(document.getElementById('testGuessCount').value);
         let skipCount = parseInt(document.getElementById('testSkipCount').value);
 
-        const incRaw = document.getElementById('testIncorrectList').value;
-        let incorrectQ = incRaw ? incRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
-
-        const guessRaw = document.getElementById('testGuessList').value;
-        let guessQ = guessRaw ? guessRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
-
-        const skipRaw = document.getElementById('testSkipList').value;
-        let skipQ = skipRaw ? skipRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
-
         if(isNaN(wrongCount) && isNaN(guessCount) && isNaN(skipCount)) {
-          incorrectQ = []; guessQ = []; skipQ = [];
+          let wrongQArr = [], guessQArr = [], skipQArr = [];
           Object.keys(bubbleStates).forEach(qNum => {
             const st = bubbleStates[qNum];
-            if(st === 1) incorrectQ.push('Q' + qNum);
-            else if(st === 2) guessQ.push('Q' + qNum);
-            else if(st === 3) skipQ.push('Q' + qNum);
+            if(st === 1) wrongQArr.push(qNum);
+            else if(st === 2) guessQArr.push(qNum);
+            else if(st === 3) skipQArr.push(qNum);
           });
-          wrongCount = incorrectQ.length;
-          guessCount = guessQ.length;
-          skipCount = skipQ.length;
-          correctCount = isNaN(correctCount) ? Math.max(0, 180 - (wrongCount + guessCount + skipCount)) : correctCount;
+          wrongCount = wrongQArr.length;
+          guessCount = guessQArr.length;
+          skipCount = skipQArr.length;
+          correctCount = Math.max(0, 180 - (wrongCount + guessCount + skipCount));
         } else {
-          wrongCount = isNaN(wrongCount) ? incorrectQ.length : wrongCount;
-          guessCount = isNaN(guessCount) ? guessQ.length : guessCount;
-          skipCount = isNaN(skipCount) ? skipQ.length : skipCount;
-          correctCount = isNaN(correctCount) ? 0 : correctCount;
+          wrongCount = isNaN(wrongCount) ? 0 : wrongCount;
+          guessCount = isNaN(guessCount) ? 0 : guessCount;
+          skipCount = isNaN(skipCount) ? 0 : skipCount;
         }
 
         if(name && date) {
@@ -910,10 +897,7 @@
             correctCount,
             wrongCount,
             guessCount,
-            skipCount,
-            incorrectQ, 
-            guessQ,
-            skipQ
+            skipCount
           });
           document.getElementById('testScheduleForm').reset();
           document.getElementById('diaryDate').value = getISTDateString();
@@ -930,7 +914,6 @@
         const entry = appData.diaries[dateStr];
         document.getElementById('diaryContent').value = entry.content;
         selectedMoodData = { mood: entry.mood, color: entry.color };
-        // Highlight correct mood button
         document.querySelectorAll('.mood-btn').forEach(b => {
           b.classList.remove('selected');
           if(b.innerText.includes(entry.mood)) b.classList.add('selected');
@@ -959,7 +942,6 @@
     function editDiaryForDate(dateStr) {
       document.getElementById('diaryDate').value = dateStr;
       loadDiaryForDate(dateStr);
-      // Switch tab to diary
       const diaryTabBtn = document.getElementById('diary-tab');
       if(diaryTabBtn) diaryTabBtn.click();
     }
@@ -1018,7 +1000,7 @@
         const div = document.createElement('div');
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
         div.innerHTML = `
-          <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${ut.datetime.replace('T', ' ')}</small></div>
+          <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${ut.datetime.replace('T', ' ')} (24-Hr)</small></div>
           <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
@@ -1292,7 +1274,7 @@
       pomoRunning = true;
       pomoTimerId = setInterval(() => {
         if (pomoTimeLeft > 0) { pomoTimeLeft--; updatePomoDisplay(); }
-        else { pausePomo(); alert('Focus time complete!'); recordStudyTime(25); }
+        else { pausePomo(); alert('Focus time complete!'); recordStudySeconds(25 * 60); }
       }, 1000);
       document.getElementById('pomoStartBtn').disabled = true;
       document.getElementById('pomoPauseBtn').disabled = false;
@@ -1306,7 +1288,10 @@
     function resetPomo() { pausePomo(); pomoTimeLeft = 25 * 60; updatePomoDisplay(); }
 
     function updateSwDisplay() {
-      const formatted = `${String(Math.floor(swSeconds / 3600)).padStart(2, '0')}:${String(Math.floor((swSeconds % 3600) / 60)).padStart(2, '0')}:${String(swSeconds % 60).padStart(2, '0')}`;
+      const hrs = String(Math.floor(swSeconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((swSeconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(swSeconds % 60).padStart(2, '0');
+      const formatted = `${hrs}:${mins}:${secs}`;
       document.getElementById('swDisplay').innerText = formatted;
       document.getElementById('bigSwDisplay').innerText = formatted;
     }
@@ -1327,7 +1312,7 @@
       document.getElementById('swPauseBtn').disabled = true;
       document.getElementById('bigSwStartBtn').disabled = false;
       document.getElementById('bigSwPauseBtn').disabled = true;
-      if(swSeconds > 60) recordStudyTime(Math.round(swSeconds / 60));
+      if(swSeconds > 10) recordStudySeconds(swSeconds);
     }
     function lapSw() {
       const li = document.createElement('li');
@@ -1566,18 +1551,6 @@
         return;
       }
       appData.tests.forEach(test => {
-        const incBadges = (test.incorrectQ && test.incorrectQ.length > 0)
-          ? test.incorrectQ.map((q, idx) => `<span class="badge bg-danger text-white me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteIncorrectQuestion(${test.id}, ${idx})"></i></span>`).join('')
-          : '<span class="text-muted small">None</span>';
-
-        const guessBadges = (test.guessQ && test.guessQ.length > 0)
-          ? test.guessQ.map((q, idx) => `<span class="badge bg-warning text-dark me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteGuessQuestion(${test.id}, ${idx})"></i></span>`).join('')
-          : '<span class="text-muted small">None</span>';
-
-        const skipBadges = (test.skipQ && test.skipQ.length > 0)
-          ? test.skipQ.map((q, idx) => `<span class="badge bg-secondary text-white me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteSkipQuestion(${test.id}, ${idx})"></i></span>`).join('')
-          : '<span class="text-muted small">None</span>';
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="fw-semibold">
@@ -1586,49 +1559,13 @@
           </td>
           <td class="fw-bold text-primary fs-6">${test.marks} / 720</td>
           <td><span class="badge bg-success fs-6">${test.correctCount || 0}</span></td>
-          <td>
-            <span class="badge bg-danger mb-1">Count: ${test.wrongCount || 0}</span>
-            <div>${incBadges}</div>
-          </td>
-          <td>
-            <span class="badge bg-warning text-dark mb-1">Count: ${test.guessCount || 0}</span>
-            <div>${guessBadges}</div>
-          </td>
-          <td>
-            <span class="badge bg-secondary mb-1">Count: ${test.skipCount || 0}</span>
-            <div>${skipBadges}</div>
-          </td>
-          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete Test</button></td>
+          <td><span class="badge bg-danger fs-6">${test.wrongCount || 0}</span></td>
+          <td><span class="badge bg-warning text-dark fs-6">${test.guessCount || 0}</span></td>
+          <td><span class="badge bg-secondary fs-6">${test.skipCount || 0}</span></td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete</button></td>
         `;
         tbody.appendChild(tr);
       });
-    }
-
-    function deleteIncorrectQuestion(testId, qIndex) {
-      const test = appData.tests.find(t => t.id === testId);
-      if(test && test.incorrectQ) {
-        test.incorrectQ.splice(qIndex, 1);
-        saveData();
-        renderTests();
-      }
-    }
-
-    function deleteGuessQuestion(testId, qIndex) {
-      const test = appData.tests.find(t => t.id === testId);
-      if(test && test.guessQ) {
-        test.guessQ.splice(qIndex, 1);
-        saveData();
-        renderTests();
-      }
-    }
-
-    function deleteSkipQuestion(testId, qIndex) {
-      const test = appData.tests.find(t => t.id === testId);
-      if(test && test.skipQ) {
-        test.skipQ.splice(qIndex, 1);
-        saveData();
-        renderTests();
-      }
     }
 
     function deleteTest(id) {
@@ -1641,19 +1578,19 @@
     function recordTodayActivity() {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { studyMinutes: 0, completedTasksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [] };
       }
       const completedTaskNames = appData.todos.filter(t => t.completed).map(t => t.text);
       appData.history[today].completedTasksList = completedTaskNames;
       renderCalendarHistory();
     }
 
-    function recordStudyTime(mins) {
+    function recordStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { studyMinutes: 0, completedTasksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [] };
       }
-      appData.history[today].studyMinutes += mins;
+      appData.history[today].totalSeconds += secs;
       saveData();
       renderCalendarHistory();
     }
@@ -1672,6 +1609,12 @@
 
       dates.forEach(dateStr => {
         const dayData = appData.history[dateStr];
+        const totalSecs = dayData.totalSeconds || 0;
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+        const timeFormatted = `${h}h ${m}m ${s}s`;
+
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
           : '<span class="text-muted small">No tasks completed on this day</span>';
@@ -1682,11 +1625,11 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${dateStr}</span>
             <div>
-              <span class="badge bg-primary me-2">${dayData.studyMinutes || 0} Mins Studied</span>
+              <span class="badge bg-primary me-2"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="small text-muted mb-1 fw-bold">Completed Tasks:</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Tasks (Auto-Synced):</div>
           <div>${tasksList}</div>
         `;
         container.appendChild(div);
