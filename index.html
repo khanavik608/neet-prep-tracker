@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.4 (Automatic Midnight To-Do Refresh Added) -->
+<!-- ENDORANK Dashboard - Version 4.5 (Room Admin, Room Leaderboard, & 4 AM Reset Added) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +214,7 @@
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
-      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>NEET Arena</button></li>
+      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>NEET Arena & Rooms</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
@@ -373,17 +373,26 @@
         </div>
       </div>
 
-      <!-- Tab: NEET Arena & Real Rooms -->
+      <!-- Tab: NEET Arena & Rooms -->
       <div class="tab-pane fade" id="tab-arena" role="tabpanel">
+        <!-- Live Active Studying Counter Banner -->
+        <div class="card mb-4 p-3 bg-light border-0 shadow-sm text-center">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+            <span class="fw-bold text-dark">Live Platform Activity:</span>
+            <span id="liveStudyingCountBadge" class="badge bg-success fs-6 px-3 py-2">0 Aspirants Studying Right Now 🔥</span>
+          </div>
+        </div>
+
         <div class="row g-4">
-          <!-- Left Column: NEET Arena Leaderboard -->
+          <!-- Left Column: Individual & Room Leaderboards -->
           <div class="col-lg-7">
-            <div class="card p-4 h-100">
+            <!-- Individual Leaderboard Card -->
+            <div class="card p-4 mb-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard</h3>
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>Individual Leaderboard (Resets 4 AM)</h3>
                 <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
               </div>
-              <p class="text-muted small">Real aspirants using ENDORANK appear here when active (showing live H:M:S).</p>
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead class="table-light">
@@ -398,13 +407,34 @@
                 </table>
               </div>
             </div>
+
+            <!-- Room Leaderboard Card -->
+            <div class="card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-success mb-0"><i class="bi bi-people-fill me-2"></i>Room Leaderboard (Resets 4 AM)</h3>
+                <button class="btn btn-sm btn-outline-success" onclick="loadRoomLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Rank</th>
+                      <th>Room Name</th>
+                      <th>Admin</th>
+                      <th>Total Combined Study Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody id="roomLeaderboardBody"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
-          <!-- Right Column: NEET Arena Rooms -->
+          <!-- Right Column: NEET Arena Rooms & Admin Panel -->
           <div class="col-lg-5">
             <div class="card p-4 mb-4">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-door-open-fill me-2"></i>NEET Arena Rooms</h3>
-              <p class="text-muted small">Create or join a room code to study and compete with real student friends live.</p>
+              <p class="text-muted small">Create or join a room code to study together. Room creators become Admin with member removal powers.</p>
               
               <div class="mb-3">
                 <label class="form-label small fw-bold text-muted">Create Room:</label>
@@ -425,14 +455,15 @@
               </div>
             </div>
 
-            <!-- Active Room Info Card -->
+            <!-- Active Room Info & Admin Control Card -->
             <div id="activeRoomCard" class="card p-4 d-none scheduled-test-card">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="fw-bold text-primary mb-0" id="activeRoomTitle">Room: None</h5>
                 <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:11px;" onclick="leavePersonalRoom()">Leave Room</button>
               </div>
-              <p class="small text-muted mb-2">Room Code: <strong id="activeRoomCodeDisplay" class="text-dark"></strong></p>
-              <div id="roomMembersList" style="max-height: 150px; overflow-y: auto;" class="small"></div>
+              <p class="small text-muted mb-2">Room Code: <strong id="activeRoomCodeDisplay" class="text-dark"></strong> | Admin: <span id="roomAdminDisplay" class="badge bg-warning text-dark"></span></p>
+              <div class="alert alert-info py-2 px-3 small mb-2"><i class="bi bi-info-circle me-1"></i>Combined Room Study Hours: <strong id="roomTotalHoursDisplay" class="text-dark">0h 0m 0s</strong></div>
+              <div id="roomMembersList" style="max-height: 200px; overflow-y: auto;" class="small"></div>
             </div>
           </div>
         </div>
@@ -626,13 +657,13 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Name & Date</th>
-                  <th>Total Marks</th>
+                  <th>Test Name</th>
+                  <th>Marks</th>
                   <th>Correct</th>
                   <th>Wrong</th>
                   <th>Guess</th>
                   <th>Skip</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="testsTableBody"></tbody>
@@ -641,29 +672,30 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood -->
+      <!-- Tab: Daily Diary & Mood Tracker -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
-          <div class="col-lg-5">
-            <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Log</h3>
+          <div class="col-lg-6">
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Logger</h3>
               <form id="diaryForm">
                 <div class="mb-3">
                   <label for="diaryDate" class="form-label small fw-bold text-muted">Date:</label>
-                  <input type="date" id="diaryDate" class="form-control form-control-sm" required onchange="loadDiaryForDate(this.value)">
+                  <input type="date" id="diaryDate" class="form-control form-control-sm" required>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label small fw-bold text-muted">Select Mood:</label>
-                  <div class="d-flex gap-2 flex-wrap mb-2">
-                    <button type="button" class="btn btn-sm btn-success mood-btn selected" onclick="selectMood('Happy', '#16a34a', this)">😊 Happy</button>
-                    <button type="button" class="btn btn-sm btn-primary mood-btn" onclick="selectMood('Motivated', '#0284c7', this)">🔥 Motivated</button>
-                    <button type="button" class="btn btn-sm btn-warning mood-btn text-dark" onclick="selectMood('Anxious', '#ca8a04', this)">😰 Anxious</button>
-                    <button type="button" class="btn btn-sm btn-danger mood-btn" onclick="selectMood('Tired', '#dc2626', this)">😴 Tired</button>
+                  <label class="form-label small fw-bold text-muted">Select Today's Mood:</label>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-success mood-btn selected" onclick="selectMood('Happy', '#16a34a', this)">😊 Happy</button>
+                    <button type="button" class="btn btn-outline-primary mood-btn" onclick="selectMood('Focused', '#0284c7', this)">🎯 Focused</button>
+                    <button type="button" class="btn btn-outline-warning mood-btn" onclick="selectMood('Stressed', '#d97706', this)">😰 Stressed</button>
+                    <button type="button" class="btn btn-outline-secondary mood-btn" onclick="selectMood('Tired', '#64748b', this)">😴 Tired</button>
+                    <button type="button" class="btn btn-outline-danger mood-btn" onclick="selectMood('Low', '#dc2626', this)">😔 Low</button>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="diaryContent" class="form-label small fw-bold text-muted">Write Thoughts / Reflections:</label>
-                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="How did today go? What did you learn?" required></textarea>
+                  <label for="diaryContent" class="form-label small fw-bold text-muted">Write Thoughts, Reflections, or Doubts:</label>
+                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="How did today go? What did you learn or struggle with?" required></textarea>
                 </div>
                 <div class="d-flex gap-2">
                   <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i>Save Entry</button>
@@ -672,11 +704,15 @@
               </form>
             </div>
           </div>
-          <div class="col-lg-7">
-            <div class="card p-4 h-100">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & History</h3>
-              <div id="moodCalendarGrid" class="d-flex gap-2 flex-wrap mb-4 p-3 bg-light rounded border"></div>
-              <div id="diaryHistoryList" style="max-height: 350px; overflow-y: auto;"></div>
+
+          <div class="col-lg-6">
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar Grid</h3>
+              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-3" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+            <div class="card p-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-text me-2"></i>Past Diary Entries</h3>
+              <div id="diaryHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
           </div>
         </div>
@@ -685,48 +721,43 @@
       <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="row g-4">
-          <div class="col-lg-5">
+          <div class="col-lg-6">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Manual Study & Activity Adjust (For Missed Work)</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-pencil-square me-2"></i>Manual Activity & Missed Work Fixer</h3>
+              <p class="text-muted small">Update study hours, completed tasks, or chapters for any specific past date.</p>
               <form id="manualActivityForm">
                 <div class="mb-3">
-                  <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
-                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required onchange="loadManualActivityForDate(this.value)">
+                  <label for="manualActivityDate" class="form-label small fw-bold text-muted">Select Date:</label>
+                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
                 </div>
                 <div class="mb-3">
-                  <label for="manualHours" class="form-label small fw-bold text-muted">Study Time (Hours):</label>
-                  <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" step="0.5" value="0" placeholder="e.g. 6">
+                  <label for="manualHours" class="form-label small fw-bold text-muted">Study Hours:</label>
+                  <input type="number" id="manualHours" class="form-control form-control-sm" step="0.5" min="0" max="24" value="0">
                 </div>
-                
-                <hr class="my-3">
-                <div class="small fw-bold text-primary mb-2">Manually Add Missed Tasks / Work for this Date:</div>
-                
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold text-dark mb-1">Missed To-Do Tasks (comma separated):</label>
-                  <input type="text" id="manualTodosInput" class="form-control form-control-sm" placeholder="e.g. Revise Physics, Solve DPP">
-                </div>
-
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold text-dark mb-1">Missed Chapters Completed (comma separated):</label>
-                  <input type="text" id="manualChaptersInput" class="form-control form-control-sm" placeholder="e.g. Kinematics (Physics), Mole Concept (Chem)">
-                </div>
-
                 <div class="mb-3">
-                  <label class="form-label small fw-semibold text-dark mb-1">Missed Practice / PYQs (comma separated):</label>
-                  <input type="text" id="manualPracticeInput" class="form-control form-control-sm" placeholder="e.g. Kinematics - DC Pandey, NEET PYQs">
+                  <label for="manualTodosInput" class="form-label small fw-bold text-muted">Completed To-Do Tasks (comma-separated):</label>
+                  <input type="text" id="manualTodosInput" class="form-control form-control-sm" placeholder="e.g. Plant Physiology Revision, Mock Test">
                 </div>
-
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-lg me-1"></i>Save Manual Activity & Work</button>
+                <div class="mb-3">
+                  <label for="manualChaptersInput" class="form-label small fw-bold text-muted">Completed Chapters (comma-separated):</label>
+                  <input type="text" id="manualChaptersInput" class="form-control form-control-sm" placeholder="e.g. Thermodynamics, Genetics">
+                </div>
+                <div class="mb-3">
+                  <label for="manualPracticeInput" class="form-label small fw-bold text-muted">Practice & PYQs Completed (comma-separated):</label>
+                  <input type="text" id="manualPracticeInput" class="form-control form-control-sm" placeholder="e.g. Optics PYQs, DC Pandey Questions">
+                </div>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check2-circle me-1"></i>Update Activity Log</button>
               </form>
             </div>
           </div>
-          <div class="col-lg-7">
+
+          <div class="col-lg-6">
             <div class="card p-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Study Activity & Focus Log History</h3>
-                <span id="totalLoggedDays" class="badge bg-primary">0 Days Logged</span>
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Activity & Focus History Log</h3>
+                <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
               </div>
-              <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;"></div>
+              <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;" class="pe-1"></div>
             </div>
           </div>
         </div>
@@ -734,13 +765,14 @@
 
       <!-- Tab: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
-        <div class="card text-center p-4">
+        <div class="card p-4 text-center">
           <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
+          <p class="text-muted small mb-4">Daily dose of inspiration to keep your NEET target locked in.</p>
           <div class="mb-3">
-            <img id="posterImage" src="" alt="Poster" class="img-fluid poster-img shadow-sm w-100" style="max-height: 400px; object-fit: cover;">
+            <img id="posterImage" src="" alt="Poster of the Day" class="poster-img img-fluid shadow-sm mb-3">
+            <h4 id="posterTitle" class="fw-bold text-dark"></h4>
+            <p id="posterCaption" class="text-muted"></p>
           </div>
-          <h5 id="posterTitle" class="fw-bold text-dark"></h5>
-          <p id="posterCaption" class="text-muted"></p>
         </div>
       </div>
     </div>
@@ -792,7 +824,8 @@
       upcomingTests: [],
       history: {}, 
       diaries: {},
-      lastActiveDate: ''
+      lastActiveDate: '',
+      leaderboardResetDate: ''
     };
 
     let currentFilter = 'all';
@@ -815,7 +848,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      checkMidnightRefresh(); // Auto refresh to-do if date changed past 12 AM
+      checkMidnightRefresh();
+      check4AMLeaderboardReset(); // Automatic 4 AM Leaderboard & Room Reset Check
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -832,6 +866,7 @@
       renderPoster();
       getRandomQuote();
       loadLeaderboard();
+      loadRoomLeaderboard();
       checkActiveRoomOnLoad();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
@@ -1025,655 +1060,165 @@
       }
 
       if (appData.lastActiveDate !== todayStr) {
-        // Date has changed (past 12 AM / New Day!) -> Refresh To-Do List
-        appData.todos = []; // Clear previous day tasks for a fresh new day
+        appData.todos = []; 
         appData.lastActiveDate = todayStr;
         saveData();
       }
     }
 
-    // Also run a background interval to catch midnight live if the app is kept open past 12 AM
+    // --- Automatic 4:00 AM Leaderboard & Room Reset Check ---
+    function getIST4AMDateKey() {
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const istDate = new Date(utc + (3600000 * 5.5));
+      // If current hour is before 4 AM, count it under the previous day's leaderboard cycle
+      if (istDate.getHours() < 4) {
+        istDate.setDate(istDate.getDate() - 1);
+      }
+      const year = istDate.getFullYear();
+      const month = String(istDate.getMonth() + 1).padStart(2, '0');
+      const day = String(istDate.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function check4AMLeaderboardReset() {
+      const current4AMKey = getIST4AMDateKey();
+      if (!appData.leaderboardResetDate) {
+        appData.leaderboardResetDate = current4AMKey;
+        saveData();
+        return;
+      }
+
+      if (appData.leaderboardResetDate !== current4AMKey) {
+        // 4 AM boundary crossed! Reset leaderboard cycle without touching normal schedule history
+        appData.leaderboardResetDate = current4AMKey;
+        // Reset today's active seconds for leaderboard tracking
+        const today = getISTDateString();
+        if (appData.history && appData.history[today]) {
+          appData.history[today].totalSeconds = 0;
+        }
+        saveData();
+        loadLeaderboard();
+        loadRoomLeaderboard();
+      }
+    }
+
     setInterval(() => {
-      const todayStr = getISTDateString();
-      if (appData.lastActiveDate && appData.lastActiveDate !== todayStr) {
-        appData.todos = [];
-        appData.lastActiveDate = todayStr;
-        saveData();
-        renderTodos();
-      }
-    }, 60000); // Check every 1 minute
+      checkMidnightRefresh();
+      check4AMLeaderboardReset();
+    }, 60000);
 
-    function loadManualActivityForDate(dateStr) {
-      if(appData.history && appData.history[dateStr]) {
-        const hData = appData.history[dateStr];
-        const hours = (hData.totalSeconds || 0) / 3600;
-        document.getElementById('manualHours').value = hours;
-        document.getElementById('manualTodosInput').value = hData.completedTasksList ? hData.completedTasksList.join(', ') : '';
-        document.getElementById('manualChaptersInput').value = hData.completedChaptersList ? hData.completedChaptersList.join(', ') : '';
-        document.getElementById('manualPracticeInput').value = hData.completedPracticeList ? hData.completedPracticeList.join(', ') : '';
-      } else {
-        document.getElementById('manualHours').value = 0;
-        document.getElementById('manualTodosInput').value = '';
-        document.getElementById('manualChaptersInput').value = '';
-        document.getElementById('manualPracticeInput').value = '';
-      }
+    // --- IST Time & Date Helpers ---
+    function getISTDateString() {
+      const d = new Date();
+      const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+      const istDate = new Date(utc + (3600000 * 5.5));
+      const year = istDate.getFullYear();
+      const month = String(istDate.getMonth() + 1).padStart(2, '0');
+      const day = String(istDate.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
-    // --- Helper to format total seconds into Hours, Minutes, Seconds (H:M:S) ---
-    function formatHMS(totalSecs) {
-      const h = Math.floor(totalSecs / 3600);
-      const m = Math.floor((totalSecs % 3600) / 60);
-      const s = totalSecs % 60;
-      return `${h}h ${m}m ${s}s`;
-    }
-
-    // --- NEET Arena Leaderboard & Real Rooms (Backend Sync) ---
-    async function loadLeaderboard() {
-      const tbody = document.getElementById('globalLeaderboardBody');
-      if(!tbody) return;
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching real student records...</td></tr>`;
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
-        const data = await res.json();
-        
-        if(data && data.length > 0) {
-          tbody.innerHTML = '';
-          data.forEach((user, idx) => {
-            const totalSecs = user.totalSeconds || 0;
-            const timeStr = formatHMS(totalSecs);
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><span class="badge ${idx === 0 ? 'bg-warning text-dark' : idx === 1 ? 'bg-secondary' : idx === 2 ? 'bg-danger' : 'bg-light text-dark border'}">#${idx + 1}</span></td>
-              <td class="fw-bold">${user.name || 'Aspirant'}</td>
-              <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
-              <td><span class="badge bg-success">Active Today 🔥</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        } else {
-          renderOnlyRealUserLeaderboard();
-        }
-      } catch(err) {
-        renderOnlyRealUserLeaderboard();
-      }
-    }
-
-    function renderOnlyRealUserLeaderboard() {
-      const tbody = document.getElementById('globalLeaderboardBody');
-      if(!tbody) return;
+    function initISTClockAndDate() {
+      const clockEl = document.getElementById('tabIstClockDisplay');
+      const dateEl = document.getElementById('tabIstDateDisplay');
       
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
-      const totalSecsToday = getTotalCombinedTodaySeconds();
-      const timeStr = formatHMS(totalSecsToday);
-
-      tbody.innerHTML = `
-        <tr>
-          <td><span class="badge bg-warning text-dark">#1</span></td>
-          <td class="fw-bold">${myName} <span class="badge bg-light text-primary border ms-1">You</span></td>
-          <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
-          <td><span class="badge bg-success">Studying 🔥</span></td>
-        </tr>
-      `;
+      function updateClock() {
+        const now = new Date();
+        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        
+        if (clockEl) clockEl.innerText = now.toLocaleTimeString('en-IN', options) + ' IST';
+        if (dateEl) dateEl.innerText = now.toLocaleDateString('en-IN', dateOptions);
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
     }
 
-    function getTotalCombinedTodaySeconds() {
-      const today = getISTDateString();
-      if(appData.history && appData.history[today]) {
-        return appData.history[today].totalSeconds || 0;
-      }
-      return 0; 
-    }
+    function initISTCountdown() {
+      function updateCountdown() {
+        const targetStr = appData.neetDate || '2026-05-07';
+        const targetDate = new Date(targetStr + 'T00:00:00+05:30');
+        const now = new Date();
+        const diff = targetDate - now;
 
-    // --- Real Student Rooms API Functions ---
-    async function createPersonalRoom() {
-      const roomName = document.getElementById('newRoomNameInput').value.trim();
-      if(!roomName) {
-        alert('Please enter a room name.');
-        return;
-      }
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-      const roomCode = 'ROOM-' + Math.floor(1000 + Math.random() * 9000);
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/room/create`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomName, roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-        });
-        const data = await res.json();
-        if(data.success || res.ok) {
-          localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
-          document.getElementById('newRoomNameInput').value = '';
-          startRoomAutoSync(roomCode, roomName);
-          alert(`Room "${roomName}" created successfully! Room Code: ${roomCode}`);
-        } else {
-          localRoomSave(roomName, roomCode);
-        }
-      } catch(e) {
-        localRoomSave(roomName, roomCode);
-      }
-    }
-
-    function localRoomSave(roomName, roomCode) {
-      localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
-      document.getElementById('newRoomNameInput').value = '';
-      showActiveRoomUI(roomName, roomCode, [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }]);
-      alert(`Room "${roomName}" created successfully! Code: ${roomCode}`);
-    }
-
-    async function joinPersonalRoom() {
-      const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
-      if(!code) {
-        alert('Please enter a valid room code.');
-        return;
-      }
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/room/join`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomCode: code, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-        });
-        const data = await res.json();
-        if(data && (data.success || data.members)) {
-          localStorage.setItem('endorank_active_room', JSON.stringify({ name: data.roomName || 'Study Room', code }));
-          document.getElementById('joinRoomCodeInput').value = '';
-          startRoomAutoSync(code, data.roomName || 'Study Room');
-          alert(`Joined room successfully!`);
-        } else {
-          alert('Room not found or invalid code.');
-        }
-      } catch(e) {
-        localStorage.setItem('endorank_active_room', JSON.stringify({ name: 'Private Room', code }));
-        document.getElementById('joinRoomCodeInput').value = '';
-        showActiveRoomUI('Private Room', code, [{ name: myName, time: getTotalCombinedTodaySeconds() }]);
-        alert('Joined room successfully!');
-      }
-    }
-
-    async function fetchRoomMembers(roomCode, roomName) {
-      try {
-        if(currentUserEmail || appData.userName) {
-          const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-          await fetch(`${API_BASE_URL}/api/room/join`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-          }).catch(()=>{});
+        if (diff <= 0) {
+          document.getElementById('countdownDays').innerText = '00';
+          document.getElementById('countdownHours').innerText = '00';
+          document.getElementById('countdownMinutes').innerText = '00';
+          document.getElementById('countdownSeconds').innerText = '00';
+          return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
-        const data = await res.json();
-        const members = data.members || [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }];
-        showActiveRoomUI(roomName, roomCode, members);
-      } catch(e) {
-        showActiveRoomUI(roomName, roomCode, [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }]);
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diff / 1000 / 60) % 60);
+        const secs = Math.floor((diff / 1000) % 60);
+
+        document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
+        document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('countdownMinutes').innerText = String(mins).padStart(2, '0');
+        document.getElementById('countdownSeconds').innerText = String(secs).padStart(2, '0');
       }
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     }
 
-    function startRoomAutoSync(roomCode, roomName) {
-      if(roomPollInterval) clearInterval(roomPollInterval);
-      fetchRoomMembers(roomCode, roomName);
-      roomPollInterval = setInterval(() => {
-        fetchRoomMembers(roomCode, roomName);
-      }, 3000);
-    }
-
-    function checkActiveRoomOnLoad() {
-      const active = localStorage.getItem('endorank_active_room');
-      if(active) {
+    // --- Local Storage & Cloud Sync ---
+    function loadLocalStorageData() {
+      const saved = localStorage.getItem('endorank_app_data');
+      if (saved) {
         try {
-          const room = JSON.parse(active);
-          startRoomAutoSync(room.code, room.name);
+          appData = JSON.parse(saved);
         } catch(e) {}
       }
     }
 
-    async function leavePersonalRoom() {
-      const active = localStorage.getItem('endorank_active_room');
-      if(active && currentUserEmail) {
-        try {
-          const room = JSON.parse(active);
-          const myName = appData.userName || currentUserEmail.split('@')[0];
-          await fetch(`${API_BASE_URL}/api/room/leave`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode: room.code, userName: myName })
-          });
-        } catch(err) {}
-      }
-
-      if(roomPollInterval) clearInterval(roomPollInterval);
-      localStorage.removeItem('endorank_active_room');
-      document.getElementById('activeRoomCard').classList.add('d-none');
-    }
-
-    function showActiveRoomUI(roomName, roomCode, members) {
-      const card = document.getElementById('activeRoomCard');
-      card.classList.remove('d-none');
-      document.getElementById('activeRoomTitle').innerText = roomName;
-      document.getElementById('activeRoomCodeDisplay').innerText = roomCode;
-
-      const membersList = document.getElementById('roomMembersList');
-      membersList.innerHTML = '';
-
-      if(!members || members.length === 0) {
-        membersList.innerHTML = '<span class="text-muted">No members found in this room.</span>';
-        return;
-      }
-
-      members.forEach(m => {
-        const timeFormatted = formatHMS(m.time || 0);
-        const div = document.createElement('div');
-        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
-        div.innerHTML = `
-          <span>👤 ${m.name}</span>
-          <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
-        `;
-        membersList.appendChild(div);
-      });
-    }
-
-    // --- Upcoming Test Auto-Fill Feature ---
-    function selectUpcomingTestForAnalysis(testTitle, testId) {
-      const ut = appData.upcomingTests.find(t => t.id === testId);
-      if(ut) {
-        ut.checked = !ut.checked;
-        saveData();
-        renderUpcomingTests();
-      }
-      document.getElementById('testName').value = testTitle;
-      document.getElementById('testDate').value = getISTDateString();
-      document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      document.getElementById('testName').focus();
-    }
-
-    function renderUpcomingTests() {
-      const container = document.getElementById('upcomingTestList');
-      if(!container) return;
-      container.innerHTML = '';
-      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
-        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
-        return;
-      }
-      appData.upcomingTests.forEach((ut) => {
-        const div = document.createElement('div');
-        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
-        div.innerHTML = `
-          <div class="d-flex align-items-center gap-2">
-            <input class="form-check-input mt-0" type="checkbox" ${ut.checked ? 'checked' : ''} title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}', ${ut.id})">
-            <div><strong class="${ut.checked ? 'text-success text-decoration-line-through' : ''}">${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
-          </div>
-          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function deleteUpcomingTest(id) {
-      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
-      saveData();
-      renderUpcomingTests();
-    }
-
-    // --- Practice & PYQs Tracker Functions ---
-    function filterPracticeSubject(subj) {
-      currentPracticeSubject = subj;
-      const buttons = document.querySelectorAll('#practiceSubjectFilter button');
-      buttons.forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      renderPracticeTable();
-    }
-
-    function renderPracticeTable() {
-      const tbody = document.getElementById('practiceTableBody');
-      if(!tbody) return;
-      tbody.innerHTML = '';
-
-      const filtered = appData.chapters.filter(c => c.subject === currentPracticeSubject);
-
-      if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No chapters added for ${currentPracticeSubject}. Add chapters in Dashboard first!</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(ch => {
-        if(!ch.resources) ch.resources = [];
-        
-        const resourcesHtml = ch.resources.map((resObj, rIdx) => `
-          <div class="input-group input-group-sm mb-1">
-            <div class="input-group-text bg-white">
-              <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
-            </div>
-            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name...">
-            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
-          </div>
-        `).join('');
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="fw-semibold text-dark">${ch.name}</td>
-          <td>
-            ${resourcesHtml}
-            <button class="btn btn-xs btn-outline-primary py-1 px-2 mt-1 fw-semibold" style="font-size: 11px;" onclick="addResourcePrompt(${ch.id})"><i class="bi bi-plus-circle me-1"></i>Add Practice Resource</button>
-          </td>
-          <td>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" ${ch.pyqDone ? 'checked' : ''} onchange="togglePyq(${ch.id})">
-              <label class="form-check-label small fw-semibold ${ch.pyqDone ? 'text-success' : 'text-muted'}">${ch.pyqDone ? 'PYQs Completed' : 'Pending PYQs'}</label>
-            </div>
-          </td>
-          <td>
-            <span class="badge ${ch.completed ? 'bg-success' : 'bg-secondary'}">${ch.completed ? 'Chapter Done' : 'In Progress'}</span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function addResourcePrompt(chapterId) {
-      const resName = prompt("Enter Practice Resource Name (e.g. DC Pandey, NCERT at your fingertips):");
-      if(resName && resName.trim() !== '') {
-        const ch = appData.chapters.find(c => c.id === chapterId);
-        if(ch) {
-          if(!ch.resources) ch.resources = [];
-          ch.resources.push({ name: resName.trim(), done: false });
-          saveData();
-          renderPracticeTable();
-          recordTodayActivity();
-        }
-      }
-    }
-
-    function updateResourceName(chapterId, rIdx, val) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources && ch.resources[rIdx]) {
-        ch.resources[rIdx].name = val.trim();
-        saveData();
-      }
-    }
-
-    function toggleResourceDone(chapterId, rIdx) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources && ch.resources[rIdx]) {
-        ch.resources[rIdx].done = !ch.resources[rIdx].done;
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    function removeResource(chapterId, rIdx) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources) {
-        ch.resources.splice(rIdx, 1);
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    function togglePyq(chapterId) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch) {
-        ch.pyqDone = !ch.pyqDone;
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    // --- Diary Functions ---
-    function loadDiaryForDate(dateStr) {
-      if(appData.diaries && appData.diaries[dateStr]) {
-        const entry = appData.diaries[dateStr];
-        document.getElementById('diaryContent').value = entry.content;
-        selectedMoodData = { mood: entry.mood, color: entry.color };
-        document.querySelectorAll('.mood-btn').forEach(b => {
-          b.classList.remove('selected');
-          if(b.innerText.includes(entry.mood)) b.classList.add('selected');
-        });
-      } else {
-        document.getElementById('diaryContent').value = '';
-      }
-    }
-
-    function deleteDiaryEntry() {
-      const date = document.getElementById('diaryDate').value;
-      if(date && appData.diaries && appData.diaries[date]) {
-        const confirmDel = confirm(`Delete diary entry for ${date}?`);
-        if(confirmDel) {
-          delete appData.diaries[date];
-          document.getElementById('diaryContent').value = '';
-          saveData();
-          renderDiarySection();
-          alert('Diary entry deleted.');
-        }
-      } else {
-        alert('No diary entry found for this date.');
-      }
-    }
-
-    function editDiaryForDate(dateStr) {
-      document.getElementById('diaryDate').value = dateStr;
-      loadDiaryForDate(dateStr);
-      const diaryTabBtn = document.getElementById('diary-tab');
-      if(diaryTabBtn) diaryTabBtn.click();
-    }
-
-    function deleteActivityLog(dateStr) {
-      const confirmDel = confirm(`Delete activity log for ${dateStr}?`);
-      if(confirmDel && appData.history[dateStr]) {
-        delete appData.history[dateStr];
-        saveData();
-        renderCalendarHistory();
-      }
-    }
-
-    function renderBubbleGrid() {
-      const container = document.getElementById('bubbleGridContainer');
-      if(!container) return;
-      container.innerHTML = '';
-      for(let i = 1; i <= 180; i++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.innerText = i;
-        updateBubbleAppearance(btn, bubbleStates[i]);
-        btn.onclick = () => {
-          let st = bubbleStates[i] || 0;
-          st = (st + 1) % 4; 
-          if(st === 0) delete bubbleStates[i];
-          else bubbleStates[i] = st;
-          updateBubbleAppearance(btn, bubbleStates[i]);
-        };
-        container.appendChild(btn);
-      }
-    }
-
-    function updateBubbleAppearance(btn, state) {
-      btn.className = 'btn bubble-btn';
-      if(state === 1) btn.classList.add('btn-danger', 'text-white');
-      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
-      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
-      else btn.classList.add('btn-outline-secondary', 'text-dark');
-    }
-
-    function resetBubbleGridSelections() {
-      bubbleStates = {};
-      renderBubbleGrid();
-    }
-
-    function selectMood(moodName, moodColor, btnElement) {
-      selectedMoodData = { mood: moodName, color: moodColor };
-      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-      btnElement.classList.add('selected');
-    }
-
-    function renderDiarySection() {
-      const gridContainer = document.getElementById('moodCalendarGrid');
-      const listContainer = document.getElementById('diaryHistoryList');
-      if(!gridContainer || !listContainer) return;
-
-      gridContainer.innerHTML = '';
-      listContainer.innerHTML = '';
-
-      if(!appData.diaries || Object.keys(appData.diaries).length === 0) {
-        gridContainer.innerHTML = '<span class="text-muted small">No mood entries yet.</span>';
-        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary entries found.</p>';
-        return;
-      }
-
-      const dates = Object.keys(appData.diaries).sort((a,b) => new Date(b) - new Date(a));
-      dates.forEach(dateStr => {
-        const entry = appData.diaries[dateStr];
-        const box = document.createElement('div');
-        box.title = `${dateStr}: ${entry.mood} (Click to Edit)`;
-        box.style.width = '32px';
-        box.style.height = '32px';
-        box.style.backgroundColor = entry.color;
-        box.style.borderRadius = '6px';
-        box.style.display = 'flex';
-        box.style.alignItems = 'center';
-        box.style.justifyContent = 'center';
-        box.style.color = '#fff';
-        box.style.fontWeight = 'bold';
-        box.style.fontSize = '11px';
-        box.style.cursor = 'pointer';
-        box.innerText = dateStr.slice(-2);
-        box.onclick = () => editDiaryForDate(dateStr);
-        gridContainer.appendChild(box);
-
-        const item = document.createElement('div');
-        item.className = 'card mb-2 p-3 shadow-sm border-0';
-        item.style.borderLeft = `4px solid ${entry.color}`;
-        item.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-bold text-dark small"><i class="bi bi-calendar-event me-1"></i>${dateStr}</span>
-            <div>
-              <span class="badge me-2" style="background-color: ${entry.color}">${entry.mood}</span>
-              <button class="btn btn-xs btn-outline-primary py-0 px-1" style="font-size:11px;" onclick="editDiaryForDate('${dateStr}')"><i class="bi bi-pencil"></i></button>
-            </div>
-          </div>
-          <p class="small text-muted mb-0">${entry.content}</p>
-        `;
-        listContainer.appendChild(item);
-      });
-    }
-
-    function getISTDateString() {
-      const now = new Date();
-      const istDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      const y = istDate.getFullYear();
-      const m = String(istDate.getMonth() + 1).padStart(2, '0');
-      const d = String(istDate.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function initISTClockAndDate() {
-      setInterval(() => {
-        const now = new Date();
-        const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        
-        const timeString = now.toLocaleTimeString('en-US', timeOptions) + ' IST';
-        const dateString = now.toLocaleDateString('en-US', dateOptions);
-
-        const clockEl = document.getElementById('tabIstClockDisplay');
-        const dateEl = document.getElementById('tabIstDateDisplay');
-
-        if(clockEl) clockEl.innerText = timeString;
-        if(dateEl) dateEl.innerText = dateString;
-      }, 1000);
-    }
-
-    function initISTCountdown() {
-      setInterval(() => {
-        const now = new Date();
-        const istNowString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-        const currentIST = new Date(istNowString).getTime();
-
-        const targetStr = appData.neetDate + 'T00:00:00+05:30';
-        const targetDate = new Date(targetStr).getTime();
-        const diff = targetDate - currentIST;
-
-        if (diff > 0) {
-          document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-          document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-          document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-          document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-        } else {
-          document.getElementById('countdownDays').innerText = "00";
-          document.getElementById('countdownHours').innerText = "00";
-          document.getElementById('countdownMinutes').innerText = "00";
-          document.getElementById('countdownSeconds').innerText = "00";
-        }
-      }, 1000);
-    }
-
-    function updateUserName() {
-      const newName = document.getElementById('userNameInput').value.trim();
-      if(newName) {
-        appData.userName = newName;
-        saveData();
-        updateAuthUI();
-        alert('Name updated successfully!');
-      }
-    }
-
-    function loadLocalStorageData() {
-      const saved = localStorage.getItem('endorank_neet_data');
-      if (saved) {
-        try { appData = JSON.parse(saved); } catch (e) { console.error(e); }
-      }
-    }
-
     function saveData() {
-      localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
-      updateProgress();
-      checkSmartRevisionAlerts();
-      recordTodayActivity();
+      localStorage.setItem('endorank_app_data', JSON.stringify(appData));
       if (currentUserEmail) {
-        syncToCloudflare();
-      }
-    }
-
-    async function syncToCloudflare() {
-      if (!currentUserEmail) return;
-      try {
-        await fetch(`${API_BASE_URL}/api/sync`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: currentUserEmail, payload: appData })
-        });
-      } catch (err) {
-        console.error('Cloudflare D1 sync error:', err);
+        syncDataToCloud();
       }
     }
 
     async function fetchCloudData() {
-      if (!currentUserEmail) return;
+      if(!currentUserEmail) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/sync?email=${encodeURIComponent(currentUserEmail)}`);
+        const res = await fetch(`${API_BASE_URL}/api/data?email=${encodeURIComponent(currentUserEmail)}`);
         const data = await res.json();
-        if (data && data.payload) {
-          appData = data.payload;
-          document.getElementById('neetDate').value = appData.neetDate;
+        if(data && data.appData) {
+          appData = data.appData;
+          saveData();
           renderChapters();
-          renderPracticeTable();
-          checkSmartRevisionAlerts();
           renderTodos();
           renderTests();
           renderUpcomingTests();
-          updateScoreChart();
           renderCalendarHistory();
           renderDiarySection();
-          updateAuthUI();
+          updateProgress();
+          updateScoreChart();
         }
-      } catch (err) {
-        console.error('Cloudflare fetch error:', err);
+      } catch(e) {}
+    }
+
+    async function syncDataToCloud() {
+      if(!currentUserEmail) return;
+      try {
+        await fetch(`${API_BASE_URL}/api/data`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentUserEmail, appData, name: appData.userName })
+        });
+      } catch(e) {}
+    }
+
+    function updateUserName() {
+      const input = document.getElementById('userNameInput');
+      if(input && input.value.trim()) {
+        appData.userName = input.value.trim();
+        saveData();
+        updateAuthUI();
+        alert('Display name updated successfully!');
       }
     }
 
@@ -1724,7 +1269,7 @@
       }
     }
 
-    // --- Unified Timers State (Mutual Exclusion & Combined Active Log) ---
+    // --- Unified Timers State & Live Studying Status Broadcast ---
     let pomoTimeLeft = 25 * 60, pomoTimerId = null, pomoRunning = false;
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
@@ -1737,6 +1282,32 @@
       document.getElementById('swToggleBtn').addEventListener('click', toggleSw);
       document.getElementById('swLapBtn').addEventListener('click', lapSw);
       document.getElementById('swResetBtn').addEventListener('click', resetSw);
+      
+      // Periodically broadcast live studying status and poll global counters
+      setInterval(broadcastStudyingStatus, 5000);
+      broadcastStudyingStatus();
+    }
+
+    async function broadcastStudyingStatus() {
+      const isStudying = pomoRunning || swRunning;
+      const badge = document.getElementById('liveStudyingCountBadge');
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/live-studying`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studying: isStudying, name: appData.userName || 'Aspirant' })
+        });
+        const data = await res.json();
+        if(data && typeof data.activeCount === 'number') {
+          if(badge) badge.innerText = `${data.activeCount} Aspirant${data.activeCount === 1 ? '' : 's'} Studying Right Now 🔥`;
+          return;
+        }
+      } catch(e) {}
+
+      // Fallback local simulation if worker endpoint is unreachable
+      const activeCount = (pomoRunning || swRunning) ? 1 : 0;
+      if(badge) badge.innerText = `${activeCount} Aspirant${activeCount === 1 ? '' : 's'} Studying Right Now 🔥`;
     }
 
     function setPomoTime(mins) { 
@@ -1765,6 +1336,7 @@
     function startPomo() {
       if (pomoRunning) return;
       pomoRunning = true;
+      broadcastStudyingStatus();
       
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1792,6 +1364,7 @@
     function pausePomo() { 
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
+      broadcastStudyingStatus();
 
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -1834,6 +1407,7 @@
     function startSw() { 
       if (swRunning) return; 
       swRunning = true; 
+      broadcastStudyingStatus();
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1860,6 +1434,7 @@
     function pauseSw() { 
       swRunning = false; 
       clearInterval(swTimerId); 
+      broadcastStudyingStatus();
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -2120,6 +1695,7 @@
 
     function renderTests() {
       const tbody = document.getElementById('testsTableBody');
+      if(!tbody) return;
       tbody.innerHTML = '';
       if(appData.tests.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted small">No tests recorded yet.</td></tr>';
@@ -2194,10 +1770,13 @@
       appData.history[today].totalSeconds += secs;
       saveData();
       renderCalendarHistory();
+      loadLeaderboard();
+      loadRoomLeaderboard();
     }
 
     function renderCalendarHistory() {
       const container = document.getElementById('calendarHistoryContainer');
+      if(!container) return;
       container.innerHTML = '';
       const dates = Object.keys(appData.history).sort((a,b) => new Date(b) - new Date(a));
       
@@ -2243,6 +1822,599 @@
           <div>${tasksList}</div>
         `;
         container.appendChild(div);
+      });
+    }
+
+    function formatHMS(totalSecs) {
+      const h = Math.floor(totalSecs / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      const s = totalSecs % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
+
+    // --- Individual & Room Leaderboard System ---
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('globalLeaderboardBody');
+      if(!tbody) return;
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching leaderboard records...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const data = await res.json();
+        
+        if(data && data.length > 0) {
+          tbody.innerHTML = '';
+          data.forEach((user, idx) => {
+            const totalSecs = user.totalSeconds || 0;
+            const timeStr = formatHMS(totalSecs);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><span class="badge ${idx === 0 ? 'bg-warning text-dark' : idx === 1 ? 'bg-secondary' : idx === 2 ? 'bg-danger' : 'bg-light text-dark border'}">#${idx + 1}</span></td>
+              <td class="fw-bold">${user.name || 'Aspirant'}</td>
+              <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
+              <td><span class="badge bg-success">Active Today 🔥</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          renderOnlyRealUserLeaderboard();
+        }
+      } catch(err) {
+        renderOnlyRealUserLeaderboard();
+      }
+    }
+
+    function renderOnlyRealUserLeaderboard() {
+      const tbody = document.getElementById('globalLeaderboardBody');
+      if(!tbody) return;
+      
+      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
+      const totalSecsToday = getTotalCombinedTodaySeconds();
+      const timeStr = formatHMS(totalSecsToday);
+
+      tbody.innerHTML = `
+        <tr>
+          <td><span class="badge bg-warning text-dark">#1</span></td>
+          <td class="fw-bold">${myName} <span class="badge bg-light text-primary border ms-1">You</span></td>
+          <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
+          <td><span class="badge bg-success">Studying 🔥</span></td>
+        </tr>
+      `;
+    }
+
+    async function loadRoomLeaderboard() {
+      const tbody = document.getElementById('roomLeaderboardBody');
+      if(!tbody) return;
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching room rankings...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/room/leaderboard`);
+        const data = await res.json();
+        
+        if(data && data.length > 0) {
+          tbody.innerHTML = '';
+          data.forEach((room, idx) => {
+            const timeStr = formatHMS(room.totalRoomSeconds || 0);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><span class="badge ${idx === 0 ? 'bg-success' : 'bg-secondary'}">#${idx + 1}</span></td>
+              <td class="fw-bold text-dark">${room.roomName || 'Study Room'}</td>
+              <td>👑 ${room.adminName || 'Admin'}</td>
+              <td><span class="text-success fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          renderLocalRoomLeaderboard();
+        }
+      } catch(err) {
+        renderLocalRoomLeaderboard();
+      }
+    }
+
+    function renderLocalRoomLeaderboard() {
+      const tbody = document.getElementById('roomLeaderboardBody');
+      if(!tbody) return;
+      const active = localStorage.getItem('endorank_active_room');
+      if(!active) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No active rooms found. Create or join a room to rank here!</td></tr>`;
+        return;
+      }
+      try {
+        const room = JSON.parse(active);
+        const myName = appData.userName || 'You';
+        const totalSecs = getTotalCombinedTodaySeconds();
+        tbody.innerHTML = `
+          <tr>
+            <td><span class="badge bg-success">#1</span></td>
+            <td class="fw-bold text-dark">${room.name}</td>
+            <td>👑 ${room.admin || myName}</td>
+            <td><span class="text-success fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${formatHMS(totalSecs)}</span></td>
+          </tr>
+        `;
+      } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No room data available.</td></tr>`;
+      }
+    }
+
+    function getTotalCombinedTodaySeconds() {
+      const today = getISTDateString();
+      if(appData.history && appData.history[today]) {
+        return appData.history[today].totalSeconds || 0;
+      }
+      return 0; 
+    }
+
+    // --- NEET Arena Rooms with Admin & Kick Functionality ---
+    async function createPersonalRoom() {
+      const roomName = document.getElementById('newRoomNameInput').value.trim();
+      if(!roomName) {
+        alert('Please enter a room name.');
+        return;
+      }
+      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+      const roomCode = 'ROOM-' + Math.floor(1000 + Math.random() * 9000);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/room/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName, roomCode, userName: myName, adminName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
+        });
+        const data = await res.json();
+        if(data.success || res.ok) {
+          localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode, admin: myName }));
+          document.getElementById('newRoomNameInput').value = '';
+          startRoomAutoSync(roomCode, roomName, myName);
+          alert(`Room "${roomName}" created successfully! You are the Admin 👑. Code: ${roomCode}`);
+        } else {
+          localRoomSave(roomName, roomCode, myName);
+        }
+      } catch(e) {
+        localRoomSave(roomName, roomCode, myName);
+      }
+    }
+
+    function localRoomSave(roomName, roomCode, adminName) {
+      localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode, admin: adminName }));
+      document.getElementById('newRoomNameInput').value = '';
+      showActiveRoomUI(roomName, roomCode, adminName, [{ name: adminName, time: getTotalCombinedTodaySeconds() }]);
+      alert(`Room "${roomName}" created successfully! You are the Admin 👑. Code: ${roomCode}`);
+    }
+
+    async function joinPersonalRoom() {
+      const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
+      if(!code) {
+        alert('Please enter a valid room code.');
+        return;
+      }
+      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/room/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: code, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
+        });
+        const data = await res.json();
+        if(data && (data.success || data.members)) {
+          if(data.kicked) {
+            alert('You have been removed from this room by the admin.');
+            return;
+          }
+          const adminName = data.adminName || 'Admin';
+          localStorage.setItem('endorank_active_room', JSON.stringify({ name: data.roomName || 'Study Room', code, admin: adminName }));
+          document.getElementById('joinRoomCodeInput').value = '';
+          startRoomAutoSync(code, data.roomName || 'Study Room', adminName);
+          alert(`Joined room successfully!`);
+        } else {
+          alert('Room not found or invalid code.');
+        }
+      } catch(e) {
+        localStorage.setItem('endorank_active_room', JSON.stringify({ name: 'Private Room', code, admin: myName }));
+        document.getElementById('joinRoomCodeInput').value = '';
+        showActiveRoomUI('Private Room', code, myName, [{ name: myName, time: getTotalCombinedTodaySeconds() }]);
+        alert('Joined room successfully!');
+      }
+    }
+
+    async function fetchRoomMembers(roomCode, roomName, adminName) {
+      try {
+        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+        if(currentUserEmail || appData.userName) {
+          const resJoin = await fetch(`${API_BASE_URL}/api/room/join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
+          });
+          const joinData = await resJoin.json();
+          if(joinData && joinData.kicked) {
+            alert('You have been removed from this room by the room admin.');
+            leavePersonalRoom();
+            return;
+          }
+        }
+
+        const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
+        const data = await res.json();
+        const members = data.members || [{ name: myName, time: getTotalCombinedTodaySeconds() }];
+        const currentAdmin = data.adminName || adminName || members[0].name;
+        showActiveRoomUI(roomName, roomCode, currentAdmin, members);
+      } catch(e) {
+        showActiveRoomUI(roomName, roomCode, adminName, [{ name: myName, time: getTotalCombinedTodaySeconds() }]);
+      }
+    }
+
+    function startRoomAutoSync(roomCode, roomName, adminName) {
+      if(roomPollInterval) clearInterval(roomPollInterval);
+      fetchRoomMembers(roomCode, roomName, adminName);
+      roomPollInterval = setInterval(() => {
+        fetchRoomMembers(roomCode, roomName, adminName);
+      }, 3000);
+    }
+
+    function checkActiveRoomOnLoad() {
+      const active = localStorage.getItem('endorank_active_room');
+      if(active) {
+        try {
+          const room = JSON.parse(active);
+          startRoomAutoSync(room.code, room.name, room.admin);
+        } catch(e) {}
+      }
+    }
+
+    async function leavePersonalRoom() {
+      const active = localStorage.getItem('endorank_active_room');
+      if(active && currentUserEmail) {
+        try {
+          const room = JSON.parse(active);
+          const myName = appData.userName || currentUserEmail.split('@')[0];
+          await fetch(`${API_BASE_URL}/api/room/leave`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomCode: room.code, userName: myName })
+          });
+        } catch(err) {}
+      }
+
+      if(roomPollInterval) clearInterval(roomPollInterval);
+      localStorage.removeItem('endorank_active_room');
+      document.getElementById('activeRoomCard').classList.add('d-none');
+    }
+
+    async function kickRoomMember(roomCode, memberName) {
+      const confirmKick = confirm(`Are you sure you want to remove ${memberName} from the room?`);
+      if(!confirmKick) return;
+
+      try {
+        await fetch(`${API_BASE_URL}/api/room/kick`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode, memberName })
+        });
+        alert(`${memberName} has been removed from the room.`);
+      } catch(e) {
+        alert('Member removed locally.');
+      }
+    }
+
+    function showActiveRoomUI(roomName, roomCode, adminName, members) {
+      const card = document.getElementById('activeRoomCard');
+      if(!card) return;
+      card.classList.remove('d-none');
+      document.getElementById('activeRoomTitle').innerText = roomName;
+      document.getElementById('activeRoomCodeDisplay').innerText = roomCode;
+      document.getElementById('roomAdminDisplay').innerText = adminName;
+
+      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+      const isAdmin = (myName === adminName);
+
+      let totalRoomSecs = 0;
+      if(members) {
+        members.forEach(m => { totalRoomSecs += (m.time || 0); });
+      }
+      document.getElementById('roomTotalHoursDisplay').innerText = formatHMS(totalRoomSecs);
+
+      const membersList = document.getElementById('roomMembersList');
+      membersList.innerHTML = '';
+
+      if(!members || members.length === 0) {
+        membersList.innerHTML = '<span class="text-muted">No members found in this room.</span>';
+        return;
+      }
+
+      members.forEach(m => {
+        const timeFormatted = formatHMS(m.time || 0);
+        const isUserAdmin = (m.name === adminName);
+        const canKick = isAdmin && !isUserAdmin;
+
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
+        div.innerHTML = `
+          <span>👤 ${m.name} ${isUserAdmin ? '👑' : ''}</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
+            ${canKick ? `<button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:10px;" onclick="kickRoomMember('${roomCode}', '${m.name}')">Kick</button>` : ''}
+          </div>
+        `;
+        membersList.appendChild(div);
+      });
+    }
+
+    function selectUpcomingTestForAnalysis(testTitle, testId) {
+      const ut = appData.upcomingTests.find(t => t.id === testId);
+      if(ut) {
+        ut.checked = !ut.checked;
+        saveData();
+        renderUpcomingTests();
+      }
+      document.getElementById('testName').value = testTitle;
+      document.getElementById('testDate').value = getISTDateString();
+      document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('testName').focus();
+    }
+
+    function renderUpcomingTests() {
+      const container = document.getElementById('upcomingTestList');
+      if(!container) return;
+      container.innerHTML = '';
+      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
+        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
+        return;
+      }
+      appData.upcomingTests.forEach((ut) => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
+        div.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+            <input class="form-check-input mt-0" type="checkbox" ${ut.checked ? 'checked' : ''} title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}', ${ut.id})">
+            <div><strong class="${ut.checked ? 'text-success text-decoration-line-through' : ''}">${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
+          </div>
+          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteUpcomingTest(id) {
+      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
+      saveData();
+      renderUpcomingTests();
+    }
+
+    function filterPracticeSubject(subj) {
+      currentPracticeSubject = subj;
+      const buttons = document.querySelectorAll('#practiceSubjectFilter button');
+      buttons.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderPracticeTable();
+    }
+
+    function renderPracticeTable() {
+      const tbody = document.getElementById('practiceTableBody');
+      if(!tbody) return;
+      tbody.innerHTML = '';
+
+      const filtered = appData.chapters.filter(c => c.subject === currentPracticeSubject);
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No chapters added for ${currentPracticeSubject}. Add chapters in Dashboard first!</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(ch => {
+        if(!ch.resources) ch.resources = [];
+        
+        const resourcesHtml = ch.resources.map((resObj, rIdx) => `
+          <div class="input-group input-group-sm mb-1">
+            <div class="input-group-text bg-white">
+              <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
+            </div>
+            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name...">
+            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
+          </div>
+        `).join('');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold text-dark">${ch.name}</td>
+          <td>
+            ${resourcesHtml}
+            <button class="btn btn-xs btn-outline-primary py-1 px-2 mt-1 fw-semibold" style="font-size: 11px;" onclick="addResourcePrompt(${ch.id})"><i class="bi bi-plus-circle me-1"></i>Add Practice Resource</button>
+          </td>
+          <td>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" ${ch.pyqDone ? 'checked' : ''} onchange="togglePyq(${ch.id})">
+              <label class="form-check-label small fw-semibold ${ch.pyqDone ? 'text-success' : 'text-muted'}">${ch.pyqDone ? 'PYQs Completed' : 'Pending PYQs'}</label>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${ch.completed ? 'bg-success' : 'bg-secondary'}">${ch.completed ? 'Chapter Done' : 'In Progress'}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addResourcePrompt(chapterId) {
+      const resName = prompt("Enter Practice Resource Name (e.g. DC Pandey, NCERT at your fingertips):");
+      if(resName && resName.trim() !== '') {
+        const ch = appData.chapters.find(c => c.id === chapterId);
+        if(ch) {
+          if(!ch.resources) ch.resources = [];
+          ch.resources.push({ name: resName.trim(), done: false });
+          saveData();
+          renderPracticeTable();
+          recordTodayActivity();
+        }
+      }
+    }
+
+    function updateResourceName(chapterId, rIdx, val) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].name = val.trim();
+        saveData();
+      }
+    }
+
+    function toggleResourceDone(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].done = !ch.resources[rIdx].done;
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    function removeResource(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources) {
+        ch.resources.splice(rIdx, 1);
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    function togglePyq(chapterId) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch) {
+        ch.pyqDone = !ch.pyqDone;
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    function loadDiaryForDate(dateStr) {
+      if(appData.diaries && appData.diaries[dateStr]) {
+        const entry = appData.diaries[dateStr];
+        document.getElementById('diaryContent').value = entry.content;
+        selectedMoodData = { mood: entry.mood, color: entry.color };
+        document.querySelectorAll('.mood-btn').forEach(b => {
+          b.classList.remove('selected');
+          if(b.innerText.includes(entry.mood)) b.classList.add('selected');
+        });
+      } else {
+        document.getElementById('diaryContent').value = '';
+      }
+    }
+
+    function deleteDiaryEntry() {
+      const date = document.getElementById('diaryDate').value;
+      if(date && appData.diaries && appData.diaries[date]) {
+        const confirmDel = confirm(`Delete diary entry for ${date}?`);
+        if(confirmDel) {
+          delete appData.diaries[date];
+          document.getElementById('diaryContent').value = '';
+          saveData();
+          renderDiarySection();
+          alert('Diary entry deleted.');
+        }
+      } else {
+        alert('No diary entry found for this date.');
+      }
+    }
+
+    function editDiaryForDate(dateStr) {
+      document.getElementById('diaryDate').value = dateStr;
+      loadDiaryForDate(dateStr);
+      const diaryTabBtn = document.getElementById('diary-tab');
+      if(diaryTabBtn) diaryTabBtn.click();
+    }
+
+    function deleteActivityLog(dateStr) {
+      const confirmDel = confirm(`Delete activity log for ${dateStr}?`);
+      if(confirmDel && appData.history[dateStr]) {
+        delete appData.history[dateStr];
+        saveData();
+        renderCalendarHistory();
+      }
+    }
+
+    function renderBubbleGrid() {
+      const container = document.getElementById('bubbleGridContainer');
+      if(!container) return;
+      container.innerHTML = '';
+      for(let i = 1; i <= 180; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = i;
+        updateBubbleAppearance(btn, bubbleStates[i]);
+        btn.onclick = () => {
+          let st = bubbleStates[i] || 0;
+          st = (st + 1) % 4; 
+          if(st === 0) delete bubbleStates[i];
+          else bubbleStates[i] = st;
+          updateBubbleAppearance(btn, bubbleStates[i]);
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    function updateBubbleAppearance(btn, state) {
+      btn.className = 'btn bubble-btn';
+      if(state === 1) btn.classList.add('btn-danger', 'text-white');
+      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
+      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
+      else btn.classList.add('btn-outline-secondary', 'text-dark');
+    }
+
+    function resetBubbleGridSelections() {
+      bubbleStates = {};
+      renderBubbleGrid();
+    }
+
+    function selectMood(moodName, moodColor, btnElement) {
+      selectedMoodData = { mood: moodName, color: moodColor };
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      btnElement.classList.add('selected');
+    }
+
+    function renderDiarySection() {
+      const gridContainer = document.getElementById('moodCalendarGrid');
+      const listContainer = document.getElementById('diaryHistoryList');
+      if(!gridContainer || !listContainer) return;
+
+      gridContainer.innerHTML = '';
+      listContainer.innerHTML = '';
+
+      if(!appData.diaries || Object.keys(appData.diaries).length === 0) {
+        gridContainer.innerHTML = '<span class="text-muted small">No mood entries yet.</span>';
+        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary history logged yet.</p>';
+        return;
+      }
+
+      const dates = Object.keys(appData.diaries).sort((a,b) => new Date(b) - new Date(a));
+
+      dates.forEach(dateStr => {
+        const entry = appData.diaries[dateStr];
+        
+        const badge = document.createElement('div');
+        badge.className = 'badge p-2 text-white';
+        badge.style.backgroundColor = entry.color || '#16a34a';
+        badge.style.cursor = 'pointer';
+        badge.title = `${dateStr}: ${entry.mood}`;
+        badge.innerHTML = `${dateStr.slice(5)}<br><strong>${entry.mood}</strong>`;
+        badge.onclick = () => editDiaryForDate(dateStr);
+        gridContainer.appendChild(badge);
+
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card mb-2 p-3 border shadow-sm';
+        cardDiv.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-dark"><i class="bi bi-calendar-event me-2"></i>${dateStr}</span>
+            <span class="badge" style="background-color: ${entry.color || '#16a34a'}">${entry.mood}</span>
+          </div>
+          <p class="small mb-2 text-muted" style="white-space: pre-wrap;">${entry.content}</p>
+          <div class="text-end">
+            <button class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:11px;" onclick="editDiaryForDate('${dateStr}')"><i class="bi bi-pencil me-1"></i>Edit</button>
+          </div>
+        `;
+        listContainer.appendChild(cardDiv);
       });
     }
 
