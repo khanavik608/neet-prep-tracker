@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 2.5 (Bubble Grid Selector & Daily Diary with Mood Tracker) -->
+<!-- ENDORANK Dashboard - Version 2.8 (Editable & Deletable Diary & Focus Log) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,12 +144,30 @@
     }
 
     .bubble-grid-box {
-      max-height: 220px;
+      max-height: 200px;
       overflow-y: auto;
       border: 1px solid var(--border-color);
       background: #f8fafc;
       padding: 10px;
       border-radius: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 6px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .bubble-btn {
+      width: 36px !important;
+      height: 36px !important;
+      padding: 0 !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 6px !important;
+      line-height: 1 !important;
     }
 
     .mood-btn {
@@ -160,6 +178,11 @@
       border-color: #0f172a;
       transform: scale(1.08);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .scheduled-test-card {
+      border-left: 4px solid var(--accent);
+      background: #f0f9ff;
     }
   </style>
 </head>
@@ -417,12 +440,13 @@
         </div>
       </div>
 
-      <!-- Tab: Test Tracker & Visual Bubble Grid Selector -->
+      <!-- Tab: Test Tracker & Upcoming Test Scheduler -->
       <div class="tab-pane fade" id="tab-tests" role="tabpanel">
         <div class="row g-4 mb-4">
-          <div class="col-lg-5">
-            <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Add Test & Bubble Grid Analysis</h3>
+          <!-- Left Column: Add Test & Analysis -->
+          <div class="col-lg-6">
+            <div class="card p-4 mb-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Add Completed Test & Analysis</h3>
               <form id="testScheduleForm">
                 <div class="mb-2">
                   <label for="testName" class="form-label small fw-bold text-muted">Test Name:</label>
@@ -439,24 +463,83 @@
                   </div>
                 </div>
 
-                <!-- Visual Bubble Grid Selector (1 to 180) -->
-                <div class="mb-3">
-                  <label class="form-label small fw-bold text-dark d-flex justify-content-between align-items-center">
-                    <span>Click Bubbles (1-180): <span class="text-danger">1x Red (Wrong)</span> | <span class="text-warning">2x Yellow (Guess)</span> | <span class="text-primary">3x Blue (Skip)</span></span>
-                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset</button>
-                  </label>
-                  <div id="bubbleGridContainer" class="bubble-grid-box d-flex flex-wrap justify-content-center"></div>
+                <!-- Manual Counts Input -->
+                <div class="row g-2 mb-2">
+                  <div class="col-3">
+                    <label for="testCorrectCount" class="form-label small fw-bold text-success">Correct:</label>
+                    <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="140" min="0" max="180">
+                  </div>
+                  <div class="col-3">
+                    <label for="testWrongCount" class="form-label small fw-bold text-danger">Wrong:</label>
+                    <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="30" min="0" max="180">
+                  </div>
+                  <div class="col-3">
+                    <label for="testGuessCount" class="form-label small fw-bold text-warning">Guess:</label>
+                    <input type="number" id="testGuessCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
+                  </div>
+                  <div class="col-3">
+                    <label for="testSkipCount" class="form-label small fw-bold text-secondary">Skip:</label>
+                    <input type="number" id="testSkipCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
+                  </div>
                 </div>
 
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Analysis</button>
+                <!-- Bubble Grid for 1-180 -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold text-dark d-flex justify-content-between align-items-center mb-2">
+                    <span>Click Bubbles (1-180): <span class="text-danger">Red(Wrong)</span> | <span class="text-warning">Yellow(Guess)</span> | <span class="text-primary">Blue(Skip)</span></span>
+                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
+                  </label>
+                  <div id="bubbleGridContainer" class="bubble-grid-box"></div>
+                </div>
+
+                <!-- Question Numbers Lists -->
+                <div class="mb-2">
+                  <label for="testIncorrectList" class="form-label small fw-bold text-danger">Wrong Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testIncorrectList" class="form-control form-control-sm" placeholder="e.g. Q12, Q45">
+                </div>
+
+                <div class="mb-2">
+                  <label for="testGuessList" class="form-label small fw-bold text-warning">Guess Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testGuessList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
+                </div>
+
+                <div class="mb-3">
+                  <label for="testSkipList" class="form-label small fw-bold text-secondary">Skip Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testSkipList" class="form-control form-control-sm" placeholder="e.g. Q15, Q22">
+                </div>
+
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Save Test & Analysis</button>
               </form>
             </div>
           </div>
 
-          <div class="col-lg-7">
-            <div class="card p-4 h-100">
+          <!-- Right Column: Upcoming Test Scheduler & Graph -->
+          <div class="col-lg-6">
+            <!-- Upcoming Test Scheduler Card -->
+            <div class="card p-4 mb-4 scheduled-test-card">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test</h3>
+              <form id="upcomingTestForm">
+                <div class="mb-2">
+                  <label for="upcomingName" class="form-label small fw-bold text-muted">Test Title / Platform:</label>
+                  <input type="text" id="upcomingName" class="form-control form-control-sm" placeholder="e.g. Allen Major Test 4" required>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-7">
+                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & Time:</label>
+                    <input type="datetime-local" id="upcomingDate" class="form-control form-control-sm" required>
+                  </div>
+                  <div class="col-5 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold"><i class="bi bi-bell me-1"></i> Set Schedule</button>
+                  </div>
+                </div>
+              </form>
+              <div id="upcomingTestList" class="mt-2" style="max-height: 140px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- Score Graph Card -->
+            <div class="card p-4">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (/720)</h3>
-              <div style="height: 280px;">
+              <div style="height: 220px;">
                 <canvas id="scoreChart"></canvas>
               </div>
             </div>
@@ -484,7 +567,7 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood Tracker -->
+      <!-- Tab: Daily Diary & Mood Tracker (Editable & Deletable) -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
           <div class="col-lg-6">
@@ -493,7 +576,7 @@
               <form id="diaryForm">
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-muted">Select Date:</label>
-                  <input type="date" id="diaryDate" class="form-control form-control-sm" required>
+                  <input type="date" id="diaryDate" class="form-control form-control-sm" required onchange="loadDiaryForDate(this.value)">
                 </div>
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-muted">How are you feeling today?</label>
@@ -508,7 +591,10 @@
                   <label for="diaryContent" class="form-label small fw-bold text-muted">Your Diary Entry / Thoughts:</label>
                   <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write about your study progress, challenges, or thoughts today..." required></textarea>
                 </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-save me-1"></i> Save Diary Entry</button>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save / Update Diary Entry</button>
+                  <button type="button" class="btn btn-outline-danger" onclick="deleteDiaryEntry()"><i class="bi bi-trash"></i></button>
+                </div>
               </form>
             </div>
           </div>
@@ -516,7 +602,7 @@
           <div class="col-lg-6">
             <div class="card p-4 h-100">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & Past Entries</h3>
-              <div class="mb-3 small text-muted">Past days colored according to your recorded mood:</div>
+              <div class="mb-3 small text-muted">Click any past date to edit or view:</div>
               <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-4" style="max-height: 180px; overflow-y: auto;"></div>
               <hr>
               <div id="diaryHistoryList" style="max-height: 250px; overflow-y: auto;" class="pe-2"></div>
@@ -525,14 +611,17 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Activity & Focus Log (Renamed from Auto Study Calendar) -->
+      <!-- Tab: Daily Activity & Focus Log (Editable study minutes & Delete) -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Daily Activity & Focus Log (IST)</h3>
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
-          <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
+          <div class="mb-3">
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity</button>
+          </div>
+          <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
       </div>
 
@@ -545,6 +634,31 @@
           </div>
           <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
           <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Activity Edit Modal -->
+  <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="manualActivityForm">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Date:</label>
+              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Study Minutes:</label>
+              <input type="number" id="manualActivityMins" class="form-control form-control-sm" placeholder="e.g. 120" min="0" required>
+            </div>
+            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
+          </form>
         </div>
       </div>
     </div>
@@ -603,14 +717,15 @@
       chapters: [],
       todos: [],
       tests: [],
+      upcomingTests: [],
       history: {},
-      diaries: {} // { 'YYYY-MM-DD': { mood: 'Happy', color: '#16a34a', content: '...' } }
+      diaries: {}
     };
 
     let currentFilter = 'all';
     let chapterSearchQuery = '';
     let scoreChartInstance = null;
-    let bubbleStates = {}; // { 1: 1, 2: 2, ... } -> 1: Wrong, 2: Guess, 3: Skip
+    let bubbleStates = {}; 
     let selectedMoodData = { mood: 'Happy', color: '#16a34a' };
 
     const quotes = [
@@ -634,6 +749,7 @@
       checkSmartRevisionAlerts();
       renderTodos();
       renderTests();
+      renderUpcomingTests();
       initScoreChart();
       renderCalendarHistory();
       renderDiarySection();
@@ -653,7 +769,10 @@
         saveData();
       });
 
-      document.getElementById('diaryDate').value = getISTDateString();
+      const todayStr = getISTDateString();
+      document.getElementById('diaryDate').value = todayStr;
+      document.getElementById('manualActivityDate').value = todayStr;
+      loadDiaryForDate(todayStr);
 
       document.getElementById('addChapterForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -696,7 +815,36 @@
         }
       });
 
-      // Diary Form Submit Handler
+      document.getElementById('upcomingTestForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('upcomingName').value.trim();
+        const datetime = document.getElementById('upcomingDate').value;
+        if(title && datetime) {
+          if(!appData.upcomingTests) appData.upcomingTests = [];
+          appData.upcomingTests.push({ id: Date.now(), title, datetime });
+          document.getElementById('upcomingTestForm').reset();
+          saveData();
+          renderUpcomingTests();
+        }
+      });
+
+      // Manual Activity Log Submit
+      document.getElementById('manualActivityForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const date = document.getElementById('manualActivityDate').value;
+        const mins = parseInt(document.getElementById('manualActivityMins').value) || 0;
+        if(date) {
+          if(!appData.history[date]) {
+            appData.history[date] = { studyMinutes: 0, completedTasksList: [] };
+          }
+          appData.history[date].studyMinutes = mins;
+          saveData();
+          renderCalendarHistory();
+          alert('Study activity updated successfully!');
+        }
+      });
+
+      // Diary Form Submit (Save or Update)
       document.getElementById('diaryForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const date = document.getElementById('diaryDate').value;
@@ -710,32 +858,48 @@
           };
           saveData();
           renderDiarySection();
-          alert('Diary entry saved successfully!');
+          alert('Diary entry saved/updated successfully!');
         }
       });
 
-      // Test Schedule Form Submit with Bubble Grid Extraction
       document.getElementById('testScheduleForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const name = document.getElementById('testName').value.trim();
         const date = document.getElementById('testDate').value;
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
         
-        let incorrectQ = [];
-        let guessQ = [];
-        let skipQ = [];
+        let correctCount = parseInt(document.getElementById('testCorrectCount').value);
+        let wrongCount = parseInt(document.getElementById('testWrongCount').value);
+        let guessCount = parseInt(document.getElementById('testGuessCount').value);
+        let skipCount = parseInt(document.getElementById('testSkipCount').value);
 
-        Object.keys(bubbleStates).forEach(qNum => {
-          const st = bubbleStates[qNum];
-          if(st === 1) incorrectQ.push('Q' + qNum);
-          else if(st === 2) guessQ.push('Q' + qNum);
-          else if(st === 3) skipQ.push('Q' + qNum);
-        });
+        const incRaw = document.getElementById('testIncorrectList').value;
+        let incorrectQ = incRaw ? incRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
 
-        const wrongCount = incorrectQ.length;
-        const guessCount = guessQ.length;
-        const skipCount = skipQ.length;
-        const correctCount = Math.max(0, 180 - (wrongCount + guessCount + skipCount));
+        const guessRaw = document.getElementById('testGuessList').value;
+        let guessQ = guessRaw ? guessRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+
+        const skipRaw = document.getElementById('testSkipList').value;
+        let skipQ = skipRaw ? skipRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+
+        if(isNaN(wrongCount) && isNaN(guessCount) && isNaN(skipCount)) {
+          incorrectQ = []; guessQ = []; skipQ = [];
+          Object.keys(bubbleStates).forEach(qNum => {
+            const st = bubbleStates[qNum];
+            if(st === 1) incorrectQ.push('Q' + qNum);
+            else if(st === 2) guessQ.push('Q' + qNum);
+            else if(st === 3) skipQ.push('Q' + qNum);
+          });
+          wrongCount = incorrectQ.length;
+          guessCount = guessQ.length;
+          skipCount = skipQ.length;
+          correctCount = isNaN(correctCount) ? Math.max(0, 180 - (wrongCount + guessCount + skipCount)) : correctCount;
+        } else {
+          wrongCount = isNaN(wrongCount) ? incorrectQ.length : wrongCount;
+          guessCount = isNaN(guessCount) ? guessQ.length : guessCount;
+          skipCount = isNaN(skipCount) ? skipQ.length : skipCount;
+          correctCount = isNaN(correctCount) ? 0 : correctCount;
+        }
 
         if(name && date) {
           appData.tests.push({ 
@@ -761,7 +925,54 @@
       });
     });
 
-    // Render Bubble Grid (1 to 180)
+    function loadDiaryForDate(dateStr) {
+      if(appData.diaries && appData.diaries[dateStr]) {
+        const entry = appData.diaries[dateStr];
+        document.getElementById('diaryContent').value = entry.content;
+        selectedMoodData = { mood: entry.mood, color: entry.color };
+        // Highlight correct mood button
+        document.querySelectorAll('.mood-btn').forEach(b => {
+          b.classList.remove('selected');
+          if(b.innerText.includes(entry.mood)) b.classList.add('selected');
+        });
+      } else {
+        document.getElementById('diaryContent').value = '';
+      }
+    }
+
+    function deleteDiaryEntry() {
+      const date = document.getElementById('diaryDate').value;
+      if(date && appData.diaries && appData.diaries[date]) {
+        const confirmDel = confirm(`Delete diary entry for ${date}?`);
+        if(confirmDel) {
+          delete appData.diaries[date];
+          document.getElementById('diaryContent').value = '';
+          saveData();
+          renderDiarySection();
+          alert('Diary entry deleted.');
+        }
+      } else {
+        alert('No diary entry found for this date.');
+      }
+    }
+
+    function editDiaryForDate(dateStr) {
+      document.getElementById('diaryDate').value = dateStr;
+      loadDiaryForDate(dateStr);
+      // Switch tab to diary
+      const diaryTabBtn = document.getElementById('diary-tab');
+      if(diaryTabBtn) diaryTabBtn.click();
+    }
+
+    function deleteActivityLog(dateStr) {
+      const confirmDel = confirm(`Delete activity log for ${dateStr}?`);
+      if(confirmDel && appData.history[dateStr]) {
+        delete appData.history[dateStr];
+        saveData();
+        renderCalendarHistory();
+      }
+    }
+
     function renderBubbleGrid() {
       const container = document.getElementById('bubbleGridContainer');
       if(!container) return;
@@ -773,7 +984,7 @@
         updateBubbleAppearance(btn, bubbleStates[i]);
         btn.onclick = () => {
           let st = bubbleStates[i] || 0;
-          st = (st + 1) % 4; // 0: normal, 1: Wrong(Red), 2: Guess(Yellow), 3: Skip(Blue)
+          st = (st + 1) % 4; 
           if(st === 0) delete bubbleStates[i];
           else bubbleStates[i] = st;
           updateBubbleAppearance(btn, bubbleStates[i]);
@@ -783,24 +994,41 @@
     }
 
     function updateBubbleAppearance(btn, state) {
-      btn.className = 'btn btn-sm m-1 fw-bold';
-      btn.style.width = '36px';
-      btn.style.height = '36px';
-      btn.style.fontSize = '12px';
-      if(state === 1) {
-        btn.classList.add('btn-danger', 'text-white'); // Wrong
-      } else if(state === 2) {
-        btn.classList.add('btn-warning', 'text-dark'); // Guess
-      } else if(state === 3) {
-        btn.classList.add('btn-primary', 'text-white'); // Skip
-      } else {
-        btn.classList.add('btn-outline-secondary', 'text-dark'); // Normal
-      }
+      btn.className = 'btn bubble-btn';
+      if(state === 1) btn.classList.add('btn-danger', 'text-white');
+      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
+      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
+      else btn.classList.add('btn-outline-secondary', 'text-dark');
     }
 
     function resetBubbleGridSelections() {
       bubbleStates = {};
       renderBubbleGrid();
+    }
+
+    function renderUpcomingTests() {
+      const container = document.getElementById('upcomingTestList');
+      if(!container) return;
+      container.innerHTML = '';
+      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
+        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
+        return;
+      }
+      appData.upcomingTests.forEach((ut) => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
+        div.innerHTML = `
+          <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${ut.datetime.replace('T', ' ')}</small></div>
+          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteUpcomingTest(id) {
+      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
+      saveData();
+      renderUpcomingTests();
     }
 
     function selectMood(moodName, moodColor, btnElement) {
@@ -819,18 +1047,15 @@
 
       if(!appData.diaries || Object.keys(appData.diaries).length === 0) {
         gridContainer.innerHTML = '<span class="text-muted small">No mood entries yet.</span>';
-        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary entries found. Start writing your daily thoughts!</p>';
+        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary entries found.</p>';
         return;
       }
 
       const dates = Object.keys(appData.diaries).sort((a,b) => new Date(b) - new Date(a));
-
       dates.forEach(dateStr => {
         const entry = appData.diaries[dateStr];
-        
-        // Mini calendar mood box
         const box = document.createElement('div');
-        box.title = `${dateStr}: ${entry.mood}`;
+        box.title = `${dateStr}: ${entry.mood} (Click to Edit)`;
         box.style.width = '32px';
         box.style.height = '32px';
         box.style.backgroundColor = entry.color;
@@ -841,17 +1066,21 @@
         box.style.color = '#fff';
         box.style.fontWeight = 'bold';
         box.style.fontSize = '11px';
+        box.style.cursor = 'pointer';
         box.innerText = dateStr.slice(-2);
+        box.onclick = () => editDiaryForDate(dateStr);
         gridContainer.appendChild(box);
 
-        // Diary History Item
         const item = document.createElement('div');
         item.className = 'card mb-2 p-3 shadow-sm border-0';
         item.style.borderLeft = `4px solid ${entry.color}`;
         item.innerHTML = `
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-bold text-dark small"><i class="bi bi-calendar-event me-1"></i>${dateStr}</span>
-            <span class="badge" style="background-color: ${entry.color}">${entry.mood}</span>
+            <div>
+              <span class="badge me-2" style="background-color: ${entry.color}">${entry.mood}</span>
+              <button class="btn btn-xs btn-outline-primary py-0 px-1" style="font-size:11px;" onclick="editDiaryForDate('${dateStr}')"><i class="bi bi-pencil"></i></button>
+            </div>
           </div>
           <p class="small text-muted mb-0">${entry.content}</p>
         `;
@@ -971,6 +1200,7 @@
           checkSmartRevisionAlerts();
           renderTodos();
           renderTests();
+          renderUpcomingTests();
           updateScoreChart();
           renderCalendarHistory();
           renderDiarySection();
@@ -1436,7 +1666,7 @@
       document.getElementById('totalLoggedDays').innerText = `${dates.length} Days Logged`;
 
       if(dates.length === 0) {
-        container.innerHTML = '<p class="text-muted small text-center my-3">No study history logged yet. Start studying with timers or complete tasks!</p>';
+        container.innerHTML = '<p class="text-muted small text-center my-3">No study history logged yet.</p>';
         return;
       }
 
@@ -1451,7 +1681,10 @@
         div.innerHTML = `
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${dateStr}</span>
-            <span class="badge bg-primary">${dayData.studyMinutes || 0} Mins Studied</span>
+            <div>
+              <span class="badge bg-primary me-2">${dayData.studyMinutes || 0} Mins Studied</span>
+              <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
+            </div>
           </div>
           <div class="small text-muted mb-1 fw-bold">Completed Tasks:</div>
           <div>${tasksList}</div>
