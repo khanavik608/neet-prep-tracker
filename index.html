@@ -1,3 +1,4 @@
+<!-- ENDORANK Dashboard - Version 2.0 (IST Clock, Heatmap, Smart Revision & Error Log) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Google Sign-In SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
@@ -137,6 +137,21 @@
       border-left: 4px solid #16a34a;
       background: #ffffff;
     }
+
+    .ist-clock-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      font-weight: 700;
+      font-family: monospace;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .revision-alert-box {
+      background-color: #fff7ed;
+      border-left: 4px solid #f97316;
+    }
   </style>
 </head>
 <body>
@@ -153,10 +168,10 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Live IST Clock Widget added here -->
-        <div class="bg-white border rounded px-3 py-1 text-center shadow-sm">
-          <small class="text-muted d-block fw-bold" style="font-size: 0.65rem;">LIVE IST CLOCK</small>
-          <span id="liveIstClock" class="fw-bold text-primary font-monospace" style="font-size: 0.95rem;">00:00:00 AM</span>
+        <!-- Live IST Clock -->
+        <div class="ist-clock-badge d-flex align-items-center gap-2">
+          <i class="bi bi-clock-history"></i>
+          <span id="istClockDisplay">00:00:00 AM IST</span>
         </div>
 
         <div id="authSection">
@@ -175,10 +190,23 @@
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
-      <li class="nav-item"><button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Tracker & Graph</button></li>
+      <li class="nav-item"><button class="nav-link" id="test-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button"><i class="bi bi-award me-1"></i>Test Analysis & Graph</button></li>
       <li class="nav-item"><button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Auto Study Calendar</button></li>
       <li class="nav-item"><button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button></li>
     </ul>
+
+    <!-- Revision Alert Widget -->
+    <div id="revisionAlertContainer" class="mb-4 d-none">
+      <div class="card revision-alert-box p-3 shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+          <i class="bi bi-exclamation-triangle-fill fs-3 text-warning"></i>
+          <div>
+            <h6 class="fw-bold mb-1 text-dark"><i class="bi bi-arrow-repeat me-1"></i>Smart Revision Reminder (30 Days Rule)</h6>
+            <div id="revisionAlertList" class="small text-muted"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Quote Box -->
     <div class="card mb-4 quote-box border-0 shadow-sm">
@@ -370,50 +398,72 @@
         </div>
       </div>
 
-      <!-- Tab 4: Test Tracker & Graph -->
+      <!-- Tab 4: Test Tracker & Smart Error Log -->
       <div class="tab-pane fade" id="tab-tests" role="tabpanel">
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
           <div class="col-lg-5">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Schedule & Add Test Score</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Add Test & Detailed Analysis</h3>
               <form id="testScheduleForm">
-                <div class="mb-3">
+                <div class="mb-2">
                   <label for="testName" class="form-label small fw-bold text-muted">Test Name:</label>
-                  <input type="text" id="testName" class="form-control" placeholder="e.g. Mock Test 1" required>
+                  <input type="text" id="testName" class="form-control form-control-sm" placeholder="e.g. Full Syllabus Mock 1" required>
                 </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label for="testDate" class="form-label small fw-bold text-muted">Test Date:</label>
+                    <input type="date" id="testDate" class="form-control form-control-sm" required>
+                  </div>
+                  <div class="col-6">
+                    <label for="testMarks" class="form-label small fw-bold text-muted">Total Marks (/720):</label>
+                    <input type="number" id="testMarks" class="form-control form-control-sm" placeholder="e.g. 580" min="0" max="720" required>
+                  </div>
+                </div>
+
+                <!-- Correct Count -->
+                <div class="mb-2">
+                  <label for="testCorrectCount" class="form-label small fw-bold text-success">Total Correct Questions Count:</label>
+                  <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="e.g. 150" min="0" max="180">
+                </div>
+
+                <!-- Incorrect Questions Q-Numbers -->
+                <div class="mb-2">
+                  <label for="testIncorrectList" class="form-label small fw-bold text-danger">Incorrect Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testIncorrectList" class="form-control form-control-sm" placeholder="e.g. Q12, Q45, Q89">
+                </div>
+
+                <!-- Tukka / Guesswork Q-Numbers -->
                 <div class="mb-3">
-                  <label for="testDate" class="form-label small fw-bold text-muted">Test Date:</label>
-                  <input type="date" id="testDate" class="form-control" required>
+                  <label for="testTukkaList" class="form-label small fw-bold text-warning">Tukka / Guesswork Question Numbers (Comma Separated):</label>
+                  <input type="text" id="testTukkaList" class="form-control form-control-sm" placeholder="e.g. Q08, Q34">
                 </div>
-                <div class="mb-3">
-                  <label for="testMarks" class="form-label small fw-bold text-muted">Marks Obtained (/720):</label>
-                  <input type="number" id="testMarks" class="form-control" placeholder="e.g. 540" min="0" max="720" value="0" required>
-                </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Update Graph</button>
+
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Add Test & Analysis</button>
               </form>
             </div>
           </div>
 
           <div class="col-lg-7">
-            <div class="card p-4 mb-4">
+            <div class="card p-4 h-100">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (/720)</h3>
-              <div style="height: 250px;">
+              <div style="height: 280px;">
                 <canvas id="scoreChart"></canvas>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card p-4 mt-2">
-          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests Record</h3>
+        <div class="card p-4">
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests & Error Notebook Panel</h3>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Name</th>
-                  <th>Date</th>
-                  <th>Status</th>
+                  <th>Test Details</th>
                   <th>Marks (/720)</th>
+                  <th>Correct Count</th>
+                  <th>Incorrect Q. Nos</th>
+                  <th>Tukka Q. Nos</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -427,7 +477,7 @@
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Automated Daily Study History Log</h3>
+            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Automated Daily Study History Log (IST)</h3>
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
           <div id="calendarHistoryContainer" style="max-height: 500px; overflow-y: auto;" class="pe-2"></div>
@@ -448,12 +498,12 @@
     </div>
   </div>
 
-  <!-- Login Modal (Google Identity Services) -->
+  <!-- Login Modal -->
   <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Google Sync Login</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Google Sync & Settings</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center py-4">
@@ -469,7 +519,14 @@
           <div id="loggedInView" class="d-none">
             <p class="text-muted small mb-2">Logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
             
-            <!-- Change Name Section -->
+            <div class="alert alert-info py-2 small mb-3" id="subStatusAlert">
+              Plan: <strong id="userPlanText">Free Plan</strong>
+            </div>
+
+            <div class="mb-3" id="upgradeSection">
+              <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="simulateUpgradeToPro()"><i class="bi bi-star-fill me-1"></i> Upgrade to Pro (Sync Enabled)</button>
+            </div>
+
             <div class="input-group input-group-sm mb-3">
               <input type="text" id="userNameInput" class="form-control" placeholder="Enter your display name">
               <button class="btn btn-outline-primary" type="button" onclick="updateUserName()">Update Name</button>
@@ -490,6 +547,7 @@
     let appData = {
       userName: '',
       neetDate: '2026-05-07',
+      isPro: false,
       chapters: [],
       todos: [],
       tests: [],
@@ -508,20 +566,16 @@
 
     const posters = [
       { title: "Future Doctor in the Making", caption: "Every single page brings you one step closer to your White Coat.", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80" },
-      { title: "Consistency is Key", caption: "Small daily improvements over time lead to stunning results.", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80" },
-      { title: "Believe in Yourself", caption: "Your limitation—it's only your imagination. Push beyond it.", image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80" },
-      { title: "Hard Work Beats Talent", caption: "When talent doesn't work hard, hard work beats talent.", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" },
-      { title: "Focus on Your Goal", caption: "Don't look at the mountains, look at the path right in front of you.", image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80" },
-      { title: "Strive for Progress", caption: "Not perfection. Every hour studied is a step towards AIIMS/Govt Medical College.", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" },
-      { title: "Unstoppable Drive", caption: "Pain is temporary, a Doctor's title is permanent.", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80" }
+      { title: "Consistency is Key", caption: "Small daily improvements over time lead to stunning results.", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80" }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
+      initLiveISTClock();
       initISTCountdown();
-      initLiveISTClock(); // Initialize Live IST Clock
       initTimers();
       renderChapters();
+      checkSmartRevisionAlerts();
       renderTodos();
       renderTests();
       initScoreChart();
@@ -547,7 +601,7 @@
         const name = document.getElementById('chapterNameInput').value.trim();
         const subject = document.getElementById('chapterSubjectInput').value;
         if(name) {
-          appData.chapters.push({ id: Date.now(), name, subject, completed: false });
+          appData.chapters.push({ id: Date.now(), name, subject, completed: false, completedDate: null });
           document.getElementById('chapterNameInput').value = '';
           saveData();
           renderChapters();
@@ -588,8 +642,24 @@
         const name = document.getElementById('testName').value.trim();
         const date = document.getElementById('testDate').value;
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
+        const correctCount = parseInt(document.getElementById('testCorrectCount').value) || 0;
+        
+        const incRaw = document.getElementById('testIncorrectList').value;
+        const incorrectQ = incRaw ? incRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+
+        const tukkaRaw = document.getElementById('testTukkaList').value;
+        const tukkaQ = tukkaRaw ? tukkaRaw.split(',').map(x => x.trim()).filter(Boolean) : [];
+
         if(name && date) {
-          appData.tests.push({ id: Date.now(), name, date, marks, status: 'Completed' });
+          appData.tests.push({ 
+            id: Date.now(), 
+            name, 
+            date, 
+            marks, 
+            correctCount, 
+            incorrectQ, 
+            tukkaQ 
+          });
           document.getElementById('testScheduleForm').reset();
           saveData();
           renderTests();
@@ -598,7 +668,50 @@
       });
     });
 
-    // --- USER NAME UPDATE ---
+    // Helper: Get Current Date in IST string YYYY-MM-DD
+    function getISTDateString() {
+      const now = new Date();
+      const istDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      const y = istDate.getFullYear();
+      const m = String(istDate.getMonth() + 1).padStart(2, '0');
+      const d = String(istDate.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Live IST Clock Widget
+    function initLiveISTClock() {
+      setInterval(() => {
+        const now = new Date();
+        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        document.getElementById('istClockDisplay').innerText = now.toLocaleTimeString('en-US', options) + ' IST';
+      }, 1000);
+    }
+
+    // IST Countdown Calculator (resets at exact Midnight 12:00 AM IST)
+    function initISTCountdown() {
+      setInterval(() => {
+        const now = new Date();
+        const istNowString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        const currentIST = new Date(istNowString).getTime();
+
+        const targetStr = appData.neetDate + 'T00:00:00+05:30';
+        const targetDate = new Date(targetStr).getTime();
+        const diff = targetDate - currentIST;
+
+        if (diff > 0) {
+          document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+          document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+          document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+          document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+        } else {
+          document.getElementById('countdownDays').innerText = "00";
+          document.getElementById('countdownHours').innerText = "00";
+          document.getElementById('countdownMinutes').innerText = "00";
+          document.getElementById('countdownSeconds').innerText = "00";
+        }
+      }, 1000);
+    }
+
     function updateUserName() {
       const newName = document.getElementById('userNameInput').value.trim();
       if(newName) {
@@ -609,7 +722,16 @@
       }
     }
 
-    // --- CLOUDFLARE D1 SYNC ---
+    function simulateUpgradeToPro() {
+      const confirmUpgrade = confirm("Upgrade to Pro Student Membership? (Demo Mode)");
+      if(confirmUpgrade) {
+        appData.isPro = true;
+        saveData();
+        updateAuthUI();
+        alert('Congratulations! You are now a Pro Member.');
+      }
+    }
+
     function loadLocalStorageData() {
       const saved = localStorage.getItem('endorank_neet_data');
       if (saved) {
@@ -620,6 +742,7 @@
     function saveData() {
       localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
       updateProgress();
+      checkSmartRevisionAlerts();
       recordTodayActivity();
       if (currentUserEmail) {
         syncToCloudflare();
@@ -648,6 +771,7 @@
           appData = data.payload;
           document.getElementById('neetDate').value = appData.neetDate;
           renderChapters();
+          checkSmartRevisionAlerts();
           renderTodos();
           renderTests();
           updateScoreChart();
@@ -659,7 +783,6 @@
       }
     }
 
-    // --- GOOGLE AUTH HANDLER ---
     function parseJwt(token) {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -692,6 +815,8 @@
       const loggedInView = document.getElementById('loggedInView');
       const userEmailDisplay = document.getElementById('userEmailDisplay');
       const userNameInput = document.getElementById('userNameInput');
+      const userPlanText = document.getElementById('userPlanText');
+      const upgradeSection = document.getElementById('upgradeSection');
 
       if (currentUserEmail) {
         const displayName = appData.userName || currentUserEmail.split('@')[0];
@@ -700,6 +825,14 @@
         loggedInView.classList.remove('d-none');
         userEmailDisplay.innerText = currentUserEmail;
         if(userNameInput) userNameInput.value = appData.userName || '';
+
+        if (appData.isPro) {
+          userPlanText.innerText = "⭐ Pro Member (Active)";
+          upgradeSection.classList.add('d-none');
+        } else {
+          userPlanText.innerText = "Free Plan";
+          upgradeSection.classList.remove('d-none');
+        }
       } else {
         authBtnText.innerText = 'Login';
         loggedOutView.classList.remove('d-none');
@@ -707,44 +840,6 @@
       }
     }
 
-    // --- LIVE IST CLOCK TICKER ---
-    function initLiveISTClock() {
-      setInterval(() => {
-        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const timeString = new Intl.DateTimeFormat('en-US', options).format(new Date());
-        const clockEl = document.getElementById('liveIstClock');
-        if(clockEl) clockEl.innerText = timeString;
-      }, 1000);
-    }
-
-    // --- IST COUNTDOWN & MIDNIGHT ROLLOVER ---
-    function initISTCountdown() {
-      setInterval(() => {
-        // Target exam start date at 00:00:00 IST
-        const targetStr = appData.neetDate + 'T00:00:00+05:30';
-        const targetDate = new Date(targetStr).getTime();
-
-        // Get exact current time in Asia/Kolkata (IST)
-        const nowISTString = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-        const istNowTime = new Date(nowISTString).getTime();
-
-        const diff = targetDate - istNowTime;
-
-        if (diff > 0) {
-          document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-          document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-          document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-          document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-        } else {
-          document.getElementById('countdownDays').innerText = "00";
-          document.getElementById('countdownHours').innerText = "00";
-          document.getElementById('countdownMinutes').innerText = "00";
-          document.getElementById('countdownSeconds').innerText = "00";
-        }
-      }, 1000);
-    }
-
-    // --- TIMERS & TRACKERS ---
     let pomoTimeLeft = 25 * 60, pomoTimerId = null, pomoRunning = false;
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
@@ -832,7 +927,6 @@
     function syncBigPause() { pausePomo(); }
     function syncBigReset() { resetPomo(); }
 
-    // --- CHAPTERS & SYLLABUS ---
     function filterSubject(subj) {
       currentFilter = subj;
       const buttons = document.querySelectorAll('#subjectFilter button');
@@ -876,6 +970,7 @@
       const ch = appData.chapters.find(c => c.id === id);
       if (ch) {
         ch.completed = !ch.completed;
+        ch.completedDate = ch.completed ? getISTDateString() : null;
         saveData();
         renderChapters();
       }
@@ -887,6 +982,33 @@
       renderChapters();
     }
 
+    // Smart Revision Reminder Engine (30-day rule alert)
+    function checkSmartRevisionAlerts() {
+      const alertBox = document.getElementById('revisionAlertContainer');
+      const alertList = document.getElementById('revisionAlertList');
+      const todayStr = getISTDateString();
+      const today = new Date(todayStr);
+
+      let dueChapters = [];
+
+      appData.chapters.forEach(ch => {
+        if(ch.completed && ch.completedDate) {
+          const compDate = new Date(ch.completedDate);
+          const diffDays = Math.floor((today - compDate) / (1000 * 60 * 60 * 24));
+          if(diffDays >= 30) {
+            dueChapters.push(`${ch.name} (${ch.subject}) - Completed ${diffDays} days ago`);
+          }
+        }
+      });
+
+      if(dueChapters.length > 0) {
+        alertBox.classList.remove('d-none');
+        alertList.innerHTML = dueChapters.map(item => `<div>• <strong>${item}</strong>. <span class="text-primary">Time for quick 20-min revision!</span></div>`).join('');
+      } else {
+        alertBox.classList.add('d-none');
+      }
+    }
+
     function updateProgress() {
       const total = appData.chapters.length;
       const completed = appData.chapters.filter(c => c.completed).length;
@@ -895,7 +1017,6 @@
       document.getElementById('overallProgressBar').style.width = `${pct}%`;
     }
 
-    // --- TODOS ---
     function renderTodos() {
       const list = document.getElementById('todoList');
       const fullList = document.getElementById('fullTodoList');
@@ -957,7 +1078,6 @@
       renderTodos();
     }
 
-    // --- TESTS & SCORE GRAPH ---
     function initScoreChart() {
       const ctx = document.getElementById('scoreChart').getContext('2d');
       scoreChartInstance = new Chart(ctx, {
@@ -993,24 +1113,55 @@
       scoreChartInstance.update();
     }
 
+    // Render Tests with Error & Tukka Analysis and Delete badges
     function renderTests() {
       const tbody = document.getElementById('testsTableBody');
       tbody.innerHTML = '';
       if(appData.tests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted small">No tests recorded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted small">No tests recorded yet.</td></tr>';
         return;
       }
       appData.tests.forEach(test => {
+        const incBadges = (test.incorrectQ && test.incorrectQ.length > 0)
+          ? test.incorrectQ.map((q, idx) => `<span class="badge bg-danger text-white me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteIncorrectQuestion(${test.id}, ${idx})"></i></span>`).join('')
+          : '<span class="text-muted small">None</span>';
+
+        const tukkaBadges = (test.tukkaQ && test.tukkaQ.length > 0)
+          ? test.tukkaQ.map((q, idx) => `<span class="badge bg-warning text-dark me-1 mb-1">${q} <i class="bi bi-x-circle ms-1 cursor-pointer" onclick="deleteTukkaQuestion(${test.id}, ${idx})"></i></span>`).join('')
+          : '<span class="text-muted small">None</span>';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="fw-semibold">${test.name}</td>
-          <td>${test.date}</td>
-          <td><span class="badge bg-success">${test.status}</span></td>
-          <td class="fw-bold text-primary">${test.marks} / 720</td>
-          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash"></i></button></td>
+          <td class="fw-semibold">
+            <div>${test.name}</div>
+            <small class="text-muted">${test.date}</small>
+          </td>
+          <td class="fw-bold text-primary fs-6">${test.marks} / 720</td>
+          <td><span class="badge bg-success fs-6">${test.correctCount || 0}</span></td>
+          <td><div>${incBadges}</div></td>
+          <td><div>${tukkaBadges}</div></td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete Test</button></td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function deleteIncorrectQuestion(testId, qIndex) {
+      const test = appData.tests.find(t => t.id === testId);
+      if(test && test.incorrectQ) {
+        test.incorrectQ.splice(qIndex, 1);
+        saveData();
+        renderTests();
+      }
+    }
+
+    function deleteTukkaQuestion(testId, qIndex) {
+      const test = appData.tests.find(t => t.id === testId);
+      if(test && test.tukkaQ) {
+        test.tukkaQ.splice(qIndex, 1);
+        saveData();
+        renderTests();
+      }
     }
 
     function deleteTest(id) {
@@ -1020,19 +1171,8 @@
       updateScoreChart();
     }
 
-    // --- AUTO STUDY CALENDAR & IST-STRICT HISTORY ---
-    function getTodayKey() {
-      // Formats current date strictly in IST (Asia/Kolkata) as YYYY-MM-DD
-      const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-      const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(new Date());
-      const year = parts.find(p => p.type === 'year').value;
-      const month = parts.find(p => p.type === 'month').value;
-      const day = parts.find(p => p.type === 'day').value;
-      return `${year}-${month}-${day}`;
-    }
-
     function recordTodayActivity() {
-      const today = getTodayKey();
+      const today = getISTDateString();
       if(!appData.history[today]) {
         appData.history[today] = { studyMinutes: 0, completedTasksList: [] };
       }
@@ -1042,7 +1182,7 @@
     }
 
     function recordStudyTime(mins) {
-      const today = getTodayKey();
+      const today = getISTDateString();
       if(!appData.history[today]) {
         appData.history[today] = { studyMinutes: 0, completedTasksList: [] };
       }
@@ -1083,7 +1223,6 @@
       });
     }
 
-    // --- QUOTES & 30-DAY POSTER ROTATION ---
     function getRandomQuote() {
       const q = quotes[Math.floor(Math.random() * quotes.length)];
       document.getElementById('quoteText').innerText = `"${q.text}"`;
