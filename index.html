@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.9 (Live Real-Time Room Join/Leave Auto-Sync) -->
+<!-- ENDORANK Dashboard - Version 4.0 (Live Hours, Minutes & Seconds Time Display) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -383,7 +383,7 @@
                 <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard</h3>
                 <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
               </div>
-              <p class="text-muted small">Real aspirants using ENDORANK appear here when active.</p>
+              <p class="text-muted small">Real aspirants using ENDORANK appear here when active (showing live H:M:S).</p>
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead class="table-light">
@@ -783,7 +783,7 @@
   <script>
     const API_BASE_URL = "https://flat-shadow-fd78.khanavik608.workers.dev";
     let currentUserEmail = null;
-    let roomPollInterval = null; // Auto-sync interval for live room member updates
+    let roomPollInterval = null;
 
     let appData = {
       userName: '',
@@ -1001,6 +1001,14 @@
       });
     });
 
+    // --- Helper to format total seconds into Hours, Minutes, Seconds (H:M:S) ---
+    function formatHMS(totalSecs) {
+      const h = Math.floor(totalSecs / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      const s = totalSecs % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
+
     // --- NEET Arena Leaderboard & Real Rooms (Backend Sync) ---
     async function loadLeaderboard() {
       const tbody = document.getElementById('globalLeaderboardBody');
@@ -1015,15 +1023,13 @@
           tbody.innerHTML = '';
           data.forEach((user, idx) => {
             const totalSecs = user.totalSeconds || 0;
-            const h = Math.floor(totalSecs / 3600);
-            const m = Math.floor((totalSecs % 3600) / 60);
-            const timeStr = `${h}h ${m}m`;
+            const timeStr = formatHMS(totalSecs); // H:M:S Format
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td><span class="badge ${idx === 0 ? 'bg-warning text-dark' : idx === 1 ? 'bg-secondary' : idx === 2 ? 'bg-danger' : 'bg-light text-dark border'}">#${idx + 1}</span></td>
               <td class="fw-bold">${user.name || 'Aspirant'}</td>
-              <td><span class="text-primary fw-bold"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
+              <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
               <td><span class="badge bg-success">Active Today 🔥</span></td>
             `;
             tbody.appendChild(tr);
@@ -1042,14 +1048,13 @@
       
       const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
       const totalSecsToday = getTotalCombinedTodaySeconds();
-      const h = Math.floor(totalSecsToday / 3600);
-      const m = Math.floor((totalSecsToday % 3600) / 60);
+      const timeStr = formatHMS(totalSecsToday); // H:M:S Format
 
       tbody.innerHTML = `
         <tr>
           <td><span class="badge bg-warning text-dark">#1</span></td>
           <td class="fw-bold">${myName} <span class="badge bg-light text-primary border ms-1">You</span></td>
-          <td><span class="text-primary fw-bold"><i class="bi bi-clock me-1"></i>${h}h ${m}m</span></td>
+          <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
           <td><span class="badge bg-success">Studying 🔥</span></td>
         </tr>
       `;
@@ -1063,7 +1068,7 @@
       return 0; 
     }
 
-    // --- Real Student Rooms API Functions (With Live Auto-Sync / Auto-Leave Popup) ---
+    // --- Real Student Rooms API Functions ---
     async function createPersonalRoom() {
       const roomName = document.getElementById('newRoomNameInput').value.trim();
       if(!roomName) {
@@ -1133,6 +1138,16 @@
 
     async function fetchRoomMembers(roomCode, roomName) {
       try {
+        // Also update backend with our latest ticking seconds on every poll sync heartbeat
+        if(currentUserEmail || appData.userName) {
+          const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+          await fetch(`${API_BASE_URL}/api/room/join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
+          }).catch(()=>{});
+        }
+
         const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
         const data = await res.json();
         const members = data.members || [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }];
@@ -1145,7 +1160,7 @@
     function startRoomAutoSync(roomCode, roomName) {
       if(roomPollInterval) clearInterval(roomPollInterval);
       fetchRoomMembers(roomCode, roomName);
-      // Auto poll every 3 seconds to instantly popup or disappear room members live without refresh
+      // Auto poll every 3 seconds to instantly popup/disappear members and update seconds live
       roomPollInterval = setInterval(() => {
         fetchRoomMembers(roomCode, roomName);
       }, 3000);
@@ -1167,7 +1182,6 @@
         try {
           const room = JSON.parse(active);
           const myName = appData.userName || currentUserEmail.split('@')[0];
-          // Send leave request to backend to instantly remove from active room list
           await fetch(`${API_BASE_URL}/api/room/leave`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1196,13 +1210,12 @@
       }
 
       members.forEach(m => {
-        const h = Math.floor((m.time || 0) / 3600);
-        const min = Math.floor(((m.time || 0) % 3600) / 60);
+        const timeFormatted = formatHMS(m.time || 0); // H:M:S Format for Room Members
         const div = document.createElement('div');
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
         div.innerHTML = `
           <span>👤 ${m.name}</span>
-          <span class="badge bg-primary">${h}h ${min}m today</span>
+          <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
         `;
         membersList.appendChild(div);
       });
@@ -2121,10 +2134,7 @@
       dates.forEach(dateStr => {
         const dayData = appData.history[dateStr];
         const totalSecs = dayData.totalSeconds || 0;
-        const h = Math.floor(totalSecs / 3600);
-        const m = Math.floor((totalSecs % 3600) / 60);
-        const s = totalSecs % 60;
-        const timeFormatted = `${h}h ${m}m ${s}s`;
+        const timeFormatted = formatHMS(totalSecs); // H:M:S format
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
@@ -2144,7 +2154,7 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${dateStr}</span>
             <div>
-              <span class="badge bg-primary me-2"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
+              <span class="badge bg-primary me-2 font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
