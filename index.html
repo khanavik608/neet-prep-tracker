@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.2 (Auto-Fill Test Name & Flexible Time Scheduler) -->
+<!-- ENDORANK Dashboard - Version 3.3 (Clean Practice Tracker, Manual Resources with Tick & Date-only Scheduler) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -390,7 +390,7 @@
               <thead class="table-light">
                 <tr>
                   <th style="width: 25%;">Chapter Name</th>
-                  <th style="width: 45%;">Practice Resources (Multiple Allowed)</th>
+                  <th style="width: 45%;">Practice Resources (Add & Tick Completed)</th>
                   <th style="width: 20%;">NEET PYQs Status</th>
                   <th style="width: 10%;">Action</th>
                 </tr>
@@ -527,18 +527,18 @@
 
           <!-- Right Column: Upcoming Test Scheduler & Graph -->
           <div class="col-lg-6">
-            <!-- Upcoming Test Scheduler Card (12 AM - 11:59 PM Flexible Time) -->
+            <!-- Schedule Upcoming Mock Test Card (Date Only) -->
             <div class="card p-4 mb-4 scheduled-test-card">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test (12 AM - 11:59 PM)</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test</h3>
               <form id="upcomingTestForm">
                 <div class="mb-2">
                   <label for="upcomingName" class="form-label small fw-bold text-muted">Test Title / Platform:</label>
-                  <input type="text" id="upcomingName" class="form-control form-control-sm" placeholder="e.g. Allen Major Test 4" required>
+                  <input type="text" id="upcomingName" class="form-control form-control-sm" placeholder="e.g. Major Test 4" required>
                 </div>
                 <div class="row g-2 mb-3">
                   <div class="col-7">
-                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & Time (AM/PM):</label>
-                    <input type="datetime-local" id="upcomingDate" class="form-control form-control-sm" required>
+                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Test Date:</label>
+                    <input type="date" id="upcomingDate" class="form-control form-control-sm" required>
                   </div>
                   <div class="col-5 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold"><i class="bi bi-bell me-1"></i> Set Schedule</button>
@@ -736,11 +736,11 @@
       userName: '',
       neetDate: '2026-05-07',
       isPro: false,
-      chapters: [], 
+      chapters: [], // { id, name, subject, completed, completedDate, resources: [{name, done}], pyqDone }
       todos: [],
       tests: [],
       upcomingTests: [],
-      history: {}, 
+      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] } }
       diaries: {}
     };
 
@@ -809,7 +809,7 @@
             subject, 
             completed: false, 
             completedDate: null,
-            resources: ['Allen Module'],
+            resources: [], // clean manual resources list
             pyqDone: false 
           });
           document.getElementById('chapterNameInput').value = '';
@@ -851,10 +851,10 @@
       document.getElementById('upcomingTestForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const title = document.getElementById('upcomingName').value.trim();
-        const datetime = document.getElementById('upcomingDate').value;
-        if(title && datetime) {
+        const date = document.getElementById('upcomingDate').value;
+        if(title && date) {
           if(!appData.upcomingTests) appData.upcomingTests = [];
-          appData.upcomingTests.push({ id: Date.now(), title, datetime });
+          appData.upcomingTests.push({ id: Date.now(), title, date });
           document.getElementById('upcomingTestForm').reset();
           saveData();
           renderUpcomingTests();
@@ -871,7 +871,7 @@
 
         if(date) {
           if(!appData.history[date]) {
-            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
+            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
           saveData();
@@ -951,7 +951,6 @@
     function selectUpcomingTestForAnalysis(testTitle) {
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
-      // Scroll to the test analysis form smoothly
       document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.getElementById('testName').focus();
     }
@@ -965,21 +964,12 @@
         return;
       }
       appData.upcomingTests.forEach((ut) => {
-        // Format datetime nicely to 12-hour AM/PM format
-        let formattedTime = ut.datetime;
-        try {
-          const d = new Date(ut.datetime);
-          if(!isNaN(d)) {
-            formattedTime = d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-          }
-        } catch(err) {}
-
         const div = document.createElement('div');
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
         div.innerHTML = `
           <div class="d-flex align-items-center gap-2">
             <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
-            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${formattedTime}</small></div>
+            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
           </div>
           <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
         `;
@@ -1015,12 +1005,15 @@
       }
 
       filtered.forEach(ch => {
-        if(!ch.resources) ch.resources = ['Allen Module'];
+        if(!ch.resources) ch.resources = [];
         
-        const resourcesHtml = ch.resources.map((resName, rIdx) => `
+        const resourcesHtml = ch.resources.map((resObj, rIdx) => `
           <div class="input-group input-group-sm mb-1">
-            <input type="text" class="form-control form-control-sm" value="${resName}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Resource name...">
-            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})"><i class="bi bi-x"></i></button>
+            <div class="input-group-text bg-white">
+              <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
+            </div>
+            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name (e.g. Module, Errorless)...">
+            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
           </div>
         `).join('');
 
@@ -1029,7 +1022,7 @@
           <td class="fw-semibold text-dark">${ch.name}</td>
           <td>
             ${resourcesHtml}
-            <button class="btn btn-xs btn-outline-primary py-0 px-2 mt-1" style="font-size: 11px;" onclick="addResource(${ch.id})"><i class="bi bi-plus me-1"></i>Add Another Resource</button>
+            <button class="btn btn-xs btn-outline-primary py-1 px-2 mt-1 fw-semibold" style="font-size: 11px;" onclick="addResourcePrompt(${ch.id})"><i class="bi bi-plus-circle me-1"></i>Add Practice Resource</button>
           </td>
           <td>
             <div class="form-check">
@@ -1045,21 +1038,34 @@
       });
     }
 
-    function addResource(chapterId) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch) {
-        if(!ch.resources) ch.resources = [];
-        ch.resources.push('New Resource');
-        saveData();
-        renderPracticeTable();
+    function addResourcePrompt(chapterId) {
+      const resName = prompt("Enter Practice Resource Name (e.g. DC Pandey, NCERT at your fingertips):");
+      if(resName && resName.trim() !== '') {
+        const ch = appData.chapters.find(c => c.id === chapterId);
+        if(ch) {
+          if(!ch.resources) ch.resources = [];
+          ch.resources.push({ name: resName.trim(), done: false });
+          saveData();
+          renderPracticeTable();
+        }
       }
     }
 
     function updateResourceName(chapterId, rIdx, val) {
       const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources) {
-        ch.resources[rIdx] = val;
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].name = val.trim();
         saveData();
+      }
+    }
+
+    function toggleResourceDone(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].done = !ch.resources[rIdx].done;
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
       }
     }
 
@@ -1067,9 +1073,9 @@
       const ch = appData.chapters.find(c => c.id === chapterId);
       if(ch && ch.resources) {
         ch.resources.splice(rIdx, 1);
-        if(ch.resources.length === 0) ch.resources.push('NCERT');
         saveData();
         renderPracticeTable();
+        recordTodayActivity();
       }
     }
 
@@ -1079,6 +1085,7 @@
         ch.pyqDone = !ch.pyqDone;
         saveData();
         renderPracticeTable();
+        recordTodayActivity();
       }
     }
 
@@ -1730,20 +1737,33 @@
     function recordTodayActivity() {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
       const completedTaskNames = appData.todos.filter(t => t.completed).map(t => t.text);
       const completedChapterNames = appData.chapters.filter(c => c.completed).map(c => `${c.name} (${c.subject})`);
+      
+      let completedPracticeNames = [];
+      appData.chapters.forEach(c => {
+        if(c.resources) {
+          c.resources.forEach(r => {
+            if(r.done) completedPracticeNames.push(`${c.name} - ${r.name}`);
+          });
+        }
+        if(c.pyqDone) {
+          completedPracticeNames.push(`${c.name} - NEET PYQs`);
+        }
+      });
 
       appData.history[today].completedTasksList = completedTaskNames;
       appData.history[today].completedChaptersList = completedChapterNames;
+      appData.history[today].completedPracticeList = completedPracticeNames;
       renderCalendarHistory();
     }
 
     function recordStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
       appData.history[today].totalSeconds += secs;
       saveData();
@@ -1778,6 +1798,10 @@
           ? dayData.completedChaptersList.map(ch => `<span class="badge bg-success text-white me-1 mb-1"><i class="bi bi-check-circle me-1"></i>${ch}</span>`).join('') 
           : '<span class="text-muted small">No chapters completed</span>';
 
+        const practiceList = dayData.completedPracticeList && dayData.completedPracticeList.length > 0 
+          ? dayData.completedPracticeList.map(pr => `<span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-check2-square me-1"></i>${pr}</span>`).join('') 
+          : '<span class="text-muted small">No practice resources completed</span>';
+
         const div = document.createElement('div');
         div.className = 'card history-card mb-2 p-3 shadow-sm';
         div.innerHTML = `
@@ -1790,6 +1814,8 @@
           </div>
           <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
           <div class="mb-2">${chaptersList}</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs (Auto-Synced):</div>
+          <div class="mb-2">${practiceList}</div>
           <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks (Auto-Synced):</div>
           <div>${tasksList}</div>
         `;
