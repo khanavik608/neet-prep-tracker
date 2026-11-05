@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.0 (H:M:S Focus Log & Auto-Sync To-Dos) -->
+<!-- ENDORANK Dashboard - Version 3.2 (Auto-Fill Test Name & Flexible Time Scheduler) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,6 +214,7 @@
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
+      <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
@@ -373,6 +374,33 @@
         </div>
       </div>
 
+      <!-- Tab: Question Practice & PYQs Tracker -->
+      <div class="tab-pane fade" id="tab-practice" role="tabpanel">
+        <div class="card p-4">
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
+            <h3 class="h4 text-primary mb-0"><i class="bi bi-journal-check me-2"></i>Chapter-wise Question Practice & PYQs Tracker</h3>
+            <div class="btn-group btn-group-sm" role="group" id="practiceSubjectFilter">
+              <button type="button" class="btn btn-outline-primary active" onclick="filterPracticeSubject('Physics')">Physics</button>
+              <button type="button" class="btn btn-outline-primary" onclick="filterPracticeSubject('Chemistry')">Chemistry</button>
+              <button type="button" class="btn btn-outline-primary" onclick="filterPracticeSubject('Biology')">Biology</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 25%;">Chapter Name</th>
+                  <th style="width: 45%;">Practice Resources (Multiple Allowed)</th>
+                  <th style="width: 20%;">NEET PYQs Status</th>
+                  <th style="width: 10%;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="practiceTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Tab: IST Clock & Date Section -->
       <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
         <div class="card text-center p-5">
@@ -499,9 +527,9 @@
 
           <!-- Right Column: Upcoming Test Scheduler & Graph -->
           <div class="col-lg-6">
-            <!-- Upcoming Test Scheduler Card (24-Hour Time) -->
+            <!-- Upcoming Test Scheduler Card (12 AM - 11:59 PM Flexible Time) -->
             <div class="card p-4 mb-4 scheduled-test-card">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test (24-Hr)</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test (12 AM - 11:59 PM)</h3>
               <form id="upcomingTestForm">
                 <div class="mb-2">
                   <label for="upcomingName" class="form-label small fw-bold text-muted">Test Title / Platform:</label>
@@ -509,7 +537,7 @@
                 </div>
                 <div class="row g-2 mb-3">
                   <div class="col-7">
-                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & 24-Hr Time:</label>
+                    <label for="upcomingDate" class="form-label small fw-bold text-muted">Date & Time (AM/PM):</label>
                     <input type="datetime-local" id="upcomingDate" class="form-control form-control-sm" required>
                   </div>
                   <div class="col-5 d-flex align-items-end">
@@ -517,7 +545,7 @@
                   </div>
                 </div>
               </form>
-              <div id="upcomingTestList" class="mt-2" style="max-height: 140px; overflow-y: auto;"></div>
+              <div id="upcomingTestList" class="mt-2" style="max-height: 160px; overflow-y: auto;"></div>
             </div>
 
             <!-- Score Graph Card -->
@@ -595,7 +623,7 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Activity & Focus Log (Hours, Minutes, Seconds + Manual Add/Edit + Delete) -->
+      <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
@@ -623,7 +651,7 @@
     </div>
   </div>
 
-  <!-- Manual Activity & Focus Log Edit Modal (Hours + Mins + Secs) -->
+  <!-- Manual Activity & Focus Log Edit Modal -->
   <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -708,15 +736,16 @@
       userName: '',
       neetDate: '2026-05-07',
       isPro: false,
-      chapters: [],
+      chapters: [], 
       todos: [],
       tests: [],
       upcomingTests: [],
-      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [] } }
+      history: {}, 
       diaries: {}
     };
 
     let currentFilter = 'all';
+    let currentPracticeSubject = 'Physics';
     let chapterSearchQuery = '';
     let scoreChartInstance = null;
     let bubbleStates = {}; 
@@ -740,6 +769,7 @@
       initTimers();
       renderBubbleGrid();
       renderChapters();
+      renderPracticeTable();
       checkSmartRevisionAlerts();
       renderTodos();
       renderTests();
@@ -773,10 +803,19 @@
         const name = document.getElementById('chapterNameInput').value.trim();
         const subject = document.getElementById('chapterSubjectInput').value;
         if(name) {
-          appData.chapters.push({ id: Date.now(), name, subject, completed: false, completedDate: null });
+          appData.chapters.push({ 
+            id: Date.now(), 
+            name, 
+            subject, 
+            completed: false, 
+            completedDate: null,
+            resources: ['Allen Module'],
+            pyqDone: false 
+          });
           document.getElementById('chapterNameInput').value = '';
           saveData();
           renderChapters();
+          renderPracticeTable();
         }
       });
 
@@ -822,7 +861,6 @@
         }
       });
 
-      // Manual Activity Log Submit (Hours, Mins, Secs)
       document.getElementById('manualActivityForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const date = document.getElementById('manualActivityDate').value;
@@ -833,7 +871,7 @@
 
         if(date) {
           if(!appData.history[date]) {
-            appData.history[date] = { totalSeconds: 0, completedTasksList: [] };
+            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
           saveData();
@@ -909,6 +947,142 @@
       });
     });
 
+    // --- Upcoming Test Auto-Fill Feature ---
+    function selectUpcomingTestForAnalysis(testTitle) {
+      document.getElementById('testName').value = testTitle;
+      document.getElementById('testDate').value = getISTDateString();
+      // Scroll to the test analysis form smoothly
+      document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('testName').focus();
+    }
+
+    function renderUpcomingTests() {
+      const container = document.getElementById('upcomingTestList');
+      if(!container) return;
+      container.innerHTML = '';
+      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
+        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
+        return;
+      }
+      appData.upcomingTests.forEach((ut) => {
+        // Format datetime nicely to 12-hour AM/PM format
+        let formattedTime = ut.datetime;
+        try {
+          const d = new Date(ut.datetime);
+          if(!isNaN(d)) {
+            formattedTime = d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+          }
+        } catch(err) {}
+
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
+        div.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+            <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
+            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${formattedTime}</small></div>
+          </div>
+          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteUpcomingTest(id) {
+      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
+      saveData();
+      renderUpcomingTests();
+    }
+
+    // --- Practice & PYQs Tracker Functions ---
+    function filterPracticeSubject(subj) {
+      currentPracticeSubject = subj;
+      const buttons = document.querySelectorAll('#practiceSubjectFilter button');
+      buttons.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderPracticeTable();
+    }
+
+    function renderPracticeTable() {
+      const tbody = document.getElementById('practiceTableBody');
+      if(!tbody) return;
+      tbody.innerHTML = '';
+
+      const filtered = appData.chapters.filter(c => c.subject === currentPracticeSubject);
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No chapters added for ${currentPracticeSubject}. Add chapters in Dashboard first!</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(ch => {
+        if(!ch.resources) ch.resources = ['Allen Module'];
+        
+        const resourcesHtml = ch.resources.map((resName, rIdx) => `
+          <div class="input-group input-group-sm mb-1">
+            <input type="text" class="form-control form-control-sm" value="${resName}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Resource name...">
+            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})"><i class="bi bi-x"></i></button>
+          </div>
+        `).join('');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold text-dark">${ch.name}</td>
+          <td>
+            ${resourcesHtml}
+            <button class="btn btn-xs btn-outline-primary py-0 px-2 mt-1" style="font-size: 11px;" onclick="addResource(${ch.id})"><i class="bi bi-plus me-1"></i>Add Another Resource</button>
+          </td>
+          <td>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" ${ch.pyqDone ? 'checked' : ''} onchange="togglePyq(${ch.id})">
+              <label class="form-check-label small fw-semibold ${ch.pyqDone ? 'text-success' : 'text-muted'}">${ch.pyqDone ? 'PYQs Completed' : 'Pending PYQs'}</label>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${ch.completed ? 'bg-success' : 'bg-secondary'}">${ch.completed ? 'Chapter Done' : 'In Progress'}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addResource(chapterId) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch) {
+        if(!ch.resources) ch.resources = [];
+        ch.resources.push('New Resource');
+        saveData();
+        renderPracticeTable();
+      }
+    }
+
+    function updateResourceName(chapterId, rIdx, val) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources) {
+        ch.resources[rIdx] = val;
+        saveData();
+      }
+    }
+
+    function removeResource(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources) {
+        ch.resources.splice(rIdx, 1);
+        if(ch.resources.length === 0) ch.resources.push('NCERT');
+        saveData();
+        renderPracticeTable();
+      }
+    }
+
+    function togglePyq(chapterId) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch) {
+        ch.pyqDone = !ch.pyqDone;
+        saveData();
+        renderPracticeTable();
+      }
+    }
+
+    // --- Diary Functions ---
     function loadDiaryForDate(dateStr) {
       if(appData.diaries && appData.diaries[dateStr]) {
         const entry = appData.diaries[dateStr];
@@ -986,31 +1160,6 @@
     function resetBubbleGridSelections() {
       bubbleStates = {};
       renderBubbleGrid();
-    }
-
-    function renderUpcomingTests() {
-      const container = document.getElementById('upcomingTestList');
-      if(!container) return;
-      container.innerHTML = '';
-      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
-        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
-        return;
-      }
-      appData.upcomingTests.forEach((ut) => {
-        const div = document.createElement('div');
-        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
-        div.innerHTML = `
-          <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i>${ut.datetime.replace('T', ' ')} (24-Hr)</small></div>
-          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function deleteUpcomingTest(id) {
-      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
-      saveData();
-      renderUpcomingTests();
     }
 
     function selectMood(moodName, moodColor, btnElement) {
@@ -1179,6 +1328,7 @@
           appData = data.payload;
           document.getElementById('neetDate').value = appData.neetDate;
           renderChapters();
+          renderPracticeTable();
           checkSmartRevisionAlerts();
           renderTodos();
           renderTests();
@@ -1386,6 +1536,7 @@
         ch.completedDate = ch.completed ? getISTDateString() : null;
         saveData();
         renderChapters();
+        renderPracticeTable();
       }
     }
 
@@ -1393,6 +1544,7 @@
       appData.chapters = appData.chapters.filter(c => c.id !== id);
       saveData();
       renderChapters();
+      renderPracticeTable();
     }
 
     function checkSmartRevisionAlerts() {
@@ -1578,17 +1730,20 @@
     function recordTodayActivity() {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
       }
       const completedTaskNames = appData.todos.filter(t => t.completed).map(t => t.text);
+      const completedChapterNames = appData.chapters.filter(c => c.completed).map(c => `${c.name} (${c.subject})`);
+
       appData.history[today].completedTasksList = completedTaskNames;
+      appData.history[today].completedChaptersList = completedChapterNames;
       renderCalendarHistory();
     }
 
     function recordStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [] };
       }
       appData.history[today].totalSeconds += secs;
       saveData();
@@ -1617,7 +1772,11 @@
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
-          : '<span class="text-muted small">No tasks completed on this day</span>';
+          : '<span class="text-muted small">No tasks completed</span>';
+
+        const chaptersList = dayData.completedChaptersList && dayData.completedChaptersList.length > 0 
+          ? dayData.completedChaptersList.map(ch => `<span class="badge bg-success text-white me-1 mb-1"><i class="bi bi-check-circle me-1"></i>${ch}</span>`).join('') 
+          : '<span class="text-muted small">No chapters completed</span>';
 
         const div = document.createElement('div');
         div.className = 'card history-card mb-2 p-3 shadow-sm';
@@ -1629,7 +1788,9 @@
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="small text-muted mb-1 fw-bold">Completed Tasks (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
+          <div class="mb-2">${chaptersList}</div>
+          <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks (Auto-Synced):</div>
           <div>${tasksList}</div>
         `;
         container.appendChild(div);
