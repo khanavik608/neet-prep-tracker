@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.7 (Highest Session Rename & Delete Option) -->
+<!-- ENDORANK Dashboard - Version 4.8 (Streak Rules Modal Added) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -189,9 +189,14 @@
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       border: 1px solid #f59e0b;
       border-radius: 10px;
-      padding: 10px 15px;
+      padding: 8px 12px;
       color: #92400e;
       font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .streak-widget-box:hover {
+      transform: scale(1.02);
     }
 
     .clickable-test-row {
@@ -217,16 +222,16 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Streak & Highest Session Widget -->
-        <div class="streak-widget-box d-flex align-items-center justify-content-between gap-3 shadow-sm">
+        <!-- Clickable Streak & Highest Session Widget -->
+        <div class="streak-widget-box d-flex align-items-center justify-content-between gap-3 shadow-sm" onclick="openStreakRulesModal()" title="Click to view Streak Rules">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-fire text-danger fs-5"></i>
             <div>
-              <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Focus Metrics</span>
+              <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Focus Metrics <i class="bi bi-info-circle ms-1"></i></span>
               <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Highest Session: <b>0h 0m 0s</b></span>
             </div>
           </div>
-          <button class="btn btn-xs btn-outline-danger border-0 py-0 px-1" style="font-size: 12px;" onclick="resetHighestSessionRecord()" title="Delete / Reset Highest Session Record"><i class="bi bi-trash-fill"></i></button>
+          <button class="btn btn-xs btn-outline-danger border-0 py-0 px-1" style="font-size: 12px;" onclick="event.stopPropagation(); resetHighestSessionRecord()" title="Delete / Reset Highest Session Record"><i class="bi bi-trash-fill"></i></button>
         </div>
 
         <div id="authSection">
@@ -683,6 +688,31 @@
     </div>
   </div>
 
+  <!-- 🔥 Streak & Highest Session Rules Modal -->
+  <div class="modal fade" id="streakRulesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4 border-0 shadow-lg">
+        <div class="modal-header border-bottom pb-2 mb-3">
+          <h5 class="modal-title fw-bold text-danger"><i class="bi bi-fire me-2"></i>Study Streak & Highest Session Rules</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start">
+          <h6 class="fw-bold text-dark mb-1">1. Day Streak Rules:</h6>
+          <p class="small text-muted mb-3">You must log at least <strong>10 minutes (600 seconds)</strong> of study time within a calendar day (IST timezone) to maintain your daily streak. If an entire calendar day passes with 0 study time recorded, your streak will reset to 0.</p>
+
+          <h6 class="fw-bold text-dark mb-1">2. Highest Session Record Rules:</h6>
+          <p class="small text-muted mb-3">Cumulative daily hours do not trigger celebrations. A celebration pop-up appears strictly when you complete a <strong>single continuous study session</strong> (via Stopwatch save or Pomodoro completion) that breaks your previous longest single-session record.</p>
+
+          <h6 class="fw-bold text-dark mb-1">3. Reset Option:</h6>
+          <p class="small text-muted mb-0">You can reset your Highest Session record anytime by clicking the trash icon next to your focus metrics badge if you want a fresh start.</p>
+        </div>
+        <div class="modal-footer border-top pt-3">
+          <button type="button" class="btn btn-accent btn-sm px-4 fw-bold" data-bs-dismiss="modal">Got It!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 🎉 Highest Session Celebration Modal -->
   <div class="modal fade" id="streakCelebrationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
@@ -1129,7 +1159,12 @@
       updateStreakUI();
     }
 
-    // Option to delete / reset Highest Session record
+    // Opens Streak & Highest Session Rules Modal
+    function openStreakRulesModal() {
+      const rulesModal = new bootstrap.Modal(document.getElementById('streakRulesModal'));
+      rulesModal.show();
+    }
+
     function resetHighestSessionRecord() {
       if(confirm("Are you sure you want to delete / reset your Highest Session record?")) {
         if(!appData.streakData) appData.streakData = {};
