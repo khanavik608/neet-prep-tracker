@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.5 (Exclusive Timers & Combined Study Time Log Sync) -->
+<!-- ENDORANK Dashboard - Version 3.7 (Streak Breaker Popups & Test Score Targeting) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,6 +184,16 @@
       border-left: 4px solid var(--accent);
       background: #f0f9ff;
     }
+
+    /* Streak Badge & Modal Styling */
+    .streak-widget-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 10px 15px;
+      color: #92400e;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -200,6 +210,15 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
+        <!-- Streak Badge -->
+        <div class="streak-widget-box d-flex align-items-center gap-2 shadow-sm">
+          <i class="bi bi-fire text-danger fs-5"></i>
+          <div>
+            <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Study Streak</span>
+            <span id="currentStreakDisplay" class="fs-6">0 Days (Best: <span id="bestStreakDisplay">0</span>)</span>
+          </div>
+        </div>
+
         <div id="authSection">
           <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
         </div>
@@ -296,8 +315,7 @@
                   <div class="tab-pane fade show active" id="pomodoro" role="tabpanel">
                     <div class="timer-display my-3" id="pomoDisplay">25:00</div>
                     <div class="mb-3">
-                      <button id="pomoStartBtn" class="btn btn-accent me-1 px-3"><i class="bi bi-play-fill"></i></button>
-                      <button id="pomoPauseBtn" class="btn btn-secondary me-1 px-3" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="pomoToggleBtn" class="btn btn-accent me-1 px-4 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
                       <button id="pomoResetBtn" class="btn btn-outline-danger px-3"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
@@ -309,8 +327,7 @@
                   <div class="tab-pane fade" id="stopwatch" role="tabpanel">
                     <div class="timer-display my-3" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
                     <div class="mb-3">
-                      <button id="swStartBtn" class="btn btn-accent me-1 px-2"><i class="bi bi-play-fill"></i></button>
-                      <button id="swPauseBtn" class="btn btn-secondary me-1 px-2" disabled><i class="bi bi-pause-fill"></i></button>
+                      <button id="swToggleBtn" class="btn btn-accent me-1 px-3 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
                       <button id="swLapBtn" class="btn btn-info me-1 px-2" disabled><i class="bi bi-flag-fill"></i></button>
                       <button id="swResetBtn" class="btn btn-outline-danger px-2"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
@@ -427,9 +444,8 @@
             <h2 class="h5 text-primary mb-2">Focus Session Timer</h2>
             <div class="timer-display-lg my-3" id="bigTimerDisplay">25:00</div>
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button id="bigStartBtn" class="btn btn-accent btn-lg px-4" onclick="syncBigStart()"><i class="bi bi-play-fill me-1"></i>Start</button>
-              <button id="bigPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="syncBigPause()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
-              <button id="bigResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="syncBigReset()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+              <button id="bigPomoToggleBtn" class="btn btn-accent btn-lg px-5 fw-semibold" onclick="toggleBigPomo()"><i class="bi bi-play-fill me-1"></i>Start</button>
+              <button id="bigResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="resetPomo()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
             <div class="d-flex justify-content-center gap-2 flex-wrap">
               <button type="button" class="btn btn-outline-primary btn-sm" onclick="setPomoTime(25)">25 Mins Focus</button>
@@ -442,8 +458,7 @@
             <h2 class="h5 text-primary mb-2">Elapsed Study Stopwatch</h2>
             <div class="timer-display-lg my-3" id="bigSwDisplay" style="font-size: 5rem;">00:00:00</div>
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button id="bigSwStartBtn" class="btn btn-accent btn-lg px-4" onclick="startSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
-              <button id="bigSwPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="pauseSw()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
+              <button id="bigSwToggleBtn" class="btn btn-accent btn-lg px-4 fw-semibold" onclick="toggleBigSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
               <button id="bigSwLapBtn" class="btn btn-info btn-lg px-4" onclick="lapSw()"><i class="bi bi-flag-fill me-1"></i>Lap</button>
               <button id="bigSwResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="resetSw()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
@@ -474,7 +489,7 @@
           <!-- Left Column: Add Test & Analysis -->
           <div class="col-lg-6">
             <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Add Completed Test & Analysis</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-plus me-2"></i>Add Completed Test & Target Score</h3>
               <form id="testScheduleForm">
                 <div class="mb-2">
                   <label for="testName" class="form-label small fw-bold text-muted">Test Name:</label>
@@ -486,9 +501,13 @@
                     <input type="date" id="testDate" class="form-control form-control-sm" required>
                   </div>
                   <div class="col-6">
-                    <label for="testMarks" class="form-label small fw-bold text-muted">Total Marks (/720):</label>
-                    <input type="number" id="testMarks" class="form-control form-control-sm" placeholder="e.g. 580" min="0" max="720" required>
+                    <label for="testTarget" class="form-label small fw-bold text-success"><i class="bi bi-bullseye me-1"></i>Target Score (/720):</label>
+                    <input type="number" id="testTarget" class="form-control form-control-sm" placeholder="e.g. 620" min="0" max="720" required>
                   </div>
+                </div>
+                <div class="mb-2">
+                  <label for="testMarks" class="form-label small fw-bold text-primary">Actual Marks Obtained (/720):</label>
+                  <input type="number" id="testMarks" class="form-control form-control-sm" placeholder="e.g. 580" min="0" max="720" required>
                 </div>
 
                 <!-- Manual Counts Input -->
@@ -520,7 +539,7 @@
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
                 </div>
 
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Save Test & Analysis</button>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-circle me-1"></i> Save Test & Evaluate Target</button>
               </form>
             </div>
           </div>
@@ -565,11 +584,12 @@
               <thead class="table-light">
                 <tr>
                   <th>Test Details</th>
+                  <th>Target (/720)</th>
                   <th>Marks (/720)</th>
                   <th>Correct</th>
-                  <th>Wrong Count</th>
-                  <th>Guess Count</th>
-                  <th>Skip Count</th>
+                  <th>Wrong</th>
+                  <th>Guess</th>
+                  <th>Skip</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -646,6 +666,35 @@
           </div>
           <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
           <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎉 Streak Breaker Celebration Modal -->
+  <div class="modal fade" id="streakCelebrationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+        <div class="modal-body">
+          <div class="display-1 mb-2">🔥🏆</div>
+          <h3 class="fw-bold text-danger mb-2">Incredible Streak Milestone!</h3>
+          <p class="text-dark fs-5 fw-semibold mb-3">Congratulations! You just broke your previous highest streak record!</p>
+          <p class="text-muted small mb-4">Your consistency is building a future Doctor. Keep pushing forward and maintain this incredible momentum!</p>
+          <button type="button" class="btn btn-danger btn-lg px-5 fw-bold shadow-sm" data-bs-dismiss="modal">Let's Crush Today! 🩺✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎯 Test Target Evaluation Modal -->
+  <div class="modal fade" id="testEvaluationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-4 border-0 shadow-lg">
+        <div class="modal-body">
+          <div id="testEvalEmoji" class="display-1 mb-2">🎯</div>
+          <h3 id="testEvalTitle" class="fw-bold mb-2">Test Evaluated!</h3>
+          <p id="testEvalMessage" class="text-muted fs-6 mb-4"></p>
+          <button type="button" class="btn btn-accent btn-lg px-5 fw-bold shadow-sm" data-bs-dismiss="modal">Got It, Keep Going!</button>
         </div>
       </div>
     </div>
@@ -751,7 +800,8 @@
       tests: [],
       upcomingTests: [], 
       history: {}, 
-      diaries: {}
+      diaries: {},
+      streakData: { currentStreak: 0, bestStreak: 0, lastActiveDate: '' }
     };
 
     let currentFilter = 'all';
@@ -774,6 +824,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
+      calculateAndCheckStreak();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -826,6 +877,7 @@
           saveData();
           renderChapters();
           renderPracticeTable();
+          recordTodayActivity();
         }
       });
 
@@ -894,6 +946,7 @@
 
           saveData();
           renderCalendarHistory();
+          calculateAndCheckStreak();
           alert('Study activity time and manual logs updated successfully!');
         }
       });
@@ -919,6 +972,7 @@
         e.preventDefault();
         const name = document.getElementById('testName').value.trim();
         const date = document.getElementById('testDate').value;
+        const target = parseInt(document.getElementById('testTarget').value) || 0;
         const marks = parseInt(document.getElementById('testMarks').value) || 0;
         
         let correctCount = parseInt(document.getElementById('testCorrectCount').value) || 0;
@@ -949,6 +1003,7 @@
             id: Date.now(), 
             name, 
             date, 
+            target,
             marks, 
             correctCount,
             wrongCount,
@@ -961,9 +1016,100 @@
           saveData();
           renderTests();
           updateScoreChart();
+
+          // Evaluate Test Target & Trigger Popup
+          evaluateTestTarget(target, marks);
         }
       });
     });
+
+    // --- Streak Breaker Calculation & Logic ---
+    function calculateAndCheckStreak() {
+      const todayStr = getISTDateString();
+      const today = new Date(todayStr);
+
+      if (!appData.streakData) {
+        appData.streakData = { currentStreak: 0, bestStreak: 0, lastActiveDate: '' };
+      }
+
+      const historyDates = Object.keys(appData.history || {}).filter(d => {
+        const h = appData.history[d];
+        return (h.totalSeconds > 0) || (h.completedChaptersList && h.completedChaptersList.length > 0) || (h.completedTasksList && h.completedTasksList.length > 0);
+      });
+
+      if (historyDates.length === 0) {
+        appData.streakData.currentStreak = 0;
+        updateStreakUI();
+        return;
+      }
+
+      historyDates.sort((a,b) => new Date(b) - new Date(a));
+
+      let currentStreak = 0;
+      let checkDate = new Date(todayStr);
+
+      // Check if active today or yesterday to keep streak alive
+      let latestActive = historyDates[0];
+      let latestActiveDate = new Date(latestActive);
+      let diffDays = Math.round((today - latestActiveDate) / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 1) {
+        currentStreak = 0;
+      } else {
+        // Calculate continuous streak backwards
+        let expectedDateStr = latestActive;
+        for (let i = 0; i < historyDates.length; i++) {
+          if (historyDates[i] === expectedDateStr) {
+            currentStreak++;
+            let dObj = new Date(expectedDateStr);
+            dObj.setDate(dObj.getDate() - 1);
+            expectedDateStr = dObj.toISOString().split('T')[0];
+          } else {
+            break;
+          }
+        }
+      }
+
+      const previousBest = appData.streakData.bestStreak || 0;
+      appData.streakData.currentStreak = currentStreak;
+
+      if (currentStreak > previousBest) {
+        appData.streakData.bestStreak = currentStreak;
+        // Trigger Streak Breaker Celebration Popup!
+        if (currentStreak > 1) {
+          const celebModal = new bootstrap.Modal(document.getElementById('streakCelebrationModal'));
+          celebModal.show();
+        }
+      }
+
+      saveDataWithoutRecurse();
+      updateStreakUI();
+    }
+
+    function updateStreakUI() {
+      if(!appData.streakData) return;
+      document.getElementById('currentStreakDisplay').innerHTML = `${appData.streakData.currentStreak} Days (Best: <span id="bestStreakDisplay">${appData.streakData.bestStreak}</span>)`;
+    }
+
+    // --- Test Target Evaluation Popup ---
+    function evaluateTestTarget(target, marks) {
+      const emojiEl = document.getElementById('testEvalEmoji');
+      const titleEl = document.getElementById('testEvalTitle');
+      const msgEl = document.getElementById('testEvalMessage');
+
+      if (marks >= target) {
+        emojiEl.innerText = '🎉🏆';
+        titleEl.innerText = 'Target Achieved!';
+        msgEl.innerText = `Outstanding performance! You targeted ${target} and scored ${marks} marks! You crushed your goal, keep up this amazing momentum! 🩺✨`;
+      } else {
+        emojiEl.innerText = '💡💪';
+        titleEl.innerText = 'Great Effort, Keep Growing!';
+        msgEl.innerText = `You targeted ${target} and scored ${marks} marks. Don't worry at all! Analyze your mistakes and error notebook carefully—you will definitely achieve your target in the next mock test!`;
+      }
+
+      const evalModal = new bootstrap.Modal(document.getElementById('testEvaluationModal'));
+      evalModal.show();
+    }
 
     // --- Upcoming Test Feature with Persistent Ticks ---
     function selectUpcomingTestForAnalysis(testTitle) {
@@ -1105,6 +1251,7 @@
           ch.resources.push({ name: resName.trim(), done: false });
           saveData();
           renderPracticeTable();
+          recordTodayActivity();
         }
       }
     }
@@ -1191,6 +1338,7 @@
         delete appData.history[dateStr];
         saveData();
         renderCalendarHistory();
+        calculateAndCheckStreak();
       }
     }
 
@@ -1356,9 +1504,14 @@
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
+      calculateAndCheckStreak();
       if (currentUserEmail) {
         syncToCloudflare();
       }
+    }
+
+    function saveDataWithoutRecurse() {
+      localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
     }
 
     async function syncToCloudflare() {
@@ -1391,6 +1544,7 @@
           updateScoreChart();
           renderCalendarHistory();
           renderDiarySection();
+          calculateAndCheckStreak();
           updateAuthUI();
         }
       } catch (err) {
@@ -1449,25 +1603,35 @@
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
     function initTimers() {
-      document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
-      document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
+      document.getElementById('pomoToggleBtn').addEventListener('click', togglePomo);
       document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
-      document.getElementById('swStartBtn').addEventListener('click', startSw);
-      document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
+      document.getElementById('swToggleBtn').addEventListener('click', toggleSw);
       document.getElementById('swLapBtn').addEventListener('click', lapSw);
       document.getElementById('swResetBtn').addEventListener('click', resetSw);
     }
 
-    function setPomoTime(mins) { pausePomo(); pomoTimeLeft = mins * 60; updatePomoDisplay(); }
+    function setPomoTime(mins) { 
+      pausePomo(); 
+      pomoTimeLeft = mins * 60; 
+      updatePomoDisplay(); 
+    }
+
     function updatePomoDisplay() {
       const formatted = `${String(Math.floor(pomoTimeLeft / 60)).padStart(2, '0')}:${String(pomoTimeLeft % 60).padStart(2, '0')}`;
       document.getElementById('pomoDisplay').innerText = formatted;
       document.getElementById('bigTimerDisplay').innerText = formatted;
     }
 
+    function togglePomo() {
+      if(pomoRunning) {
+        pausePomo();
+      } else {
+        startPomo();
+      }
+    }
+
     function startPomo() {
       if (pomoRunning) return;
-      // MUTUAL EXCLUSIVITY: Pause stopwatch if running
       if (swRunning) {
         pauseSw();
       }
@@ -1482,23 +1646,42 @@
           recordStudySeconds(25 * 60); 
         }
       }, 1000);
-      document.getElementById('pomoStartBtn').disabled = true;
-      document.getElementById('pomoPauseBtn').disabled = false;
-      document.getElementById('bigStartBtn').disabled = true;
-      document.getElementById('bigPauseBtn').disabled = false;
+      
+      updatePomoToggleUI(true);
     }
 
     function pausePomo() { 
       if (!pomoRunning) return;
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
-      document.getElementById('pomoStartBtn').disabled = false;
-      document.getElementById('pomoPauseBtn').disabled = true;
-      document.getElementById('bigStartBtn').disabled = false;
-      document.getElementById('bigPauseBtn').disabled = true;
+      updatePomoToggleUI(false);
     }
 
-    function resetPomo() { pausePomo(); pomoTimeLeft = 25 * 60; updatePomoDisplay(); }
+    function updatePomoToggleUI(isRunning) {
+      const btn = document.getElementById('pomoToggleBtn');
+      const bigBtn = document.getElementById('bigPomoToggleBtn');
+      if(isRunning) {
+        btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
+        btn.className = 'btn btn-secondary me-1 px-4 fw-semibold';
+        if(bigBtn) {
+          bigBtn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
+          bigBtn.className = 'btn btn-secondary btn-lg px-5 fw-semibold';
+        }
+      } else {
+        btn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
+        btn.className = 'btn btn-accent me-1 px-4 fw-semibold';
+        if(bigBtn) {
+          bigBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
+          bigBtn.className = 'btn btn-accent btn-lg px-5 fw-semibold';
+        }
+      }
+    }
+
+    function resetPomo() { 
+      pausePomo(); 
+      pomoTimeLeft = 25 * 60; 
+      updatePomoDisplay(); 
+    }
 
     function updateSwDisplay() {
       const hrs = String(Math.floor(swSeconds / 3600)).padStart(2, '0');
@@ -1509,9 +1692,16 @@
       document.getElementById('bigSwDisplay').innerText = formatted;
     }
 
+    function toggleSw() {
+      if(swRunning) {
+        pauseSw();
+      } else {
+        startSw();
+      }
+    }
+
     function startSw() { 
       if (swRunning) return; 
-      // MUTUAL EXCLUSIVITY: Pause pomodoro if running
       if (pomoRunning) {
         pausePomo();
       }
@@ -1520,25 +1710,41 @@
         swSeconds++; 
         updateSwDisplay(); 
       }, 1000); 
-      document.getElementById('swStartBtn').disabled = true;
-      document.getElementById('swPauseBtn').disabled = false;
+
       document.getElementById('swLapBtn').disabled = false;
-      document.getElementById('bigSwStartBtn').disabled = true;
-      document.getElementById('bigSwPauseBtn').disabled = false;
+      updateSwToggleUI(true);
     }
 
     function pauseSw() { 
       if (!swRunning && swSeconds === 0) return;
       swRunning = false; 
       clearInterval(swTimerId); 
-      document.getElementById('swStartBtn').disabled = false;
-      document.getElementById('swPauseBtn').disabled = true;
-      document.getElementById('bigSwStartBtn').disabled = false;
-      document.getElementById('bigSwPauseBtn').disabled = true;
+      updateSwToggleUI(false);
+
       if(swSeconds > 0) {
         recordStudySeconds(swSeconds);
-        swSeconds = 0; // Record elapsed session and reset counter so it doesn't double add on pause
+        swSeconds = 0; 
         updateSwDisplay();
+      }
+    }
+
+    function updateSwToggleUI(isRunning) {
+      const btn = document.getElementById('swToggleBtn');
+      const bigBtn = document.getElementById('bigSwToggleBtn');
+      if(isRunning) {
+        btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
+        btn.className = 'btn btn-secondary me-1 px-3 fw-semibold';
+        if(bigBtn) {
+          bigBtn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
+          bigBtn.className = 'btn btn-secondary btn-lg px-4 fw-semibold';
+        }
+      } else {
+        btn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
+        btn.className = 'btn btn-accent me-1 px-3 fw-semibold';
+        if(bigBtn) {
+          bigBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
+          bigBtn.className = 'btn btn-accent btn-lg px-4 fw-semibold';
+        }
       }
     }
 
@@ -1571,9 +1777,8 @@
       }
     }
 
-    function syncBigStart() { startPomo(); }
-    function syncBigPause() { pausePomo(); }
-    function syncBigReset() { resetPomo(); }
+    function toggleBigPomo() { togglePomo(); }
+    function toggleBigSw() { toggleSw(); }
 
     function filterSubject(subj) {
       currentFilter = subj;
@@ -1622,6 +1827,7 @@
         saveData();
         renderChapters();
         renderPracticeTable();
+        recordTodayActivity();
       }
     }
 
@@ -1757,6 +1963,7 @@
                   const test = sorted[context.dataIndex];
                   if(!test) return `Marks: ${context.raw}`;
                   return [
+                    `Target: ${test.target || 0}`,
                     `Marks: ${test.marks} / 720`,
                     `Correct: ${test.correctCount || 0}`,
                     `Wrong: ${test.wrongCount || 0}`,
@@ -1784,7 +1991,7 @@
       const tbody = document.getElementById('testsTableBody');
       tbody.innerHTML = '';
       if(appData.tests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted small">No tests recorded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted small">No tests recorded yet.</td></tr>';
         return;
       }
       appData.tests.forEach(test => {
@@ -1794,6 +2001,7 @@
             <div>${test.name}</div>
             <small class="text-muted">${test.date}</small>
           </td>
+          <td><span class="badge bg-light text-success border fs-6 fw-bold">${test.target || 0}</span></td>
           <td class="fw-bold text-primary fs-6">${test.marks} / 720</td>
           <td><span class="badge bg-success fs-6">${test.correctCount || 0}</span></td>
           <td><span class="badge bg-danger fs-6">${test.wrongCount || 0}</span></td>
@@ -1841,6 +2049,7 @@
       appData.history[today].completedPracticeList = Array.from(new Set([...existingPracs, ...completedPracticeNames]));
 
       renderCalendarHistory();
+      calculateAndCheckStreak();
     }
 
     function recordStudySeconds(secs) {
@@ -1851,6 +2060,7 @@
       appData.history[today].totalSeconds += secs;
       saveData();
       renderCalendarHistory();
+      calculateAndCheckStreak();
     }
 
     function renderCalendarHistory() {
