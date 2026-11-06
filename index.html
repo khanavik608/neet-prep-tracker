@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.2 (Optimized & Distraction-Free) -->
+<!-- ENDORANK Dashboard - Version 4.3 (Cloud-First D1 Sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,7 +206,7 @@
       </div>
     </header>
 
-    <!-- Navigation Tabs (NEET Arena Removed) -->
+    <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
@@ -744,28 +744,23 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadLocalStorageData();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
       renderBubbleGrid();
-      renderChapters();
-      renderPracticeTable();
-      checkSmartRevisionAlerts();
-      renderTodos();
-      renderTests();
-      renderUpcomingTests();
-      initScoreChart();
-      renderCalendarHistory();
-      renderDiarySection();
-      renderPoster();
       getRandomQuote();
+      renderPoster();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
       if (savedEmail) {
         currentUserEmail = savedEmail;
         updateAuthUI();
+        // Fetch fresh data from Cloudflare D1 immediately on load
         fetchCloudData();
+      } else {
+        // If not logged in, load empty or local structure
+        loadLocalStorageData();
+        refreshAllUI();
       }
 
       document.getElementById('neetDate').value = appData.neetDate;
@@ -935,6 +930,23 @@
       });
     });
 
+    function refreshAllUI() {
+      document.getElementById('neetDate').value = appData.neetDate || '2026-05-07';
+      renderChapters();
+      renderPracticeTable();
+      checkSmartRevisionAlerts();
+      renderTodos();
+      renderTests();
+      renderUpcomingTests();
+      if(!scoreChartInstance) {
+        initScoreChart();
+      } else {
+        updateScoreChart();
+      }
+      renderCalendarHistory();
+      renderDiarySection();
+    }
+
     // --- IST Time & Clock helpers ---
     function getISTDateString() {
       const now = new Date();
@@ -1016,18 +1028,19 @@
       }
     }
 
-    // --- Optimized Cloud Sync (Throttled to avoid excess D1 requests) ---
+    // --- True Cloud-First Sync (Saves to Cloudflare D1 Database) ---
     let syncTimeout = null;
     function saveData() {
+      // Keep local cache updated for immediate offline responsiveness
       localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
       
       if (currentUserEmail) {
-        // Debounce cloud sync by 5 seconds so frequent timer increments don't spam requests
+        // Debounce cloud sync by 2 seconds so typing/ticking doesn't spam the server
         if(syncTimeout) clearTimeout(syncTimeout);
-        syncTimeout = setTimeout(syncToCloudflare, 5000);
+        syncTimeout = setTimeout(syncToCloudflare, 2000);
       }
     }
 
@@ -1050,21 +1063,19 @@
         const res = await fetch(`${API_BASE_URL}/api/sync?email=${encodeURIComponent(currentUserEmail)}`);
         const data = await res.json();
         if (data && data.payload) {
+          // Cloud data found! Overwrite local state with true cloud data
           appData = data.payload;
-          document.getElementById('neetDate').value = appData.neetDate;
-          renderChapters();
-          renderPracticeTable();
-          checkSmartRevisionAlerts();
-          renderTodos();
-          renderTests();
-          renderUpcomingTests();
-          updateScoreChart();
-          renderCalendarHistory();
-          renderDiarySection();
-          updateAuthUI();
+          localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
+        } else {
+          // First time user logging in on this device - push current local data to cloud
+          syncToCloudflare();
         }
+        refreshAllUI();
+        updateAuthUI();
       } catch (err) {
-        console.error('Cloudflare fetch error:', err);
+        console.error('Cloudflare fetch error, falling back to local cache:', err);
+        loadLocalStorageData();
+        refreshAllUI();
       }
     }
 
@@ -1082,14 +1093,15 @@
         appData.userName = payload.name || currentUserEmail.split('@')[0];
       }
       localStorage.setItem('endorank_user_email', currentUserEmail);
-      saveData();
       updateAuthUI();
+      // Fetch their exact cloud data immediately upon Google login
       fetchCloudData();
     }
 
     function logoutUser() {
       currentUserEmail = null;
       localStorage.removeItem('endorank_user_email');
+      localStorage.removeItem('endorank_neet_data');
       updateAuthUI();
       location.reload();
     }
