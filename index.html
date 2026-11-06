@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.2 (Peak Focus Reset Cloud Sync Fixed) -->
+<!-- ENDORANK Dashboard - Version 4.4 (Stopwatch Save & Reset Added) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -217,14 +217,13 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Streak Badges & Reset Peak Focus Button -->
+        <!-- Streak Badges Widget -->
         <div class="streak-widget-box d-flex align-items-center gap-2 shadow-sm">
           <i class="bi bi-fire text-danger fs-5"></i>
           <div>
             <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Study Metrics</span>
             <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Peak Focus: <b>0h 0m 0s</b></span>
           </div>
-          <button class="btn btn-xs btn-outline-danger py-0 px-2 ms-2 fw-semibold" style="font-size: 11px;" onclick="resetPeakFocusRecord()" title="Clear Peak Focus Record & Restart"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
         </div>
 
         <div id="authSection">
@@ -334,10 +333,11 @@
                   </div>
                   <div class="tab-pane fade" id="stopwatch" role="tabpanel">
                     <div class="timer-display my-3" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
-                    <div class="mb-3">
-                      <button id="swToggleBtn" class="btn btn-accent me-1 px-3 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
-                      <button id="swLapBtn" class="btn btn-info me-1 px-2" disabled><i class="bi bi-flag-fill"></i></button>
-                      <button id="swResetBtn" class="btn btn-outline-danger px-2"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <div class="mb-3 d-flex justify-content-center gap-1 flex-wrap">
+                      <button id="swToggleBtn" class="btn btn-accent px-3 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
+                      <button id="swSaveResetBtn" class="btn btn-success px-2 fw-semibold" title="Save Time & Reset"><i class="bi bi-save me-1"></i>Save</button>
+                      <button id="swLapBtn" class="btn btn-info px-2" disabled title="Lap"><i class="bi bi-flag-fill"></i></button>
+                      <button id="swResetBtn" class="btn btn-outline-danger px-2" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <ul id="lapList" class="list-group list-group-flush text-start small lap-list"></ul>
                   </div>
@@ -467,6 +467,7 @@
             <div class="timer-display-lg my-3" id="bigSwDisplay" style="font-size: 5rem;">00:00:00</div>
             <div class="d-flex justify-content-center gap-3 mb-4">
               <button id="bigSwToggleBtn" class="btn btn-accent btn-lg px-4 fw-semibold" onclick="toggleBigSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
+              <button id="bigSwSaveResetBtn" class="btn btn-success btn-lg px-4 fw-semibold" onclick="saveAndResetSw()"><i class="bi bi-save me-1"></i>Save & Reset</button>
               <button id="bigSwLapBtn" class="btn btn-info btn-lg px-4" onclick="lapSw()"><i class="bi bi-flag-fill me-1"></i>Lap</button>
               <button id="bigSwResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="resetSw()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
@@ -534,7 +535,7 @@
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 (Updated Instructions) -->
+                <!-- Bubble Grid for 1-180 -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-dark d-flex justify-content-between align-items-center mb-2">
                     <span>Click Bubbles (1-180): <span class="text-danger">1x Red(Wrong)</span> | <span class="text-warning">2x Yellow(Guess)</span> | <span class="text-primary">3x Blue(Skip)</span> | <span class="text-secondary">4x Normal</span></span>
@@ -550,7 +551,6 @@
 
           <!-- Right Column: Schedule Upcoming Mock Test with Target Score -->
           <div class="col-lg-6">
-            <!-- Schedule Upcoming Mock Test Card (With Target Score) -->
             <div class="card p-4 mb-4 scheduled-test-card">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-bullseye me-2"></i>Schedule Upcoming Mock Test & Target</h3>
               <form id="upcomingTestForm">
@@ -1083,19 +1083,6 @@
       });
     });
 
-    // --- Peak Focus Record Reset Feature with Cloud Sync ---
-    function resetPeakFocusRecord() {
-      const confirmReset = confirm("Are you sure you want to reset your Peak Focus Record and start from scratch?");
-      if(confirmReset) {
-        if(!appData.streakData) appData.streakData = {};
-        appData.streakData.bestHoursRecord = 0;
-        saveData(); // <--- Cloud par bhi sync ho jayega
-        updateStreakUI();
-        alert("Peak Focus Record has been successfully reset to 0h 0m 0s!");
-      }
-    }
-
-    // --- Combined Daily Peak Focus & Record Breaker Evaluation ---
     function evaluateStreaksAndHours() {
       const todayStr = getISTDateString();
       const today = new Date(todayStr);
@@ -1113,27 +1100,31 @@
       }
 
       let dayStreak = 0;
-      let latestDateStr = historyDates[0];
-      let latestSecs = appData.history[latestDateStr].totalSeconds || 0;
-      let latestDateObj = new Date(latestDateStr);
-      let diffDays = Math.round((today - latestDateObj) / (1000 * 60 * 60 * 24));
-
-      if (diffDays > 1 || (diffDays === 1 && latestSecs < 600)) {
-        dayStreak = 0;
-      } else {
-        let expectedStr = latestDateStr;
-        for(let i=0; i<historyDates.length; i++) {
-          let h = appData.history[historyDates[i]];
-          if(historyDates[i] === expectedStr && h.totalSeconds >= 600) {
-            dayStreak++;
-            let dObj = new Date(expectedStr);
+      let expectedStr = todayStr;
+      
+      for(let i = 0; i < 365; i++) {
+        let dayData = appData.history[expectedStr];
+        if (dayData && (dayData.totalSeconds || 0) >= 600) {
+          dayStreak++;
+          let dObj = new Date(expectedStr);
+          dObj.setDate(dObj.getDate() - 1);
+          expectedStr = dObj.toISOString().split('T')[0];
+        } else {
+          if (i === 0) {
+            let dObj = new Date(todayStr);
             dObj.setDate(dObj.getDate() - 1);
-            expectedStr = dObj.toISOString().split('T')[0];
-          } else {
-            break;
+            let yestStr = dObj.toISOString().split('T')[0];
+            let yestData = appData.history[yestStr];
+            if (yestData && (yestData.totalSeconds || 0) >= 600) {
+              expectedStr = yestStr;
+              i--; 
+              continue;
+            }
           }
+          break;
         }
       }
+
       appData.streakData.dayStreak = dayStreak;
 
       let todaySecs = appData.history[todayStr] ? (appData.history[todayStr].totalSeconds || 0) : 0;
@@ -1149,17 +1140,15 @@
       const previousBestSecs = appData.streakData.bestHoursRecord || 0;
       const absoluteBest = Math.max(previousBestSecs, maxPastSecs);
 
-      if (todaySecs > 0) {
-        if (todaySecs > absoluteBest && absoluteBest > 0) {
-          appData.streakData.bestHoursRecord = todaySecs;
-          const peakFormatted = formatSecondsToHoursMins(todaySecs);
-          document.getElementById('streakCelebText').innerText = `Congratulations! You studied for a total of ${peakFormatted} today and broke your previous highest peak focus record!`;
-          
-          const celebModal = new bootstrap.Modal(document.getElementById('streakCelebrationModal'));
-          celebModal.show();
-        } else if (appData.streakData.bestHoursRecord < todaySecs) {
-          appData.streakData.bestHoursRecord = todaySecs;
-        }
+      if (todaySecs > 0 && todaySecs > absoluteBest && absoluteBest > 0 && todaySecs > previousBestSecs) {
+        appData.streakData.bestHoursRecord = todaySecs;
+        const peakFormatted = formatSecondsToHoursMins(todaySecs);
+        document.getElementById('streakCelebText').innerText = `Congratulations! You studied for a total of ${peakFormatted} today and broke your previous highest peak focus record!`;
+        
+        const celebModal = new bootstrap.Modal(document.getElementById('streakCelebrationModal'));
+        celebModal.show();
+      } else if (todaySecs > appData.streakData.bestHoursRecord) {
+        appData.streakData.bestHoursRecord = todaySecs;
       }
 
       saveDataWithoutRecurse();
@@ -1189,7 +1178,6 @@
       document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Peak Focus: <b>${peakFormatted}</b>`;
     }
 
-    // --- Interactive Test Review Popup ---
     function openTestReviewModal(testId) {
       const test = appData.tests.find(t => t.id === testId);
       if(!test) return;
@@ -1223,7 +1211,6 @@
       reviewModal.show();
     }
 
-    // --- Test Target Evaluation Popup ---
     function evaluateTestTarget(target, marks) {
       const emojiEl = document.getElementById('testEvalEmoji');
       const titleEl = document.getElementById('testEvalTitle');
@@ -1243,7 +1230,6 @@
       evalModal.show();
     }
 
-    // --- Upcoming Test Feature with Target & Autofill ---
     function selectUpcomingTestForAnalysis(testTitle, testTarget) {
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
@@ -1291,7 +1277,6 @@
       renderUpcomingTests();
     }
 
-    // --- Manual Activity Editor with Full Sync Support ---
     function prepareManualActivityModal() {
       const todayStr = getISTDateString();
       document.getElementById('manualActivityDate').value = todayStr;
@@ -1319,7 +1304,6 @@
       }
     }
 
-    // --- Practice & PYQs Tracker Functions ---
     function filterPracticeSubject(subj) {
       currentPracticeSubject = subj;
       const buttons = document.querySelectorAll('#practiceSubjectFilter button');
@@ -1426,7 +1410,6 @@
       }
     }
 
-    // --- Diary Functions ---
     function loadDiaryForDate(dateStr) {
       if(appData.diaries && appData.diaries[dateStr]) {
         const entry = appData.diaries[dateStr];
@@ -1474,7 +1457,6 @@
       }
     }
 
-    // --- Bubble Grid Click Cycle: 1x Red, 2x Yellow, 3x Blue, 4x Normal (White/Reset) ---
     function renderBubbleGrid() {
       const container = document.getElementById('bubbleGridContainer');
       if(!container) return;
@@ -1486,7 +1468,7 @@
         updateBubbleAppearance(btn, bubbleStates[i]);
         btn.onclick = () => {
           let st = bubbleStates[i] || 0;
-          st = (st + 1) % 4; // Cycles: 0 -> 1(Red) -> 2(Yellow) -> 3(Blue) -> 0(Normal)
+          st = (st + 1) % 4; 
           if(st === 0) delete bubbleStates[i];
           else bubbleStates[i] = st;
           updateBubbleAppearance(btn, bubbleStates[i]);
@@ -1739,6 +1721,7 @@
       document.getElementById('pomoToggleBtn').addEventListener('click', togglePomo);
       document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
       document.getElementById('swToggleBtn').addEventListener('click', toggleSw);
+      document.getElementById('swSaveResetBtn').addEventListener('click', saveAndResetSw);
       document.getElementById('swLapBtn').addEventListener('click', lapSw);
       document.getElementById('swResetBtn').addEventListener('click', resetSw);
     }
@@ -1788,6 +1771,7 @@
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
       updatePomoToggleUI(false);
+      recordStudySeconds(25 * 60 - pomoTimeLeft);
     }
 
     function updatePomoToggleUI(isRunning) {
@@ -1849,16 +1833,33 @@
     }
 
     function pauseSw() { 
-      if (!swRunning && swSeconds === 0) return;
+      if (!swRunning) return;
       swRunning = false; 
       clearInterval(swTimerId); 
       updateSwToggleUI(false);
 
       if(swSeconds > 0) {
         recordStudySeconds(swSeconds);
-        swSeconds = 0; 
-        updateSwDisplay();
       }
+    }
+
+    // --- New Save & Reset Function for Stopwatch ---
+    function saveAndResetSw() {
+      if (swSeconds > 0) {
+        // Pause first if running to record current elapsed time properly
+        if (swRunning) {
+          swRunning = false;
+          clearInterval(swTimerId);
+          updateSwToggleUI(false);
+        }
+        recordStudySeconds(swSeconds);
+        alert(`Successfully saved ${formatSecondsToHoursMins(swSeconds)} to your focus log!`);
+      }
+      // Reset stopwatch to 00:00:00 automatically
+      swSeconds = 0;
+      lapCount = 1;
+      document.getElementById('lapList').innerHTML = '';
+      updateSwDisplay();
     }
 
     function updateSwToggleUI(isRunning) {
@@ -1866,14 +1867,14 @@
       const bigBtn = document.getElementById('bigSwToggleBtn');
       if(isRunning) {
         btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
-        btn.className = 'btn btn-secondary me-1 px-3 fw-semibold';
+        btn.className = 'btn btn-secondary px-3 fw-semibold';
         if(bigBtn) {
           bigBtn.innerHTML = '<i class="bi bi-pause-fill me-1"></i>Pause';
           bigBtn.className = 'btn btn-secondary btn-lg px-4 fw-semibold';
         }
       } else {
         btn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
-        btn.className = 'btn btn-accent me-1 px-3 fw-semibold';
+        btn.className = 'btn btn-accent px-3 fw-semibold';
         if(bigBtn) {
           bigBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Start';
           bigBtn.className = 'btn btn-accent btn-lg px-4 fw-semibold';
@@ -2066,7 +2067,6 @@
       renderTodos();
     }
 
-    // --- Chart Tooltip Bug Fixed ---
     function initScoreChart() {
       const ctx = document.getElementById('scoreChart').getContext('2d');
       scoreChartInstance = new Chart(ctx, {
