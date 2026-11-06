@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.1 (Clean Live Counter & Updated UI) -->
+<!-- ENDORANK Dashboard - Version 4.2 (Optimized & Distraction-Free) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,11 +179,6 @@
       transform: scale(1.08);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
-    .scheduled-test-card {
-      border-left: 4px solid var(--accent);
-      background: #f0f9ff;
-    }
   </style>
 </head>
 <body>
@@ -211,10 +206,9 @@
       </div>
     </header>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Tabs (NEET Arena Removed) -->
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
-      <li class="nav-item"><button class="nav-link" id="arena-tab" data-bs-toggle="pill" data-bs-target="#tab-arena" type="button"><i class="bi bi-trophy me-1"></i>NEET Arena</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
@@ -373,82 +367,6 @@
         </div>
       </div>
 
-      <!-- Tab: NEET Arena & Real Rooms -->
-      <div class="tab-pane fade" id="tab-arena" role="tabpanel">
-        <!-- Live Active Study Counter Banner (Clean Text without timer keywords) -->
-        <div class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center justify-content-between border-0 shadow-sm" style="background-color: #f0f9ff; border-left: 4px solid #0284c7 !important;">
-          <div class="d-flex align-items-center gap-2">
-            <span class="spinner-grow spinner-grow-sm text-primary" role="status"></span>
-            <span class="small fw-semibold text-dark">
-              🔥 <strong id="activeStudyCountDisplay" class="text-primary fs-6">0</strong> students are studying right now!
-            </span>
-          </div>
-          <small class="text-muted" style="font-size: 11px;">Live Sync</small>
-        </div>
-
-        <div class="row g-4">
-          <!-- Left Column: NEET Arena Leaderboard -->
-          <div class="col-lg-7">
-            <div class="card p-4 h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard (Daily Reset)</h3>
-                <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
-              </div>
-              <p class="text-muted small">Real aspirants using ENDORANK appear here when active (showing today's study time).</p>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Rank</th>
-                      <th>Aspirant Name</th>
-                      <th>Today's Study Time</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="globalLeaderboardBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: NEET Arena Rooms -->
-          <div class="col-lg-5">
-            <div class="card p-4 mb-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-door-open-fill me-2"></i>NEET Arena Rooms</h3>
-              <p class="text-muted small">Create or join a room code to study and compete with real student friends live.</p>
-              
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Create Room:</label>
-                <div class="input-group input-group-sm mb-2">
-                  <input type="text" id="newRoomNameInput" class="form-control" placeholder="Room Name (e.g. AIIMS Batch)">
-                  <button class="btn btn-accent" type="button" onclick="createPersonalRoom()">Create Room</button>
-                </div>
-              </div>
-
-              <hr>
-
-              <div class="mb-2">
-                <label class="form-label small fw-bold text-muted">Join Room (Enter Code):</label>
-                <div class="input-group input-group-sm">
-                  <input type="text" id="joinRoomCodeInput" class="form-control" placeholder="e.g. ROOM-1234">
-                  <button class="btn btn-outline-primary" type="button" onclick="joinPersonalRoom()">Join Room</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Active Room Info Card -->
-            <div id="activeRoomCard" class="card p-4 d-none scheduled-test-card">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="fw-bold text-primary mb-0" id="activeRoomTitle">Room: None</h5>
-                <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:11px;" onclick="leavePersonalRoom()">Leave Room</button>
-              </div>
-              <p class="small text-muted mb-2">Room Code: <strong id="activeRoomCodeDisplay" class="text-dark"></strong></p>
-              <div id="roomMembersList" style="max-height: 150px; overflow-y: auto;" class="small"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Tab: Question Practice & PYQs Tracker -->
       <div class="tab-pane fade" id="tab-practice" role="tabpanel">
         <div class="card p-4">
@@ -600,8 +518,8 @@
 
           <!-- Right Column: Upcoming Test Scheduler & Graph -->
           <div class="col-lg-6">
-            <!-- Schedule Upcoming Mock Test Card (Date Only) -->
-            <div class="card p-4 mb-4 scheduled-test-card">
+            <!-- Schedule Upcoming Mock Test Card -->
+            <div class="card p-4 mb-4">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test</h3>
               <form id="upcomingTestForm">
                 <div class="mb-2">
@@ -618,31 +536,32 @@
                   </div>
                 </div>
               </form>
-              <div id="upcomingTestList" class="mt-2" style="max-height: 160px; overflow-y: auto;"></div>
+              <div id="upcomingTestList" class="mt-2"></div>
             </div>
 
-            <!-- Score Graph Card -->
+            <!-- Score Analysis Graph Card -->
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (/720)</h3>
-              <div style="height: 220px;">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up me-2"></i>Score Progression Graph</h3>
+              <div style="height: 250px;">
                 <canvas id="scoreChart"></canvas>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Tests History Table -->
         <div class="card p-4">
-          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests & Error Notebook Panel</h3>
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-table me-2"></i>All Recorded Tests</h3>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Details</th>
-                  <th>Marks (/720)</th>
+                  <th>Test Name & Date</th>
+                  <th>Marks</th>
                   <th>Correct</th>
-                  <th>Wrong Count</th>
-                  <th>Guess Count</th>
-                  <th>Skip Count</th>
+                  <th>Wrong</th>
+                  <th>Guess</th>
+                  <th>Skip</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -652,45 +571,43 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood Tracker -->
+      <!-- Tab: Daily Diary & Mood -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
           <div class="col-lg-6">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Tracker</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Logger</h3>
               <form id="diaryForm">
                 <div class="mb-3">
-                  <label class="form-label small fw-bold text-muted">Select Date:</label>
+                  <label for="diaryDate" class="form-label small fw-bold text-muted">Date:</label>
                   <input type="date" id="diaryDate" class="form-control form-control-sm" required onchange="loadDiaryForDate(this.value)">
                 </div>
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-muted">How are you feeling today?</label>
                   <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-success mood-btn flex-fill py-2" onclick="selectMood('Happy', '#16a34a', this)">😄 Happy</button>
-                    <button type="button" class="btn btn-warning text-dark mood-btn flex-fill py-2" onclick="selectMood('Okay', '#eab308', this)">🙂 Okay</button>
-                    <button type="button" class="btn btn-danger mood-btn flex-fill py-2" onclick="selectMood('Stressed', '#dc2626', this)">😰 Stressed</button>
-                    <button type="button" class="btn btn-primary mood-btn flex-fill py-2" onclick="selectMood('Low', '#0284c7', this)">😔 Low</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mood-btn selected" onclick="selectMood('Happy', '#16a34a', this)">😊 Happy</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary mood-btn" onclick="selectMood('Focused', '#0284c7', this)">🎯 Focused</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning mood-btn" onclick="selectMood('Anxious', '#d97706', this)">😰 Anxious</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger mood-btn" onclick="selectMood('Tired', '#dc2626', this)">😴 Tired</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mood-btn" onclick="selectMood('Neutral', '#64748b', this)">😐 Neutral</button>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="diaryContent" class="form-label small fw-bold text-muted">Your Diary Entry / Thoughts:</label>
-                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write about your study progress, challenges, or thoughts today..." required></textarea>
+                  <label for="diaryContent" class="form-label small fw-bold text-muted">Diary Notes / Reflections:</label>
+                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write down your thoughts, struggles, or topics to improve tomorrow..." required></textarea>
                 </div>
                 <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save / Update Diary Entry</button>
+                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save Diary Entry</button>
                   <button type="button" class="btn btn-outline-danger" onclick="deleteDiaryEntry()"><i class="bi bi-trash"></i></button>
                 </div>
               </form>
             </div>
           </div>
-
           <div class="col-lg-6">
             <div class="card p-4 h-100">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & Past Entries</h3>
-              <div class="mb-3 small text-muted">Click any past date to edit or view:</div>
-              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-4" style="max-height: 180px; overflow-y: auto;"></div>
-              <hr>
-              <div id="diaryHistoryList" style="max-height: 250px; overflow-y: auto;" class="pe-2"></div>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & History</h3>
+              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-3"></div>
+              <div id="diaryHistoryList" style="max-height: 300px; overflow-y: auto;" class="pe-2"></div>
             </div>
           </div>
         </div>
@@ -698,96 +615,94 @@
 
       <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
-        <div class="card p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Daily Activity & Focus Log (IST)</h3>
-            <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
+        <div class="row g-4">
+          <div class="col-lg-5">
+            <div class="card p-4">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-pencil-square me-2"></i>Manual Study & Work Log</h3>
+              <form id="manualActivityForm">
+                <div class="mb-2">
+                  <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
+                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
+                    <label for="manualHours" class="form-label small fw-bold text-muted">Hours:</label>
+                    <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" value="0">
+                  </div>
+                  <div class="col-4">
+                    <label for="manualMins" class="form-label small fw-bold text-muted">Mins:</label>
+                    <input type="number" id="manualMins" class="form-control form-control-sm" min="0" max="59" value="0">
+                  </div>
+                  <div class="col-4">
+                    <label for="manualSecs" class="form-label small fw-bold text-muted">Secs:</label>
+                    <input type="number" id="manualSecs" class="form-control form-control-sm" min="0" max="59" value="0">
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="manualWorksInput" class="form-label small fw-bold text-muted">Manual Works / Notes (Comma separated):</label>
+                  <input type="text" id="manualWorksInput" class="form-control form-control-sm" placeholder="e.g. Revision of Plant Kingdom, NCERT reading">
+                </div>
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Manual Log</button>
+              </form>
+            </div>
           </div>
-          <div class="mb-3">
-            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity & Works</button>
+          <div class="col-lg-7">
+            <div class="card p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Study History Log</h3>
+                <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
+              </div>
+              <div id="calendarHistoryContainer" style="max-height: 400px; overflow-y: auto;" class="pe-2"></div>
+            </div>
           </div>
-          <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
       </div>
 
       <!-- Tab: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
-        <div class="card p-4 text-center">
+        <div class="card text-center p-4">
           <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
-          <div class="d-flex justify-content-center my-3">
-            <img id="posterImage" src="" alt="Poster of the Day" class="img-fluid poster-img shadow">
+          <div class="mb-3">
+            <img id="posterImage" src="" alt="Poster" class="poster-img img-fluid shadow-sm">
           </div>
-          <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
-          <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
+          <h5 id="posterTitle" class="fw-bold text-dark"></h5>
+          <p id="posterCaption" class="text-muted small mx-auto" style="max-width: 600px;"></p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Manual Activity & Focus Log Edit Modal -->
-  <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
+  <!-- Google Sign-In & Login Modal -->
+  <div class="modal fade" id="authModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Manually Add / Edit Study Activity & Works</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-content p-3">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-primary">Cloud Sync & Account</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
-          <form id="manualActivityForm">
-            <div class="mb-3">
-              <label class="form-label small fw-bold text-muted">Select Date:</label>
-              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
-            </div>
-            <div class="row g-2 mb-3">
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Hours:</label>
-                <input type="number" id="manualHours" class="form-control form-control-sm" placeholder="0" min="0" value="0">
-              </div>
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Minutes:</label>
-                <input type="number" id="manualMins" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
-              </div>
-              <div class="col-4">
-                <label class="form-label small fw-bold text-muted">Seconds:</label>
-                <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="manualWorksInput" class="form-label small fw-bold text-muted">Manual Works / Completed Tasks (Comma separated):</label>
-              <input type="text" id="manualWorksInput" class="form-control form-control-sm" placeholder="e.g. Plant Physiology revision, 90 questions solved">
-            </div>
-            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Manual Log</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Modal -->
-  <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Google Sync & Settings</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center py-4">
+        <div class="modal-body text-center">
           <div id="loggedOutView">
-            <p class="text-muted small mb-3">Sign in with Google to auto-sync your NEET dashboard data across all devices.</p>
-            <div id="g_id_onload"
-                 data-client_id="206307565994-avdadgkf50etr1ibeh2nihfds9tmilmf.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse">
+            <p class="text-muted small mb-4">Sign in with Google to securely back up your NEET prep data, syllabus progress, and test scores to the cloud.</p>
+            <div class="d-flex justify-content-center mb-3">
+              <div id="g_id_onload"
+                   data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                   data-callback="handleCredentialResponse"
+                   data-auto_prompt="false">
+              </div>
+              <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="sign_in_with" data-size="large" data-logo_alignment="left"></div>
             </div>
-            <div class="g_id_signin d-flex justify-content-center" data-type="standard"></div>
-          </div> 
-
+          </div>
           <div id="loggedInView" class="d-none">
-            <p class="text-muted small mb-2">Logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
-            <div class="input-group input-group-sm mb-3">
-              <input type="text" id="userNameInput" class="form-control" placeholder="Enter your display name">
-              <button class="btn btn-outline-primary" type="button" onclick="updateUserName()">Update Name</button>
+            <p class="text-muted small mb-2">Signed in as:</p>
+            <h6 id="userEmailDisplay" class="fw-bold text-dark mb-3"></h6>
+            <div class="mb-3 text-start">
+              <label for="userNameInput" class="form-label small fw-bold text-muted">Your Name / Aspirant ID:</label>
+              <div class="input-group input-group-sm">
+                <input type="text" id="userNameInput" class="form-control" placeholder="Enter name">
+                <button class="btn btn-outline-primary" type="button" onclick="updateUserName()">Update</button>
+              </div>
             </div>
-            <button class="btn btn-outline-danger w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+            <button class="btn btn-outline-danger btn-sm w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
           </div>
         </div>
       </div>
@@ -798,7 +713,6 @@
   <script>
     const API_BASE_URL = "https://flat-shadow-fd78.khanavik608.workers.dev";
     let currentUserEmail = null;
-    let roomPollInterval = null;
 
     let appData = {
       userName: '',
@@ -846,9 +760,6 @@
       renderDiarySection();
       renderPoster();
       getRandomQuote();
-      loadLeaderboard();
-      checkActiveRoomOnLoad();
-      fetchActiveStudyingCount();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
       if (savedEmail) {
@@ -1024,579 +935,7 @@
       });
     });
 
-    function formatHMS(totalSecs) {
-      const h = Math.floor(totalSecs / 3600);
-      const m = Math.floor((totalSecs % 3600) / 60);
-      const s = totalSecs % 60;
-      return `${h}h ${m}m ${s}s`;
-    }
-
-    // --- Live Study Counter (Clean text without timer keywords) ---
-    async function fetchActiveStudyingCount() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/study/active-count`);
-        const data = await res.json();
-        const countEl = document.getElementById("activeStudyCountDisplay");
-        if(countEl && data && typeof data.activeCount !== 'undefined') {
-          countEl.innerText = data.activeCount;
-        }
-      } catch(e) {}
-    }
-    setInterval(fetchActiveStudyingCount, 10000);
-
-    function sendStudyHeartbeat(isStudying, timerType) {
-      if(currentUserEmail || appData.userName) {
-        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-        fetch(`${API_BASE_URL}/api/study/heartbeat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userName: myName, email: currentUserEmail || 'guest', isStudying, type: timerType })
-        }).catch(()=>{});
-      }
-    }
-
-    // --- NEET Arena Leaderboard & Real Rooms ---
-    async function loadLeaderboard() {
-      const tbody = document.getElementById('globalLeaderboardBody');
-      if(!tbody) return;
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Fetching real student records...</td></tr>`;
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/leaderboard`);
-        const data = await res.json();
-        
-        if(data && data.length > 0) {
-          tbody.innerHTML = '';
-          data.forEach((user, idx) => {
-            const totalSecs = user.totalSeconds || 0;
-            const timeStr = formatHMS(totalSecs);
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><span class="badge ${idx === 0 ? 'bg-warning text-dark' : idx === 1 ? 'bg-secondary' : idx === 2 ? 'bg-danger' : 'bg-light text-dark border'}">#${idx + 1}</span></td>
-              <td class="fw-bold">${user.name || 'Aspirant'}</td>
-              <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
-              <td><span class="badge bg-success">Active Today 🔥</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        } else {
-          renderOnlyRealUserLeaderboard();
-        }
-      } catch(err) {
-        renderOnlyRealUserLeaderboard();
-      }
-    }
-
-    function renderOnlyRealUserLeaderboard() {
-      const tbody = document.getElementById('globalLeaderboardBody');
-      if(!tbody) return;
-      
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
-      const totalSecsToday = getTotalCombinedTodaySeconds();
-      const timeStr = formatHMS(totalSecsToday);
-
-      tbody.innerHTML = `
-        <tr>
-          <td><span class="badge bg-warning text-dark">#1</span></td>
-          <td class="fw-bold">${myName} <span class="badge bg-light text-primary border ms-1">You</span></td>
-          <td><span class="text-primary fw-bold font-monospace"><i class="bi bi-clock me-1"></i>${timeStr}</span></td>
-          <td><span class="badge bg-success">Studying 🔥</span></td>
-        </tr>
-      `;
-    }
-
-    function getTotalCombinedTodaySeconds() {
-      const today = getISTDateString();
-      if(appData.history && appData.history[today]) {
-        return appData.history[today].totalSeconds || 0;
-      }
-      return 0; 
-    }
-
-    async function createPersonalRoom() {
-      const roomName = document.getElementById('newRoomNameInput').value.trim();
-      if(!roomName) {
-        alert('Please enter a room name.');
-        return;
-      }
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-      const roomCode = 'ROOM-' + Math.floor(1000 + Math.random() * 9000);
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/room/create`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomName, roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-        });
-        const data = await res.json();
-        if(data.success || res.ok) {
-          localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
-          document.getElementById('newRoomNameInput').value = '';
-          startRoomAutoSync(roomCode, roomName);
-          alert(`Room "${roomName}" created successfully! Room Code: ${roomCode}`);
-        } else {
-          localRoomSave(roomName, roomCode);
-        }
-      } catch(e) {
-        localRoomSave(roomName, roomCode);
-      }
-    }
-
-    function localRoomSave(roomName, roomCode) {
-      localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
-      document.getElementById('newRoomNameInput').value = '';
-      const myName = appData.userName || 'You';
-      showActiveRoomUI(roomName, roomCode, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
-      alert(`Room "${roomName}" created successfully! Code: ${roomCode}`);
-    }
-
-    async function joinPersonalRoom() {
-      const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
-      if(!code) {
-        alert('Please enter a valid room code.');
-        return;
-      }
-      const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/room/join`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomCode: code, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-        });
-        const data = await res.json();
-        if(res.ok && data && (data.success || data.members)) {
-          localStorage.setItem('endorank_active_room', JSON.stringify({ name: data.roomName || 'Study Room', code }));
-          document.getElementById('joinRoomCodeInput').value = '';
-          startRoomAutoSync(code, data.roomName || 'Study Room');
-          alert(`Joined room successfully!`);
-        } else {
-          alert(data.error || 'Room not found or invalid code.');
-        }
-      } catch(e) {
-        alert('Room not found or invalid code.');
-      }
-    }
-
-    async function fetchRoomMembers(roomCode, roomName) {
-      try {
-        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-        if(currentUserEmail || appData.userName) {
-          await fetch(`${API_BASE_URL}/api/room/join`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
-          }).catch(()=>{});
-        }
-
-        const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
-        const data = await res.json();
-        
-        const members = data.members || [];
-        const isUserStillInRoom = members.some(m => m.name === myName);
-        if(!isUserStillInRoom && members.length > 0) {
-          leavePersonalRoom();
-          alert('You have been removed from the room by the admin.');
-          return;
-        }
-
-        const adminName = data.adminName || members[0]?.name;
-        showActiveRoomUI(roomName, roomCode, members, adminName, myName);
-      } catch(e) {}
-    }
-
-    async function kickRoomMember(roomCode, memberNameToKick) {
-      if(!confirm(`Kya aap ${memberNameToKick} ko is room se remove karna chahte hain?`)) return;
-
-      try {
-        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-        const res = await fetch(`${API_BASE_URL}/api/room/kick`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomCode, adminName: myName, memberToKick: memberNameToKick })
-        });
-        const data = await res.json();
-        if(res.ok || data.success) {
-          alert(`${memberNameToKick} ko room se remove kar diya gaya hai.`);
-          fetchRoomMembers(roomCode, document.getElementById('activeRoomTitle').innerText);
-        } else {
-          alert(data.error || 'Only room admin can kick members.');
-        }
-      } catch(err) {
-        alert('Failed to kick member.');
-      }
-    }
-
-    function startRoomAutoSync(roomCode, roomName) {
-      if(roomPollInterval) clearInterval(roomPollInterval);
-      fetchRoomMembers(roomCode, roomName);
-      roomPollInterval = setInterval(() => {
-        fetchRoomMembers(roomCode, roomName);
-      }, 3000);
-    }
-
-    function checkActiveRoomOnLoad() {
-      const active = localStorage.getItem('endorank_active_room');
-      if(active) {
-        try {
-          const room = JSON.parse(active);
-          startRoomAutoSync(room.code, room.name);
-        } catch(e) {}
-      }
-    }
-
-    async function leavePersonalRoom() {
-      const active = localStorage.getItem('endorank_active_room');
-      if(active && currentUserEmail) {
-        try {
-          const room = JSON.parse(active);
-          const myName = appData.userName || currentUserEmail.split('@')[0];
-          await fetch(`${API_BASE_URL}/api/room/leave`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode: room.code, userName: myName })
-          });
-        } catch(err) {}
-      }
-
-      if(roomPollInterval) clearInterval(roomPollInterval);
-      localStorage.removeItem('endorank_active_room');
-      document.getElementById('activeRoomCard').classList.add('d-none');
-    }
-
-    function showActiveRoomUI(roomName, roomCode, members, adminName, currentUserName) {
-      const card = document.getElementById('activeRoomCard');
-      card.classList.remove('d-none');
-      document.getElementById('activeRoomTitle').innerText = roomName;
-      document.getElementById('activeRoomCodeDisplay').innerText = roomCode;
-
-      const membersList = document.getElementById('roomMembersList');
-      membersList.innerHTML = '';
-
-      const isAdmin = (currentUserName === adminName);
-
-      if(!members || members.length === 0) {
-        membersList.innerHTML = '<span class="text-muted">No members found in this room.</span>';
-        return;
-      }
-
-      members.forEach(m => {
-        const timeFormatted = formatHMS(m.time || 0);
-        const isSelf = (m.name === currentUserName);
-        const div = document.createElement('div');
-        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
-        
-        let actionBtn = '';
-        if(isAdmin && !isSelf) {
-          actionBtn = `<button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:11px;" onclick="kickRoomMember('${roomCode}', '${m.name}')">Remove</button>`;
-        } else if(isSelf) {
-          actionBtn = `<span class="badge bg-light text-primary border">You</span>`;
-        } else if(m.name === adminName) {
-          actionBtn = `<span class="badge bg-warning text-dark">Admin 👑</span>`;
-        }
-
-        div.innerHTML = `
-          <div>
-            <span>👤 ${m.name}</span>
-            ${m.name === adminName ? '<span class="ms-1 badge bg-warning text-dark" style="font-size:9px;">Admin</span>' : ''}
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
-            ${actionBtn}
-          </div>
-        `;
-        membersList.appendChild(div);
-      });
-    }
-
-    function selectUpcomingTestForAnalysis(testTitle) {
-      document.getElementById('testName').value = testTitle;
-      document.getElementById('testDate').value = getISTDateString();
-      document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      document.getElementById('testName').focus();
-    }
-
-    function renderUpcomingTests() {
-      const container = document.getElementById('upcomingTestList');
-      if(!container) return;
-      container.innerHTML = '';
-      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
-        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
-        return;
-      }
-      appData.upcomingTests.forEach((ut) => {
-        const div = document.createElement('div');
-        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
-        div.innerHTML = `
-          <div class="d-flex align-items-center gap-2">
-            <input class="form-check-input mt-0" type="checkbox" ${ut.done ? 'checked' : ''} onchange="toggleUpcomingTest(${ut.id})" title="Click to autofill test name in analysis form">
-            <div onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')" style="cursor:pointer;">
-              <strong class="${ut.done ? 'text-decoration-line-through text-success' : ''}">${ut.title}</strong><br>
-              <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small>
-            </div>
-          </div>
-          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function toggleUpcomingTest(id) {
-      const ut = appData.upcomingTests.find(t => t.id === id);
-      if(ut) {
-        ut.done = !ut.done;
-        saveData();
-      }
-    }
-
-    function deleteUpcomingTest(id) {
-      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
-      saveData();
-      renderUpcomingTests();
-    }
-
-    function filterPracticeSubject(subj) {
-      currentPracticeSubject = subj;
-      const buttons = document.querySelectorAll('#practiceSubjectFilter button');
-      buttons.forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      renderPracticeTable();
-    }
-
-    function renderPracticeTable() {
-      const tbody = document.getElementById('practiceTableBody');
-      if(!tbody) return;
-      tbody.innerHTML = '';
-
-      const filtered = appData.chapters.filter(c => c.subject === currentPracticeSubject);
-
-      if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No chapters added for ${currentPracticeSubject}. Add chapters in Dashboard first!</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(ch => {
-        if(!ch.resources) ch.resources = [];
-        
-        const resourcesHtml = ch.resources.map((resObj, rIdx) => `
-          <div class="input-group input-group-sm mb-1">
-            <div class="input-group-text bg-white">
-              <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
-            </div>
-            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name...">
-            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
-          </div>
-        `).join('');
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="fw-semibold text-dark">${ch.name}</td>
-          <td>
-            ${resourcesHtml}
-            <button class="btn btn-xs btn-outline-primary py-1 px-2 mt-1 fw-semibold" style="font-size: 11px;" onclick="addResourcePrompt(${ch.id})"><i class="bi bi-plus-circle me-1"></i>Add Practice Resource</button>
-          </td>
-          <td>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" ${ch.pyqDone ? 'checked' : ''} onchange="togglePyq(${ch.id})">
-              <label class="form-check-label small fw-semibold ${ch.pyqDone ? 'text-success' : 'text-muted'}">${ch.pyqDone ? 'PYQs Completed' : 'Pending PYQs'}</label>
-            </div>
-          </td>
-          <td>
-            <span class="badge ${ch.completed ? 'bg-success' : 'bg-secondary'}">${ch.completed ? 'Chapter Done' : 'In Progress'}</span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function addResourcePrompt(chapterId) {
-      const resName = prompt("Enter Practice Resource Name (e.g. DC Pandey, NCERT at your fingertips):");
-      if(resName && resName.trim() !== '') {
-        const ch = appData.chapters.find(c => c.id === chapterId);
-        if(ch) {
-          if(!ch.resources) ch.resources = [];
-          ch.resources.push({ name: resName.trim(), done: false });
-          saveData();
-          renderPracticeTable();
-        }
-      }
-    }
-
-    function updateResourceName(chapterId, rIdx, val) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources && ch.resources[rIdx]) {
-        ch.resources[rIdx].name = val.trim();
-        saveData();
-      }
-    }
-
-    function toggleResourceDone(chapterId, rIdx) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources && ch.resources[rIdx]) {
-        ch.resources[rIdx].done = !ch.resources[rIdx].done;
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    function removeResource(chapterId, rIdx) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch && ch.resources) {
-        ch.resources.splice(rIdx, 1);
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    function togglePyq(chapterId) {
-      const ch = appData.chapters.find(c => c.id === chapterId);
-      if(ch) {
-        ch.pyqDone = !ch.pyqDone;
-        saveData();
-        renderPracticeTable();
-        recordTodayActivity();
-      }
-    }
-
-    function loadDiaryForDate(dateStr) {
-      if(appData.diaries && appData.diaries[dateStr]) {
-        const entry = appData.diaries[dateStr];
-        document.getElementById('diaryContent').value = entry.content;
-        selectedMoodData = { mood: entry.mood, color: entry.color };
-        document.querySelectorAll('.mood-btn').forEach(b => {
-          b.classList.remove('selected');
-          if(b.innerText.includes(entry.mood)) b.classList.add('selected');
-        });
-      } else {
-        document.getElementById('diaryContent').value = '';
-      }
-    }
-
-    function deleteDiaryEntry() {
-      const date = document.getElementById('diaryDate').value;
-      if(date && appData.diaries && appData.diaries[date]) {
-        const confirmDel = confirm(`Delete diary entry for ${date}?`);
-        if(confirmDel) {
-          delete appData.diaries[date];
-          document.getElementById('diaryContent').value = '';
-          saveData();
-          renderDiarySection();
-          alert('Diary entry deleted.');
-        }
-      } else {
-        alert('No diary entry found for this date.');
-      }
-    }
-
-    function editDiaryForDate(dateStr) {
-      document.getElementById('diaryDate').value = dateStr;
-      loadDiaryForDate(dateStr);
-      const diaryTabBtn = document.getElementById('diary-tab');
-      if(diaryTabBtn) diaryTabBtn.click();
-    }
-
-    function deleteActivityLog(dateStr) {
-      const confirmDel = confirm(`Delete activity log for ${dateStr}?`);
-      if(confirmDel && appData.history[dateStr]) {
-        delete appData.history[dateStr];
-        saveData();
-        renderCalendarHistory();
-      }
-    }
-
-    function renderBubbleGrid() {
-      const container = document.getElementById('bubbleGridContainer');
-      if(!container) return;
-      container.innerHTML = '';
-      for(let i = 1; i <= 180; i++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.innerText = i;
-        updateBubbleAppearance(btn, bubbleStates[i]);
-        btn.onclick = () => {
-          let st = bubbleStates[i] || 0;
-          st = (st + 1) % 4; 
-          if(st === 0) delete bubbleStates[i];
-          else bubbleStates[i] = st;
-          updateBubbleAppearance(btn, bubbleStates[i]);
-        };
-        container.appendChild(btn);
-      }
-    }
-
-    function updateBubbleAppearance(btn, state) {
-      btn.className = 'btn bubble-btn';
-      if(state === 1) btn.classList.add('btn-danger', 'text-white');
-      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
-      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
-      else btn.classList.add('btn-outline-secondary', 'text-dark');
-    }
-
-    function resetBubbleGridSelections() {
-      bubbleStates = {};
-      renderBubbleGrid();
-    }
-
-    function selectMood(moodName, moodColor, btnElement) {
-      selectedMoodData = { mood: moodName, color: moodColor };
-      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-      btnElement.classList.add('selected');
-    }
-
-    function renderDiarySection() {
-      const gridContainer = document.getElementById('moodCalendarGrid');
-      const listContainer = document.getElementById('diaryHistoryList');
-      if(!gridContainer || !listContainer) return;
-
-      gridContainer.innerHTML = '';
-      listContainer.innerHTML = '';
-
-      if(!appData.diaries || Object.keys(appData.diaries).length === 0) {
-        gridContainer.innerHTML = '<span class="text-muted small">No mood entries yet.</span>';
-        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary entries found.</p>';
-        return;
-      }
-
-      const dates = Object.keys(appData.diaries).sort((a,b) => new Date(b) - new Date(a));
-      dates.forEach(dateStr => {
-        const entry = appData.diaries[dateStr];
-        const box = document.createElement('div');
-        box.title = `${dateStr}: ${entry.mood} (Click to Edit)`;
-        box.style.width = '32px';
-        box.style.height = '32px';
-        box.style.backgroundColor = entry.color;
-        box.style.borderRadius = '6px';
-        box.style.display = 'flex';
-        box.style.alignItems = 'center';
-        box.style.justifyContent = 'center';
-        box.style.color = '#fff';
-        box.style.fontWeight = 'bold';
-        box.style.fontSize = '11px';
-        box.style.cursor = 'pointer';
-        box.innerText = dateStr.slice(-2);
-        box.onclick = () => editDiaryForDate(dateStr);
-        gridContainer.appendChild(box);
-
-        const item = document.createElement('div');
-        item.className = 'card mb-2 p-3 shadow-sm border-0';
-        item.style.borderLeft = `4px solid ${entry.color}`;
-        item.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-bold text-dark small"><i class="bi bi-calendar-event me-1"></i>${dateStr}</span>
-            <div>
-              <span class="badge me-2" style="background-color: ${entry.color}">${entry.mood}</span>
-              <button class="btn btn-xs btn-outline-primary py-0 px-1" style="font-size:11px;" onclick="editDiaryForDate('${dateStr}')"><i class="bi bi-pencil"></i></button>
-            </div>
-          </div>
-          <p class="small text-muted mb-0">${entry.content}</p>
-        `;
-        listContainer.appendChild(item);
-      });
-    }
-
+    // --- IST Time & Clock helpers ---
     function getISTDateString() {
       const now = new Date();
       const istDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -1607,44 +946,57 @@
     }
 
     function initISTClockAndDate() {
-      setInterval(() => {
+      function updateClock() {
         const now = new Date();
-        const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const optionsTime = { timeZone: "Asia/Kolkata", hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const optionsDate = { timeZone: "Asia/Kolkata", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         
-        const timeString = now.toLocaleTimeString('en-US', timeOptions) + ' IST';
-        const dateString = now.toLocaleDateString('en-US', dateOptions);
+        const timeStr = new Intl.DateTimeFormat('en-US', optionsTime).format(now);
+        const dateStr = new Intl.DateTimeFormat('en-US', optionsDate).format(now);
 
         const clockEl = document.getElementById('tabIstClockDisplay');
         const dateEl = document.getElementById('tabIstDateDisplay');
-
-        if(clockEl) clockEl.innerText = timeString;
-        if(dateEl) dateEl.innerText = dateString;
-      }, 1000);
+        if(clockEl) clockEl.innerText = timeStr + " IST";
+        if(dateEl) dateEl.innerText = dateStr;
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
     }
 
     function initISTCountdown() {
-      setInterval(() => {
+      function updateCountdown() {
+        const targetStr = appData.neetDate || '2026-05-07';
+        const targetDate = new Date(targetStr + "T00:00:00+05:30");
         const now = new Date();
-        const istNowString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-        const currentIST = new Date(istNowString).getTime();
+        const diff = targetDate - now;
 
-        const targetStr = appData.neetDate + 'T00:00:00+05:30';
-        const targetDate = new Date(targetStr).getTime();
-        const diff = targetDate - currentIST;
-
-        if (diff > 0) {
-          document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-          document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-          document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-          document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-        } else {
+        if(diff <= 0) {
           document.getElementById('countdownDays').innerText = "00";
           document.getElementById('countdownHours').innerText = "00";
           document.getElementById('countdownMinutes').innerText = "00";
           document.getElementById('countdownSeconds').innerText = "00";
+          return;
         }
-      }, 1000);
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
+        document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('countdownMinutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
+      }
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+
+    function formatHMS(totalSecs) {
+      const h = Math.floor(totalSecs / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      const s = totalSecs % 60;
+      return `${h}h ${m}m ${s}s`;
     }
 
     function updateUserName() {
@@ -1664,13 +1016,18 @@
       }
     }
 
+    // --- Optimized Cloud Sync (Throttled to avoid excess D1 requests) ---
+    let syncTimeout = null;
     function saveData() {
       localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
+      
       if (currentUserEmail) {
-        syncToCloudflare();
+        // Debounce cloud sync by 5 seconds so frequent timer increments don't spam requests
+        if(syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(syncToCloudflare, 5000);
       }
     }
 
@@ -1761,9 +1118,6 @@
     let pomoTimeLeft = 25 * 60, pomoTimerId = null, pomoRunning = false;
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
-    let currentSessionPomodoroSeconds = 0;
-    let currentSessionStopwatchSeconds = 0;
-
     function initTimers() {
       document.getElementById('pomoToggleBtn').addEventListener('click', togglePomo);
       document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
@@ -1788,9 +1142,7 @@
       if (pomoRunning) {
         pausePomo();
       } else {
-        if (swRunning) {
-          pauseSw();
-        }
+        if (swRunning) pauseSw();
         startPomo();
       }
     }
@@ -1798,7 +1150,6 @@
     function startPomo() {
       if (pomoRunning) return;
       pomoRunning = true;
-      sendStudyHeartbeat(true, 'pomo');
       
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1813,7 +1164,6 @@
       pomoTimerId = setInterval(() => {
         if (pomoTimeLeft > 0) { 
           pomoTimeLeft--; 
-          currentSessionPomodoroSeconds++;
           updatePomoDisplay(); 
           recordCombinedStudySeconds(1);
         } else { 
@@ -1826,7 +1176,6 @@
     function pausePomo() { 
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
-      sendStudyHeartbeat(false, null);
 
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -1842,7 +1191,6 @@
     function resetPomo() { 
       pausePomo(); 
       pomoTimeLeft = 25 * 60; 
-      currentSessionPomodoroSeconds = 0;
       updatePomoDisplay(); 
     }
 
@@ -1859,9 +1207,7 @@
       if (swRunning) {
         pauseSw();
       } else {
-        if (pomoRunning) {
-          pausePomo();
-        }
+        if (pomoRunning) pausePomo();
         startSw();
       }
     }
@@ -1869,7 +1215,6 @@
     function startSw() { 
       if (swRunning) return; 
       swRunning = true; 
-      sendStudyHeartbeat(true, 'stopwatch');
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1887,7 +1232,6 @@
 
       swTimerId = setInterval(() => { 
         swSeconds++; 
-        currentSessionStopwatchSeconds++;
         updateSwDisplay(); 
         recordCombinedStudySeconds(1);
       }, 1000); 
@@ -1896,7 +1240,6 @@
     function pauseSw() { 
       swRunning = false; 
       clearInterval(swTimerId); 
-      sendStudyHeartbeat(false, null);
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -1920,7 +1263,6 @@
       pauseSw(); 
       swSeconds = 0; 
       lapCount = 1; 
-      currentSessionStopwatchSeconds = 0;
       document.getElementById('lapList').innerHTML = ''; 
       updateSwDisplay(); 
       document.getElementById('swLapBtn').disabled = true;
