@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.0 (Robust Combined Peak Focus & Corrected Celebration Logic) -->
+<!-- ENDORANK Dashboard - Version 4.1 (Fixed Bubble Clicks, Chart Tooltip, Peak Focus Reset & Combined Celebration) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -218,13 +218,14 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Streak Badges -->
+        <!-- Streak Badges & Reset Peak Focus Button -->
         <div class="streak-widget-box d-flex align-items-center gap-2 shadow-sm">
           <i class="bi bi-fire text-danger fs-5"></i>
           <div>
             <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Study Metrics</span>
             <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Peak Focus: <b>0h 0m 0s</b></span>
           </div>
+          <button class="btn btn-xs btn-outline-danger py-0 px-2 ms-2 fw-semibold" style="font-size: 11px;" onclick="resetPeakFocusRecord()" title="Clear Peak Focus Record & Restart"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
         </div>
 
         <div id="authSection">
@@ -534,10 +535,10 @@
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 -->
+                <!-- Bubble Grid for 1-180 (Updated Instructions) -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-dark d-flex justify-content-between align-items-center mb-2">
-                    <span>Click Bubbles (1-180): <span class="text-danger">Red(Wrong)</span> | <span class="text-warning">Yellow(Guess)</span> | <span class="text-primary">Blue(Skip)</span></span>
+                    <span>Click Bubbles (1-180): <span class="text-danger">1x Red(Wrong)</span> | <span class="text-warning">2x Yellow(Guess)</span> | <span class="text-primary">3x Blue(Skip)</span> | <span class="text-secondary">4x Normal</span></span>
                     <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
                   </label>
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
@@ -735,9 +736,10 @@
 
           <div class="mb-3">
             <div class="d-flex gap-3 mb-2 small fw-bold">
-              <span class="text-danger">🔴 Wrong Questions</span>
-              <span class="text-warning">🟡 Guess Questions</span>
-              <span class="text-primary">🔵 Skipped Questions</span>
+              <span class="text-danger">1x Red (Wrong)</span>
+              <span class="text-warning">2x Yellow (Guess)</span>
+              <span class="text-primary">3x Blue (Skip)</span>
+              <span class="text-secondary">4x Normal</span>
             </div>
             <div id="reviewBubbleGridContainer" class="bubble-grid-box" style="max-height: 250px;"></div>
           </div>
@@ -1082,6 +1084,18 @@
       });
     });
 
+    // --- Peak Focus Record Reset Feature ---
+    function resetPeakFocusRecord() {
+      const confirmReset = confirm("Are you sure you want to reset your Peak Focus Record and start from scratch?");
+      if(confirmReset) {
+        if(!appData.streakData) appData.streakData = {};
+        appData.streakData.bestHoursRecord = 0;
+        saveData();
+        updateStreakUI();
+        alert("Peak Focus Record has been successfully reset to 0h 0m 0s!");
+      }
+    }
+
     // --- Combined Daily Peak Focus & Record Breaker Evaluation ---
     function evaluateStreaksAndHours() {
       const todayStr = getISTDateString();
@@ -1165,7 +1179,6 @@
     function updateStreakUI() {
       if(!appData.streakData) return;
       
-      // Calculate max across all history dates dynamically to ensure accuracy
       let maxSecs = appData.streakData.bestHoursRecord || 0;
       if(appData.history) {
         Object.keys(appData.history).forEach(d => {
@@ -1464,6 +1477,7 @@
       }
     }
 
+    // --- Bubble Grid Click Cycle: 1x Red, 2x Yellow, 3x Blue, 4x Normal (White/Reset) ---
     function renderBubbleGrid() {
       const container = document.getElementById('bubbleGridContainer');
       if(!container) return;
@@ -1475,7 +1489,7 @@
         updateBubbleAppearance(btn, bubbleStates[i]);
         btn.onclick = () => {
           let st = bubbleStates[i] || 0;
-          st = (st + 1) % 4; 
+          st = (st + 1) % 4; // Cycles: 0 -> 1(Red) -> 2(Yellow) -> 3(Blue) -> 0(Normal)
           if(st === 0) delete bubbleStates[i];
           else bubbleStates[i] = st;
           updateBubbleAppearance(btn, bubbleStates[i]);
@@ -2055,6 +2069,7 @@
       renderTodos();
     }
 
+    // --- Chart Tooltip Bug Fixed (Clean text rendering without strikethrough/cuts) ---
     function initScoreChart() {
       const ctx = document.getElementById('scoreChart').getContext('2d');
       scoreChartInstance = new Chart(ctx, {
@@ -2080,6 +2095,11 @@
           plugins: {
             tooltip: {
               callbacks: {
+                title: function(tooltipItems) {
+                  const sorted = [...appData.tests].sort((a,b) => new Date(a.date) - new Date(b.date));
+                  const test = sorted[tooltipItems[0].dataIndex];
+                  return test ? test.name : '';
+                },
                 label: function(context) {
                   const sorted = [...appData.tests].sort((a,b) => new Date(a.date) - new Date(b.date));
                   const test = sorted[context.dataIndex];
