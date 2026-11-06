@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.4 (Stopwatch Save & Reset Added) -->
+<!-- ENDORANK Dashboard - Version 4.5 (Fixed Peak Focus Celebration Bug) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -874,7 +874,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      evaluateStreaksAndHours();
+      evaluateStreaksAndHours(false); // No pop-up on simple page load
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -997,7 +997,7 @@
 
           saveData();
           renderCalendarHistory();
-          evaluateStreaksAndHours();
+          evaluateStreaksAndHours(true); // Allow celebration if manual log breaks record
           alert('Study activity time and manual logs updated successfully!');
         }
       });
@@ -1083,9 +1083,8 @@
       });
     });
 
-    function evaluateStreaksAndHours() {
+    function evaluateStreaksAndHours(allowCelebration = false) {
       const todayStr = getISTDateString();
-      const today = new Date(todayStr);
 
       if (!appData.streakData) {
         appData.streakData = { dayStreak: 0, bestHoursRecord: 0, lastActiveDate: '' };
@@ -1140,7 +1139,8 @@
       const previousBestSecs = appData.streakData.bestHoursRecord || 0;
       const absoluteBest = Math.max(previousBestSecs, maxPastSecs);
 
-      if (todaySecs > 0 && todaySecs > absoluteBest && absoluteBest > 0 && todaySecs > previousBestSecs) {
+      // Only trigger celebration modal if explicitly allowed (i.e. from active timer stop/save or manual save) and previous record is actually beaten
+      if (allowCelebration && todaySecs > 0 && todaySecs > absoluteBest && absoluteBest > 0 && todaySecs > previousBestSecs) {
         appData.streakData.bestHoursRecord = todaySecs;
         const peakFormatted = formatSecondsToHoursMins(todaySecs);
         document.getElementById('streakCelebText').innerText = `Congratulations! You studied for a total of ${peakFormatted} today and broke your previous highest peak focus record!`;
@@ -1453,7 +1453,7 @@
         delete appData.history[dateStr];
         saveData();
         renderCalendarHistory();
-        evaluateStreaksAndHours();
+        evaluateStreaksAndHours(false);
       }
     }
 
@@ -1619,7 +1619,7 @@
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
-      evaluateStreaksAndHours();
+      evaluateStreaksAndHours(false);
       if (currentUserEmail) {
         syncToCloudflare();
       }
@@ -1659,7 +1659,7 @@
           updateScoreChart();
           renderCalendarHistory();
           renderDiarySection();
-          evaluateStreaksAndHours();
+          evaluateStreaksAndHours(false);
           updateAuthUI();
         }
       } catch (err) {
@@ -1757,21 +1757,24 @@
           pomoTimeLeft--; 
           updatePomoDisplay(); 
         } else { 
-          pausePomo(); 
+          pausePomo(true); // Pomodoro finished naturally -> allow celebration check
           alert('Focus time complete!'); 
-          recordStudySeconds(25 * 60); 
+          recordStudySeconds(25 * 60, true); 
         }
       }, 1000);
       
       updatePomoToggleUI(true);
     }
 
-    function pausePomo() { 
-      if (!pomoRunning) return;
+    function pausePomo(completedNaturally = false) { 
+      if (!pomoRunning && !completedNaturally) return;
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
       updatePomoToggleUI(false);
-      recordStudySeconds(25 * 60 - pomoTimeLeft);
+      const elapsed = 25 * 60 - pomoTimeLeft;
+      if(elapsed > 0) {
+        recordStudySeconds(elapsed, completedNaturally);
+      }
     }
 
     function updatePomoToggleUI(isRunning) {
@@ -1837,25 +1840,19 @@
       swRunning = false; 
       clearInterval(swTimerId); 
       updateSwToggleUI(false);
-
-      if(swSeconds > 0) {
-        recordStudySeconds(swSeconds);
-      }
     }
 
-    // --- New Save & Reset Function for Stopwatch ---
+    // Save & Reset Function for Stopwatch (Triggers celebration only when record is broken)
     function saveAndResetSw() {
       if (swSeconds > 0) {
-        // Pause first if running to record current elapsed time properly
         if (swRunning) {
           swRunning = false;
           clearInterval(swTimerId);
           updateSwToggleUI(false);
         }
-        recordStudySeconds(swSeconds);
+        recordStudySeconds(swSeconds, true); // Allow celebration check on explicit Save
         alert(`Successfully saved ${formatSecondsToHoursMins(swSeconds)} to your focus log!`);
       }
-      // Reset stopwatch to 00:00:00 automatically
       swSeconds = 0;
       lapCount = 1;
       document.getElementById('lapList').innerHTML = '';
@@ -2191,18 +2188,21 @@
       appData.history[today].completedPracticeList = Array.from(new Set([...existingPracs, ...completedPracticeNames]));
 
       renderCalendarHistory();
-      evaluateStreaksAndHours();
+      evaluateStreaksAndHours(false);
     }
 
-    function recordStudySeconds(secs) {
+    function recordStudySeconds(secs, allowCelebration = false) {
       const today = getISTDateString();
       if(!appData.history[today]) {
         appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
       appData.history[today].totalSeconds += secs;
-      saveData();
+      saveDataWithoutRecurse();
       renderCalendarHistory();
-      evaluateStreaksAndHours();
+      evaluateStreaksAndHours(allowCelebration);
+      if (currentUserEmail) {
+        syncToCloudflare();
+      }
     }
 
     function renderCalendarHistory() {
