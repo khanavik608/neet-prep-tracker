@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 5.1 (Fixed Text Visibility & Complete IST Day-Night Dynamic Cycle) -->
+<!-- ENDORANK Dashboard - Version 5.3 (Live Animated Sky & Perfect IST Sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,13 +26,15 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
       padding-bottom: 50px;
-      transition: background-color 1.2s ease, color 1.2s ease;
+      transition: background-color 1.5s ease, color 1.5s ease;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    /* ☀️🌙 IST Dynamic Theme Palettes (Guaranteed Text Contrast) */
+    /* ☀️🌙 IST Dynamic Theme Palettes with Realistic Sky Backgrounds */
     body.theme-sunrise {
-      --bg-light: #fff7ed;
-      --card-bg: #ffffff;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
       --text-main: #431407;
       --text-muted: #9a3412;
       --border-color: #fed7aa;
@@ -40,8 +42,8 @@
       --table-hover: #ffedd5;
     }
     body.theme-day {
-      --bg-light: #f0f9ff;
-      --card-bg: #ffffff;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
       --text-main: #0f172a;
       --text-muted: #475569;
       --border-color: #bae6fd;
@@ -49,8 +51,8 @@
       --table-hover: #e0f2fe;
     }
     body.theme-sunset {
-      --bg-light: #fff1f2;
-      --card-bg: #ffffff;
+      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
       --text-main: #4c0519;
       --text-muted: #9f1239;
       --border-color: #fecdd3;
@@ -58,13 +60,51 @@
       --table-hover: #ffe4e6;
     }
     body.theme-night {
-      --bg-light: #090d16;
-      --card-bg: #111827;
+      background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
+      --card-bg: rgba(17, 24, 39, 0.95);
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --border-color: #1f2937;
       --accent: #38bdf8;
       --table-hover: #1e293b;
+    }
+
+    /* 🌟 Animated Night Sky Stars */
+    .sky-star {
+      position: fixed;
+      background: #ffffff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    body.theme-night .sky-star {
+      opacity: 0.8;
+      animation: twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ☁️ Floating Cloud Animation for Day Sky */
+    .sky-cloud {
+      position: fixed;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50px;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    body.theme-day .sky-cloud, body.theme-sunrise .sky-cloud {
+      opacity: 0.6;
+      animation: floatCloud 35s linear infinite;
+    }
+    @keyframes floatCloud {
+      from { transform: translateX(-150px); }
+      to { transform: translateX(calc(100vw + 150px)); }
     }
 
     /* Universal Element Adaptations */
@@ -73,15 +113,16 @@
       border: 1px solid var(--border-color) !important;
       border-radius: 14px;
       color: var(--text-main) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(8px);
       transition: background-color 0.8s ease, border-color 0.8s ease, color 0.8s ease;
     }
     .card:hover {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
     }
 
     .card-header {
-      background-color: var(--card-bg) !important;
+      background-color: transparent !important;
       border-bottom: 1px solid var(--border-color) !important;
       color: var(--text-main) !important;
       font-weight: 600;
@@ -308,7 +349,12 @@
     }
   </style>
 </head>
-<body class="theme-day">
+<body>
+
+  <!-- Dynamic Star Container for Night Sky -->
+  <div id="starContainer"></div>
+  <!-- Dynamic Cloud Container for Day/Sunrise Sky -->
+  <div id="cloudContainer"></div>
 
   <div class="container py-4">
     <!-- Header: Clean Layout with Real-Time Sun/Moon Dynamic Widget -->
@@ -639,19 +685,19 @@
                 <!-- Manual Counts Input -->
                 <div class="row g-2 mb-2">
                   <div class="col-3">
-                    <label for="testCorrectCount" class="form-label small fw-bold text-success">Correct:</label>
+                    <label for="testCorrectCount" class="form-label small fw-bold" style="color: #16a34a;">Correct:</label>
                     <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="140" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testWrongCount" class="form-label small fw-bold text-danger">Wrong:</label>
+                    <label for="testWrongCount" class="form-label small fw-bold" style="color: #dc2626;">Wrong:</label>
                     <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="30" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testGuessCount" class="form-label small fw-bold text-warning">Guess:</label>
+                    <label for="testGuessCount" class="form-label small fw-bold" style="color: #ca8a04;">Guess:</label>
                     <input type="number" id="testGuessCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testSkipCount" class="form-label small fw-bold text-primary">Skip:</label>
+                    <label for="testSkipCount" class="form-label small fw-bold" style="color: #0284c7;">Skip:</label>
                     <input type="number" id="testSkipCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                 </div>
@@ -659,7 +705,7 @@
                 <!-- Bubble Grid for 1-180 -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
-                    <span>Click Bubbles (1-180): <span class="text-danger">1x Red(Wrong)</span> | <span class="text-warning">2x Yellow(Guess)</span> | <span class="text-primary">3x Blue(Skip)</span> | <span class="text-secondary">4x Normal</span></span>
+                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">1x Red(Wrong)</span> | <span style="color:#ca8a04;">2x Yellow(Guess)</span> | <span style="color:#0284c7;">3x Blue(Skip)</span> | <span class="text-secondary">4x Normal</span></span>
                     <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
                   </label>
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
@@ -716,10 +762,10 @@
                   <th>Test Details</th>
                   <th>Target (/720)</th>
                   <th>Marks (/720)</th>
-                  <th>Correct</th>
-                  <th>Wrong</th>
-                  <th>Guess</th>
-                  <th class="text-primary">Skip</th>
+                  <th style="color: #16a34a; font-weight: bold;">Correct</th>
+                  <th style="color: #dc2626; font-weight: bold;">Wrong</th>
+                  <th style="color: #ca8a04; font-weight: bold;">Guess</th>
+                  <th style="color: #0284c7; font-weight: bold;">Skip</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -864,7 +910,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded" style="background: var(--bg-light);">
+          <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded" style="background: var(--card-bg);">
             <div>
               <span class="small text-muted d-block fw-bold">TARGET SCORE</span>
               <span id="reviewTargetDisplay" class="fs-5 fw-bold text-success">0</span>
@@ -881,9 +927,9 @@
 
           <div class="mb-3">
             <div class="d-flex gap-3 mb-2 small fw-bold">
-              <span class="text-danger">1x Red (Wrong)</span>
-              <span class="text-warning">2x Yellow (Guess)</span>
-              <span class="text-primary">3x Blue (Skip)</span>
+              <span style="color: #dc2626;">1x Red (Wrong)</span>
+              <span style="color: #ca8a04;">2x Yellow (Guess)</span>
+              <span style="color: #0284c7;">3x Blue (Skip)</span>
               <span class="text-secondary">4x Normal</span>
             </div>
             <div id="reviewBubbleGridContainer" class="bubble-grid-box" style="max-height: 250px;"></div>
@@ -1021,6 +1067,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
       evaluateDayStreakOnly();
+      initStarsAndClouds();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -1228,7 +1275,35 @@
       });
     });
 
-    // ☀️🌙 Real-Time IST Day/Night Dynamic Sky Cycle & Sun/Moon Movement
+    // ✨ Initialize Background Stars & Clouds dynamically
+    function initStarsAndClouds() {
+      const starContainer = document.getElementById('starContainer');
+      for(let i=0; i<60; i++) {
+        const star = document.createElement('div');
+        star.className = 'sky-star';
+        star.style.width = `${Math.random() * 3 + 1}px`;
+        star.style.height = star.style.width;
+        star.style.top = `${Math.random() * 100}vh`;
+        star.style.left = `${Math.random() * 100}vw`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        starContainer.appendChild(star);
+      }
+
+      const cloudContainer = document.getElementById('cloudContainer');
+      for(let i=0; i<5; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'sky-cloud';
+        cloud.style.width = `${Math.random() * 120 + 80}px`;
+        cloud.style.height = `${Math.random() * 30 + 20}px`;
+        cloud.style.top = `${Math.random() * 50}vh`;
+        cloud.style.left = `-${Math.random() * 200}px`;
+        cloud.style.animationDuration = `${Math.random() * 25 + 25}s`;
+        cloud.style.animationDelay = `${Math.random() * 15}s`;
+        cloudContainer.appendChild(cloud);
+      }
+    }
+
+    // ☀️🌙 Real-Time IST Day/Night Dynamic Sky Cycle (Fixed Initial Glitch)
     function updateDayNightCycle(istHour, istMinutes) {
       const body = document.body;
       const celestialIcon = document.getElementById('celestialIcon');
@@ -1385,9 +1460,9 @@
         btn.innerText = i;
         
         const state = bubbleMap[i] || 0;
-        if(state === 1) btn.classList.add('btn-danger', 'text-white');
-        else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
-        else if(state === 3) btn.classList.add('btn-primary', 'text-white');
+        if(state === 1) { btn.style.backgroundColor = '#dc2626'; btn.style.color = '#fff'; }
+        else if(state === 2) { btn.style.backgroundColor = '#eab308'; btn.style.color = '#111827'; }
+        else if(state === 3) { btn.style.backgroundColor = '#0284c7'; btn.style.color = '#fff'; }
         else btn.classList.add('btn-outline-secondary');
 
         container.appendChild(btn);
@@ -1666,9 +1741,9 @@
 
     function updateBubbleAppearance(btn, state) {
       btn.className = 'btn bubble-btn';
-      if(state === 1) btn.classList.add('btn-danger', 'text-white');
-      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
-      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
+      if(state === 1) { btn.style.backgroundColor = '#dc2626'; btn.style.color = '#fff'; }
+      else if(state === 2) { btn.style.backgroundColor = '#eab308'; btn.style.color = '#111827'; }
+      else if(state === 3) { btn.style.backgroundColor = '#0284c7'; btn.style.color = '#fff'; }
       else btn.classList.add('btn-outline-secondary');
     }
 
@@ -1744,13 +1819,18 @@
     }
 
     function initISTClockAndDate() {
+      // Immediate accurate execution on load to prevent glitch
+      const now = new Date();
+      const istNowDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      updateDayNightCycle(istNowDate.getHours(), istNowDate.getMinutes());
+
       setInterval(() => {
-        const now = new Date();
+        const currNow = new Date();
         const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
         const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         
-        const timeString = now.toLocaleTimeString('en-US', timeOptions) + ' IST';
-        const dateString = now.toLocaleDateString('en-US', dateOptions);
+        const timeString = currNow.toLocaleTimeString('en-US', timeOptions) + ' IST';
+        const dateString = currNow.toLocaleDateString('en-US', dateOptions);
 
         const clockEl = document.getElementById('tabIstClockDisplay');
         const dateEl = document.getElementById('tabIstDateDisplay');
@@ -1758,9 +1838,8 @@
         if(clockEl) clockEl.innerText = timeString;
         if(dateEl) dateEl.innerText = dateString;
 
-        // Sync IST Dynamic Sun & Sky Themes
-        const istNowDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-        updateDayNightCycle(istNowDate.getHours(), istNowDate.getMinutes());
+        const istNowDateLoop = new Date(currNow.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+        updateDayNightCycle(istNowDateLoop.getHours(), istNowDateLoop.getMinutes());
       }, 1000);
     }
 
@@ -2339,10 +2418,10 @@
           </td>
           <td><span class="badge bg-light text-success border fs-6 fw-bold">${test.target || 0}</span></td>
           <td class="fw-bold text-primary fs-6">${test.marks} / 720</td>
-          <td><span class="badge bg-success fs-6">${test.correctCount || 0}</span></td>
-          <td><span class="badge bg-danger fs-6">${test.wrongCount || 0}</span></td>
-          <td><span class="badge bg-warning text-dark fs-6">${test.guessCount || 0}</span></td>
-          <td><span class="badge bg-primary text-white fs-6">${test.skipCount || 0}</span></td>
+          <td><span class="badge fs-6" style="background-color: #16a34a; color: #fff;">${test.correctCount || 0}</span></td>
+          <td><span class="badge fs-6" style="background-color: #dc2626; color: #fff;">${test.wrongCount || 0}</span></td>
+          <td><span class="badge fs-6" style="background-color: #eab308; color: #111827;">${test.guessCount || 0}</span></td>
+          <td><span class="badge fs-6" style="background-color: #0284c7; color: #fff;">${test.skipCount || 0}</span></td>
           <td><button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteTest(${test.id})"><i class="bi bi-trash me-1"></i>Delete</button></td>
         `;
         tbody.appendChild(tr);
