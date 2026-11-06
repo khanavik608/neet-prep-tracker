@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.3 (Cloud-First D1 Sync) -->
+<!-- ENDORANK Dashboard - Version 3.3 (Clean Practice Tracker, Manual Resources with Tick & Date-only Scheduler) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,6 +179,11 @@
       transform: scale(1.08);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+
+    .scheduled-test-card {
+      border-left: 4px solid var(--accent);
+      background: #f0f9ff;
+    }
   </style>
 </head>
 <body>
@@ -291,7 +296,8 @@
                   <div class="tab-pane fade show active" id="pomodoro" role="tabpanel">
                     <div class="timer-display my-3" id="pomoDisplay">25:00</div>
                     <div class="mb-3">
-                      <button id="pomoToggleBtn" class="btn btn-accent me-1 px-3 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
+                      <button id="pomoStartBtn" class="btn btn-accent me-1 px-3"><i class="bi bi-play-fill"></i></button>
+                      <button id="pomoPauseBtn" class="btn btn-secondary me-1 px-3" disabled><i class="bi bi-pause-fill"></i></button>
                       <button id="pomoResetBtn" class="btn btn-outline-danger px-3"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
@@ -303,7 +309,8 @@
                   <div class="tab-pane fade" id="stopwatch" role="tabpanel">
                     <div class="timer-display my-3" id="swDisplay" style="font-size: 2.8rem;">00:00:00</div>
                     <div class="mb-3">
-                      <button id="swToggleBtn" class="btn btn-accent me-1 px-2 fw-semibold"><i class="bi bi-play-fill me-1"></i>Start</button>
+                      <button id="swStartBtn" class="btn btn-accent me-1 px-2"><i class="bi bi-play-fill"></i></button>
+                      <button id="swPauseBtn" class="btn btn-secondary me-1 px-2" disabled><i class="bi bi-pause-fill"></i></button>
                       <button id="swLapBtn" class="btn btn-info me-1 px-2" disabled><i class="bi bi-flag-fill"></i></button>
                       <button id="swResetBtn" class="btn btn-outline-danger px-2"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
@@ -420,7 +427,8 @@
             <h2 class="h5 text-primary mb-2">Focus Session Timer</h2>
             <div class="timer-display-lg my-3" id="bigTimerDisplay">25:00</div>
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button id="bigPomoToggleBtn" class="btn btn-accent btn-lg px-4 fw-semibold" onclick="toggleBigPomo()"><i class="bi bi-play-fill me-1"></i>Start</button>
+              <button id="bigStartBtn" class="btn btn-accent btn-lg px-4" onclick="syncBigStart()"><i class="bi bi-play-fill me-1"></i>Start</button>
+              <button id="bigPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="syncBigPause()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
               <button id="bigResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="syncBigReset()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
             <div class="d-flex justify-content-center gap-2 flex-wrap">
@@ -434,8 +442,9 @@
             <h2 class="h5 text-primary mb-2">Elapsed Study Stopwatch</h2>
             <div class="timer-display-lg my-3" id="bigSwDisplay" style="font-size: 5rem;">00:00:00</div>
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button id="bigSwToggleBtn" class="btn btn-accent btn-lg px-4 fw-semibold" onclick="toggleBigSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
-              <button id="bigSwLapBtn" class="btn btn-info btn-lg px-4" onclick="lapSw()" disabled><i class="bi bi-flag-fill me-1"></i>Lap</button>
+              <button id="bigSwStartBtn" class="btn btn-accent btn-lg px-4" onclick="startSw()"><i class="bi bi-play-fill me-1"></i>Start</button>
+              <button id="bigSwPauseBtn" class="btn btn-secondary btn-lg px-4" onclick="pauseSw()"><i class="bi bi-pause-fill me-1"></i>Pause</button>
+              <button id="bigSwLapBtn" class="btn btn-info btn-lg px-4" onclick="lapSw()"><i class="bi bi-flag-fill me-1"></i>Lap</button>
               <button id="bigSwResetBtn" class="btn btn-outline-danger btn-lg px-4" onclick="resetSw()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
             </div>
           </div>
@@ -518,8 +527,8 @@
 
           <!-- Right Column: Upcoming Test Scheduler & Graph -->
           <div class="col-lg-6">
-            <!-- Schedule Upcoming Mock Test Card -->
-            <div class="card p-4 mb-4">
+            <!-- Schedule Upcoming Mock Test Card (Date Only) -->
+            <div class="card p-4 mb-4 scheduled-test-card">
               <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule Upcoming Mock Test</h3>
               <form id="upcomingTestForm">
                 <div class="mb-2">
@@ -536,32 +545,31 @@
                   </div>
                 </div>
               </form>
-              <div id="upcomingTestList" class="mt-2"></div>
+              <div id="upcomingTestList" class="mt-2" style="max-height: 160px; overflow-y: auto;"></div>
             </div>
 
-            <!-- Score Analysis Graph Card -->
+            <!-- Score Graph Card -->
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up me-2"></i>Score Progression Graph</h3>
-              <div style="height: 250px;">
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-graph-up-arrow me-1"></i>Score Improvement Graph (/720)</h3>
+              <div style="height: 220px;">
                 <canvas id="scoreChart"></canvas>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tests History Table -->
         <div class="card p-4">
-          <h3 class="h5 text-primary mb-3"><i class="bi bi-table me-2"></i>All Recorded Tests</h3>
+          <h3 class="h5 text-primary mb-3"><i class="bi bi-award me-2"></i>All Tests & Error Notebook Panel</h3>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th>Test Name & Date</th>
-                  <th>Marks</th>
+                  <th>Test Details</th>
+                  <th>Marks (/720)</th>
                   <th>Correct</th>
-                  <th>Wrong</th>
-                  <th>Guess</th>
-                  <th>Skip</th>
+                  <th>Wrong Count</th>
+                  <th>Guess Count</th>
+                  <th>Skip Count</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -571,43 +579,45 @@
         </div>
       </div>
 
-      <!-- Tab: Daily Diary & Mood -->
+      <!-- Tab: Daily Diary & Mood Tracker -->
       <div class="tab-pane fade" id="tab-diary" role="tabpanel">
         <div class="row g-4">
           <div class="col-lg-6">
             <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Logger</h3>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-journal-richtext me-2"></i>Daily Diary & Mood Tracker</h3>
               <form id="diaryForm">
                 <div class="mb-3">
-                  <label for="diaryDate" class="form-label small fw-bold text-muted">Date:</label>
+                  <label class="form-label small fw-bold text-muted">Select Date:</label>
                   <input type="date" id="diaryDate" class="form-control form-control-sm" required onchange="loadDiaryForDate(this.value)">
                 </div>
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-muted">How are you feeling today?</label>
                   <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-sm btn-outline-success mood-btn selected" onclick="selectMood('Happy', '#16a34a', this)">😊 Happy</button>
-                    <button type="button" class="btn btn-sm btn-outline-primary mood-btn" onclick="selectMood('Focused', '#0284c7', this)">🎯 Focused</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning mood-btn" onclick="selectMood('Anxious', '#d97706', this)">😰 Anxious</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger mood-btn" onclick="selectMood('Tired', '#dc2626', this)">😴 Tired</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary mood-btn" onclick="selectMood('Neutral', '#64748b', this)">😐 Neutral</button>
+                    <button type="button" class="btn btn-success mood-btn flex-fill py-2" onclick="selectMood('Happy', '#16a34a', this)">😄 Happy</button>
+                    <button type="button" class="btn btn-warning text-dark mood-btn flex-fill py-2" onclick="selectMood('Okay', '#eab308', this)">🙂 Okay</button>
+                    <button type="button" class="btn btn-danger mood-btn flex-fill py-2" onclick="selectMood('Stressed', '#dc2626', this)">😰 Stressed</button>
+                    <button type="button" class="btn btn-primary mood-btn flex-fill py-2" onclick="selectMood('Low', '#0284c7', this)">😔 Low</button>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="diaryContent" class="form-label small fw-bold text-muted">Diary Notes / Reflections:</label>
-                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write down your thoughts, struggles, or topics to improve tomorrow..." required></textarea>
+                  <label for="diaryContent" class="form-label small fw-bold text-muted">Your Diary Entry / Thoughts:</label>
+                  <textarea id="diaryContent" class="form-control" rows="5" placeholder="Write about your study progress, challenges, or thoughts today..." required></textarea>
                 </div>
                 <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save Diary Entry</button>
+                  <button type="submit" class="btn btn-accent flex-grow-1"><i class="bi bi-save me-1"></i> Save / Update Diary Entry</button>
                   <button type="button" class="btn btn-outline-danger" onclick="deleteDiaryEntry()"><i class="bi bi-trash"></i></button>
                 </div>
               </form>
             </div>
           </div>
+
           <div class="col-lg-6">
             <div class="card p-4 h-100">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & History</h3>
-              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-3"></div>
-              <div id="diaryHistoryList" style="max-height: 300px; overflow-y: auto;" class="pe-2"></div>
+              <h3 class="h5 text-primary mb-3"><i class="bi bi-calendar3 me-2"></i>Mood Calendar & Past Entries</h3>
+              <div class="mb-3 small text-muted">Click any past date to edit or view:</div>
+              <div id="moodCalendarGrid" class="d-flex flex-wrap gap-2 mb-4" style="max-height: 180px; overflow-y: auto;"></div>
+              <hr>
+              <div id="diaryHistoryList" style="max-height: 250px; overflow-y: auto;" class="pe-2"></div>
             </div>
           </div>
         </div>
@@ -615,94 +625,102 @@
 
       <!-- Tab: Daily Activity & Focus Log -->
       <div class="tab-pane fade" id="tab-calendar" role="tabpanel">
-        <div class="row g-4">
-          <div class="col-lg-5">
-            <div class="card p-4">
-              <h3 class="h5 text-primary mb-3"><i class="bi bi-pencil-square me-2"></i>Manual Study & Work Log</h3>
-              <form id="manualActivityForm">
-                <div class="mb-2">
-                  <label for="manualActivityDate" class="form-label small fw-bold text-muted">Date:</label>
-                  <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
-                </div>
-                <div class="row g-2 mb-2">
-                  <div class="col-4">
-                    <label for="manualHours" class="form-label small fw-bold text-muted">Hours:</label>
-                    <input type="number" id="manualHours" class="form-control form-control-sm" min="0" max="24" value="0">
-                  </div>
-                  <div class="col-4">
-                    <label for="manualMins" class="form-label small fw-bold text-muted">Mins:</label>
-                    <input type="number" id="manualMins" class="form-control form-control-sm" min="0" max="59" value="0">
-                  </div>
-                  <div class="col-4">
-                    <label for="manualSecs" class="form-label small fw-bold text-muted">Secs:</label>
-                    <input type="number" id="manualSecs" class="form-control form-control-sm" min="0" max="59" value="0">
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="manualWorksInput" class="form-label small fw-bold text-muted">Manual Works / Notes (Comma separated):</label>
-                  <input type="text" id="manualWorksInput" class="form-control form-control-sm" placeholder="e.g. Revision of Plant Kingdom, NCERT reading">
-                </div>
-                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Manual Log</button>
-              </form>
-            </div>
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Daily Activity & Focus Log (IST)</h3>
+            <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
-          <div class="col-lg-7">
-            <div class="card p-4 h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-clock-history me-2"></i>Study History Log</h3>
-                <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
-              </div>
-              <div id="calendarHistoryContainer" style="max-height: 400px; overflow-y: auto;" class="pe-2"></div>
-            </div>
+          <div class="mb-3">
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity (H:M:S)</button>
           </div>
+          <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
       </div>
 
       <!-- Tab: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
-        <div class="card text-center p-4">
+        <div class="card p-4 text-center">
           <h3 class="h4 text-primary mb-3"><i class="bi bi-image me-2"></i>Poster of the Day</h3>
-          <div class="mb-3">
-            <img id="posterImage" src="" alt="Poster" class="poster-img img-fluid shadow-sm">
+          <div class="d-flex justify-content-center my-3">
+            <img id="posterImage" src="" alt="Poster of the Day" class="img-fluid poster-img shadow">
           </div>
-          <h5 id="posterTitle" class="fw-bold text-dark"></h5>
-          <p id="posterCaption" class="text-muted small mx-auto" style="max-width: 600px;"></p>
+          <h5 id="posterTitle" class="text-dark fw-bold mt-3"></h5>
+          <p id="posterCaption" class="text-primary fw-semibold fs-6"></p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Google Sign-In & Login Modal -->
-  <div class="modal fade" id="authModal" tabindex="-1">
+  <!-- Manual Activity & Focus Log Edit Modal -->
+  <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-3">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-bold text-primary">Cloud Sync & Account</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity (H:M:S)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body text-center">
+        <div class="modal-body">
+          <form id="manualActivityForm">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Date:</label>
+              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Hours:</label>
+                <input type="number" id="manualHours" class="form-control form-control-sm" placeholder="0" min="0" value="0">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Minutes:</label>
+                <input type="number" id="manualMins" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold text-muted">Seconds:</label>
+                <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-circle me-2"></i>Google Sync & Settings</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center py-4">
           <div id="loggedOutView">
-            <p class="text-muted small mb-4">Sign in with Google to securely back up your NEET prep data, syllabus progress, and test scores to the cloud.</p>
-            <div class="d-flex justify-content-center mb-3">
-              <div id="g_id_onload"
-                   data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-                   data-callback="handleCredentialResponse"
-                   data-auto_prompt="false">
-              </div>
-              <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="sign_in_with" data-size="large" data-logo_alignment="left"></div>
+            <p class="text-muted small mb-3">Sign in with Google to auto-sync your NEET dashboard data across all devices.</p>
+            <div id="g_id_onload"
+                 data-client_id="206307565994-avdadgkf50etr1ibeh2nihfds9tmilmf.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
             </div>
-          </div>
+            <div class="g_id_signin d-flex justify-content-center" data-type="standard"></div>
+          </div> 
+
           <div id="loggedInView" class="d-none">
-            <p class="text-muted small mb-2">Signed in as:</p>
-            <h6 id="userEmailDisplay" class="fw-bold text-dark mb-3"></h6>
-            <div class="mb-3 text-start">
-              <label for="userNameInput" class="form-label small fw-bold text-muted">Your Name / Aspirant ID:</label>
-              <div class="input-group input-group-sm">
-                <input type="text" id="userNameInput" class="form-control" placeholder="Enter name">
-                <button class="btn btn-outline-primary" type="button" onclick="updateUserName()">Update</button>
-              </div>
+            <p class="text-muted small mb-2">Logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
+            
+            <div class="alert alert-info py-2 small mb-3" id="subStatusAlert">
+              Plan: <strong id="userPlanText">Free Plan</strong>
             </div>
-            <button class="btn btn-outline-danger btn-sm w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+
+            <div class="mb-3" id="upgradeSection">
+              <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="simulateUpgradeToPro()"><i class="bi bi-star-fill me-1"></i> Upgrade to Pro (Sync Enabled)</button>
+            </div>
+
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" id="userNameInput" class="form-control" placeholder="Enter your display name">
+              <button class="btn btn-outline-primary" type="button" onclick="updateUserName()">Update Name</button>
+            </div>
+
+            <button class="btn btn-outline-danger w-100" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
           </div>
         </div>
       </div>
@@ -717,11 +735,12 @@
     let appData = {
       userName: '',
       neetDate: '2026-05-07',
-      chapters: [], 
+      isPro: false,
+      chapters: [], // { id, name, subject, completed, completedDate, resources: [{name, done}], pyqDone }
       todos: [],
       tests: [],
       upcomingTests: [],
-      history: {}, 
+      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] } }
       diaries: {}
     };
 
@@ -744,23 +763,28 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
+      loadLocalStorageData();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
       renderBubbleGrid();
-      getRandomQuote();
+      renderChapters();
+      renderPracticeTable();
+      checkSmartRevisionAlerts();
+      renderTodos();
+      renderTests();
+      renderUpcomingTests();
+      initScoreChart();
+      renderCalendarHistory();
+      renderDiarySection();
       renderPoster();
+      getRandomQuote();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
       if (savedEmail) {
         currentUserEmail = savedEmail;
         updateAuthUI();
-        // Fetch fresh data from Cloudflare D1 immediately on load
         fetchCloudData();
-      } else {
-        // If not logged in, load empty or local structure
-        loadLocalStorageData();
-        refreshAllUI();
       }
 
       document.getElementById('neetDate').value = appData.neetDate;
@@ -785,7 +809,7 @@
             subject, 
             completed: false, 
             completedDate: null,
-            resources: [], 
+            resources: [], // clean manual resources list
             pyqDone: false 
           });
           document.getElementById('chapterNameInput').value = '';
@@ -830,7 +854,7 @@
         const date = document.getElementById('upcomingDate').value;
         if(title && date) {
           if(!appData.upcomingTests) appData.upcomingTests = [];
-          appData.upcomingTests.push({ id: Date.now(), title, date, done: false });
+          appData.upcomingTests.push({ id: Date.now(), title, date });
           document.getElementById('upcomingTestForm').reset();
           saveData();
           renderUpcomingTests();
@@ -844,22 +868,15 @@
         const mins = parseInt(document.getElementById('manualMins').value) || 0;
         const secs = parseInt(document.getElementById('manualSecs').value) || 0;
         const totalSecs = (hrs * 3600) + (mins * 60) + secs;
-        const manualWorks = document.getElementById('manualWorksInput').value.trim();
 
         if(date) {
           if(!appData.history[date]) {
-            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
+            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
-          
-          if(manualWorks) {
-            const worksArray = manualWorks.split(',').map(w => w.trim()).filter(w => w.length > 0);
-            appData.history[date].manualWorksList = worksArray;
-          }
-
           saveData();
           renderCalendarHistory();
-          alert('Study activity & manual works updated successfully!');
+          alert('Study activity time updated successfully!');
         }
       });
 
@@ -930,24 +947,285 @@
       });
     });
 
-    function refreshAllUI() {
-      document.getElementById('neetDate').value = appData.neetDate || '2026-05-07';
-      renderChapters();
-      renderPracticeTable();
-      checkSmartRevisionAlerts();
-      renderTodos();
-      renderTests();
-      renderUpcomingTests();
-      if(!scoreChartInstance) {
-        initScoreChart();
-      } else {
-        updateScoreChart();
-      }
-      renderCalendarHistory();
-      renderDiarySection();
+    // --- Upcoming Test Auto-Fill Feature ---
+    function selectUpcomingTestForAnalysis(testTitle) {
+      document.getElementById('testName').value = testTitle;
+      document.getElementById('testDate').value = getISTDateString();
+      document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('testName').focus();
     }
 
-    // --- IST Time & Clock helpers ---
+    function renderUpcomingTests() {
+      const container = document.getElementById('upcomingTestList');
+      if(!container) return;
+      container.innerHTML = '';
+      if(!appData.upcomingTests || appData.upcomingTests.length === 0) {
+        container.innerHTML = '<span class="text-muted small">No upcoming tests scheduled.</span>';
+        return;
+      }
+      appData.upcomingTests.forEach((ut) => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
+        div.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+            <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
+            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
+          </div>
+          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteUpcomingTest(id) {
+      appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
+      saveData();
+      renderUpcomingTests();
+    }
+
+    // --- Practice & PYQs Tracker Functions ---
+    function filterPracticeSubject(subj) {
+      currentPracticeSubject = subj;
+      const buttons = document.querySelectorAll('#practiceSubjectFilter button');
+      buttons.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderPracticeTable();
+    }
+
+    function renderPracticeTable() {
+      const tbody = document.getElementById('practiceTableBody');
+      if(!tbody) return;
+      tbody.innerHTML = '';
+
+      const filtered = appData.chapters.filter(c => c.subject === currentPracticeSubject);
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">No chapters added for ${currentPracticeSubject}. Add chapters in Dashboard first!</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(ch => {
+        if(!ch.resources) ch.resources = [];
+        
+        const resourcesHtml = ch.resources.map((resObj, rIdx) => `
+          <div class="input-group input-group-sm mb-1">
+            <div class="input-group-text bg-white">
+              <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
+            </div>
+            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name (e.g. Module, Errorless)...">
+            <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
+          </div>
+        `).join('');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold text-dark">${ch.name}</td>
+          <td>
+            ${resourcesHtml}
+            <button class="btn btn-xs btn-outline-primary py-1 px-2 mt-1 fw-semibold" style="font-size: 11px;" onclick="addResourcePrompt(${ch.id})"><i class="bi bi-plus-circle me-1"></i>Add Practice Resource</button>
+          </td>
+          <td>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" ${ch.pyqDone ? 'checked' : ''} onchange="togglePyq(${ch.id})">
+              <label class="form-check-label small fw-semibold ${ch.pyqDone ? 'text-success' : 'text-muted'}">${ch.pyqDone ? 'PYQs Completed' : 'Pending PYQs'}</label>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${ch.completed ? 'bg-success' : 'bg-secondary'}">${ch.completed ? 'Chapter Done' : 'In Progress'}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addResourcePrompt(chapterId) {
+      const resName = prompt("Enter Practice Resource Name (e.g. DC Pandey, NCERT at your fingertips):");
+      if(resName && resName.trim() !== '') {
+        const ch = appData.chapters.find(c => c.id === chapterId);
+        if(ch) {
+          if(!ch.resources) ch.resources = [];
+          ch.resources.push({ name: resName.trim(), done: false });
+          saveData();
+          renderPracticeTable();
+        }
+      }
+    }
+
+    function updateResourceName(chapterId, rIdx, val) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].name = val.trim();
+        saveData();
+      }
+    }
+
+    function toggleResourceDone(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources && ch.resources[rIdx]) {
+        ch.resources[rIdx].done = !ch.resources[rIdx].done;
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    function removeResource(chapterId, rIdx) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch && ch.resources) {
+        ch.resources.splice(rIdx, 1);
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    function togglePyq(chapterId) {
+      const ch = appData.chapters.find(c => c.id === chapterId);
+      if(ch) {
+        ch.pyqDone = !ch.pyqDone;
+        saveData();
+        renderPracticeTable();
+        recordTodayActivity();
+      }
+    }
+
+    // --- Diary Functions ---
+    function loadDiaryForDate(dateStr) {
+      if(appData.diaries && appData.diaries[dateStr]) {
+        const entry = appData.diaries[dateStr];
+        document.getElementById('diaryContent').value = entry.content;
+        selectedMoodData = { mood: entry.mood, color: entry.color };
+        document.querySelectorAll('.mood-btn').forEach(b => {
+          b.classList.remove('selected');
+          if(b.innerText.includes(entry.mood)) b.classList.add('selected');
+        });
+      } else {
+        document.getElementById('diaryContent').value = '';
+      }
+    }
+
+    function deleteDiaryEntry() {
+      const date = document.getElementById('diaryDate').value;
+      if(date && appData.diaries && appData.diaries[date]) {
+        const confirmDel = confirm(`Delete diary entry for ${date}?`);
+        if(confirmDel) {
+          delete appData.diaries[date];
+          document.getElementById('diaryContent').value = '';
+          saveData();
+          renderDiarySection();
+          alert('Diary entry deleted.');
+        }
+      } else {
+        alert('No diary entry found for this date.');
+      }
+    }
+
+    function editDiaryForDate(dateStr) {
+      document.getElementById('diaryDate').value = dateStr;
+      loadDiaryForDate(dateStr);
+      const diaryTabBtn = document.getElementById('diary-tab');
+      if(diaryTabBtn) diaryTabBtn.click();
+    }
+
+    function deleteActivityLog(dateStr) {
+      const confirmDel = confirm(`Delete activity log for ${dateStr}?`);
+      if(confirmDel && appData.history[dateStr]) {
+        delete appData.history[dateStr];
+        saveData();
+        renderCalendarHistory();
+      }
+    }
+
+    function renderBubbleGrid() {
+      const container = document.getElementById('bubbleGridContainer');
+      if(!container) return;
+      container.innerHTML = '';
+      for(let i = 1; i <= 180; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = i;
+        updateBubbleAppearance(btn, bubbleStates[i]);
+        btn.onclick = () => {
+          let st = bubbleStates[i] || 0;
+          st = (st + 1) % 4; 
+          if(st === 0) delete bubbleStates[i];
+          else bubbleStates[i] = st;
+          updateBubbleAppearance(btn, bubbleStates[i]);
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    function updateBubbleAppearance(btn, state) {
+      btn.className = 'btn bubble-btn';
+      if(state === 1) btn.classList.add('btn-danger', 'text-white');
+      else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
+      else if(state === 3) btn.classList.add('btn-primary', 'text-white');
+      else btn.classList.add('btn-outline-secondary', 'text-dark');
+    }
+
+    function resetBubbleGridSelections() {
+      bubbleStates = {};
+      renderBubbleGrid();
+    }
+
+    function selectMood(moodName, moodColor, btnElement) {
+      selectedMoodData = { mood: moodName, color: moodColor };
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      btnElement.classList.add('selected');
+    }
+
+    function renderDiarySection() {
+      const gridContainer = document.getElementById('moodCalendarGrid');
+      const listContainer = document.getElementById('diaryHistoryList');
+      if(!gridContainer || !listContainer) return;
+
+      gridContainer.innerHTML = '';
+      listContainer.innerHTML = '';
+
+      if(!appData.diaries || Object.keys(appData.diaries).length === 0) {
+        gridContainer.innerHTML = '<span class="text-muted small">No mood entries yet.</span>';
+        listContainer.innerHTML = '<p class="text-muted small text-center my-3">No diary entries found.</p>';
+        return;
+      }
+
+      const dates = Object.keys(appData.diaries).sort((a,b) => new Date(b) - new Date(a));
+      dates.forEach(dateStr => {
+        const entry = appData.diaries[dateStr];
+        const box = document.createElement('div');
+        box.title = `${dateStr}: ${entry.mood} (Click to Edit)`;
+        box.style.width = '32px';
+        box.style.height = '32px';
+        box.style.backgroundColor = entry.color;
+        box.style.borderRadius = '6px';
+        box.style.display = 'flex';
+        box.style.alignItems = 'center';
+        box.style.justifyContent = 'center';
+        box.style.color = '#fff';
+        box.style.fontWeight = 'bold';
+        box.style.fontSize = '11px';
+        box.style.cursor = 'pointer';
+        box.innerText = dateStr.slice(-2);
+        box.onclick = () => editDiaryForDate(dateStr);
+        gridContainer.appendChild(box);
+
+        const item = document.createElement('div');
+        item.className = 'card mb-2 p-3 shadow-sm border-0';
+        item.style.borderLeft = `4px solid ${entry.color}`;
+        item.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold text-dark small"><i class="bi bi-calendar-event me-1"></i>${dateStr}</span>
+            <div>
+              <span class="badge me-2" style="background-color: ${entry.color}">${entry.mood}</span>
+              <button class="btn btn-xs btn-outline-primary py-0 px-1" style="font-size:11px;" onclick="editDiaryForDate('${dateStr}')"><i class="bi bi-pencil"></i></button>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">${entry.content}</p>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
     function getISTDateString() {
       const now = new Date();
       const istDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -958,57 +1236,44 @@
     }
 
     function initISTClockAndDate() {
-      function updateClock() {
+      setInterval(() => {
         const now = new Date();
-        const optionsTime = { timeZone: "Asia/Kolkata", hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        const optionsDate = { timeZone: "Asia/Kolkata", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const dateOptions = { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         
-        const timeStr = new Intl.DateTimeFormat('en-US', optionsTime).format(now);
-        const dateStr = new Intl.DateTimeFormat('en-US', optionsDate).format(now);
+        const timeString = now.toLocaleTimeString('en-US', timeOptions) + ' IST';
+        const dateString = now.toLocaleDateString('en-US', dateOptions);
 
         const clockEl = document.getElementById('tabIstClockDisplay');
         const dateEl = document.getElementById('tabIstDateDisplay');
-        if(clockEl) clockEl.innerText = timeStr + " IST";
-        if(dateEl) dateEl.innerText = dateStr;
-      }
-      updateClock();
-      setInterval(updateClock, 1000);
+
+        if(clockEl) clockEl.innerText = timeString;
+        if(dateEl) dateEl.innerText = dateString;
+      }, 1000);
     }
 
     function initISTCountdown() {
-      function updateCountdown() {
-        const targetStr = appData.neetDate || '2026-05-07';
-        const targetDate = new Date(targetStr + "T00:00:00+05:30");
+      setInterval(() => {
         const now = new Date();
-        const diff = targetDate - now;
+        const istNowString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        const currentIST = new Date(istNowString).getTime();
 
-        if(diff <= 0) {
+        const targetStr = appData.neetDate + 'T00:00:00+05:30';
+        const targetDate = new Date(targetStr).getTime();
+        const diff = targetDate - currentIST;
+
+        if (diff > 0) {
+          document.getElementById('countdownDays').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+          document.getElementById('countdownHours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+          document.getElementById('countdownMinutes').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+          document.getElementById('countdownSeconds').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+        } else {
           document.getElementById('countdownDays').innerText = "00";
           document.getElementById('countdownHours').innerText = "00";
           document.getElementById('countdownMinutes').innerText = "00";
           document.getElementById('countdownSeconds').innerText = "00";
-          return;
         }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        document.getElementById('countdownDays').innerText = String(days).padStart(2, '0');
-        document.getElementById('countdownHours').innerText = String(hours).padStart(2, '0');
-        document.getElementById('countdownMinutes').innerText = String(minutes).padStart(2, '0');
-        document.getElementById('countdownSeconds').innerText = String(seconds).padStart(2, '0');
-      }
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }
-
-    function formatHMS(totalSecs) {
-      const h = Math.floor(totalSecs / 3600);
-      const m = Math.floor((totalSecs % 3600) / 60);
-      const s = totalSecs % 60;
-      return `${h}h ${m}m ${s}s`;
+      }, 1000);
     }
 
     function updateUserName() {
@@ -1021,6 +1286,16 @@
       }
     }
 
+    function simulateUpgradeToPro() {
+      const confirmUpgrade = confirm("Upgrade to Pro Student Membership? (Demo Mode)");
+      if(confirmUpgrade) {
+        appData.isPro = true;
+        saveData();
+        updateAuthUI();
+        alert('Congratulations! You are now a Pro Member.');
+      }
+    }
+
     function loadLocalStorageData() {
       const saved = localStorage.getItem('endorank_neet_data');
       if (saved) {
@@ -1028,19 +1303,13 @@
       }
     }
 
-    // --- True Cloud-First Sync (Saves to Cloudflare D1 Database) ---
-    let syncTimeout = null;
     function saveData() {
-      // Keep local cache updated for immediate offline responsiveness
       localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
-      
       if (currentUserEmail) {
-        // Debounce cloud sync by 2 seconds so typing/ticking doesn't spam the server
-        if(syncTimeout) clearTimeout(syncTimeout);
-        syncTimeout = setTimeout(syncToCloudflare, 2000);
+        syncToCloudflare();
       }
     }
 
@@ -1063,19 +1332,21 @@
         const res = await fetch(`${API_BASE_URL}/api/sync?email=${encodeURIComponent(currentUserEmail)}`);
         const data = await res.json();
         if (data && data.payload) {
-          // Cloud data found! Overwrite local state with true cloud data
           appData = data.payload;
-          localStorage.setItem('endorank_neet_data', JSON.stringify(appData));
-        } else {
-          // First time user logging in on this device - push current local data to cloud
-          syncToCloudflare();
+          document.getElementById('neetDate').value = appData.neetDate;
+          renderChapters();
+          renderPracticeTable();
+          checkSmartRevisionAlerts();
+          renderTodos();
+          renderTests();
+          renderUpcomingTests();
+          updateScoreChart();
+          renderCalendarHistory();
+          renderDiarySection();
+          updateAuthUI();
         }
-        refreshAllUI();
-        updateAuthUI();
       } catch (err) {
-        console.error('Cloudflare fetch error, falling back to local cache:', err);
-        loadLocalStorageData();
-        refreshAllUI();
+        console.error('Cloudflare fetch error:', err);
       }
     }
 
@@ -1093,15 +1364,14 @@
         appData.userName = payload.name || currentUserEmail.split('@')[0];
       }
       localStorage.setItem('endorank_user_email', currentUserEmail);
+      saveData();
       updateAuthUI();
-      // Fetch their exact cloud data immediately upon Google login
       fetchCloudData();
     }
 
     function logoutUser() {
       currentUserEmail = null;
       localStorage.removeItem('endorank_user_email');
-      localStorage.removeItem('endorank_neet_data');
       updateAuthUI();
       location.reload();
     }
@@ -1112,6 +1382,8 @@
       const loggedInView = document.getElementById('loggedInView');
       const userEmailDisplay = document.getElementById('userEmailDisplay');
       const userNameInput = document.getElementById('userNameInput');
+      const userPlanText = document.getElementById('userPlanText');
+      const upgradeSection = document.getElementById('upgradeSection');
 
       if (currentUserEmail) {
         const displayName = appData.userName || currentUserEmail.split('@')[0];
@@ -1120,6 +1392,14 @@
         loggedInView.classList.remove('d-none');
         userEmailDisplay.innerText = currentUserEmail;
         if(userNameInput) userNameInput.value = appData.userName || '';
+
+        if (appData.isPro) {
+          userPlanText.innerText = "⭐ Pro Member (Active)";
+          upgradeSection.classList.add('d-none');
+        } else {
+          userPlanText.innerText = "Free Plan";
+          upgradeSection.classList.remove('d-none');
+        }
       } else {
         authBtnText.innerText = 'Login';
         loggedOutView.classList.remove('d-none');
@@ -1131,80 +1411,38 @@
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
     function initTimers() {
-      document.getElementById('pomoToggleBtn').addEventListener('click', togglePomo);
+      document.getElementById('pomoStartBtn').addEventListener('click', startPomo);
+      document.getElementById('pomoPauseBtn').addEventListener('click', pausePomo);
       document.getElementById('pomoResetBtn').addEventListener('click', resetPomo);
-      document.getElementById('swToggleBtn').addEventListener('click', toggleSw);
+      document.getElementById('swStartBtn').addEventListener('click', startSw);
+      document.getElementById('swPauseBtn').addEventListener('click', pauseSw);
       document.getElementById('swLapBtn').addEventListener('click', lapSw);
       document.getElementById('swResetBtn').addEventListener('click', resetSw);
     }
 
-    function setPomoTime(mins) { 
-      pausePomo(); 
-      pomoTimeLeft = mins * 60; 
-      updatePomoDisplay(); 
-    }
-
+    function setPomoTime(mins) { pausePomo(); pomoTimeLeft = mins * 60; updatePomoDisplay(); }
     function updatePomoDisplay() {
       const formatted = `${String(Math.floor(pomoTimeLeft / 60)).padStart(2, '0')}:${String(pomoTimeLeft % 60).padStart(2, '0')}`;
       document.getElementById('pomoDisplay').innerText = formatted;
       document.getElementById('bigTimerDisplay').innerText = formatted;
     }
-
-    function togglePomo() {
-      if (pomoRunning) {
-        pausePomo();
-      } else {
-        if (swRunning) pauseSw();
-        startPomo();
-      }
-    }
-
     function startPomo() {
       if (pomoRunning) return;
       pomoRunning = true;
-      
-      const btn = document.getElementById('pomoToggleBtn');
-      btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
-      btn.className = 'btn btn-secondary me-1 px-3 fw-semibold';
-
-      const bigBtn = document.getElementById('bigPomoToggleBtn');
-      if(bigBtn) {
-        bigBtn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
-        bigBtn.className = 'btn btn-secondary btn-lg px-4 fw-semibold';
-      }
-
       pomoTimerId = setInterval(() => {
-        if (pomoTimeLeft > 0) { 
-          pomoTimeLeft--; 
-          updatePomoDisplay(); 
-          recordCombinedStudySeconds(1);
-        } else { 
-          pausePomo(); 
-          alert('Focus time complete!'); 
-        }
+        if (pomoTimeLeft > 0) { pomoTimeLeft--; updatePomoDisplay(); }
+        else { pausePomo(); alert('Focus time complete!'); recordStudySeconds(25 * 60); }
       }, 1000);
+      document.getElementById('pomoStartBtn').disabled = true;
+      document.getElementById('pomoPauseBtn').disabled = false;
     }
-
     function pausePomo() { 
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
-
-      const btn = document.getElementById('pomoToggleBtn');
-      btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
-      btn.className = 'btn btn-accent me-1 px-3 fw-semibold';
-
-      const bigBtn = document.getElementById('bigPomoToggleBtn');
-      if(bigBtn) {
-        bigBtn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
-        bigBtn.className = 'btn btn-accent btn-lg px-4 fw-semibold';
-      }
+      document.getElementById('pomoStartBtn').disabled = false;
+      document.getElementById('pomoPauseBtn').disabled = true;
     }
-
-    function resetPomo() { 
-      pausePomo(); 
-      pomoTimeLeft = 25 * 60; 
-      updatePomoDisplay(); 
-    }
+    function resetPomo() { pausePomo(); pomoTimeLeft = 25 * 60; updatePomoDisplay(); }
 
     function updateSwDisplay() {
       const hrs = String(Math.floor(swSeconds / 3600)).padStart(2, '0');
@@ -1214,73 +1452,32 @@
       document.getElementById('swDisplay').innerText = formatted;
       document.getElementById('bigSwDisplay').innerText = formatted;
     }
-
-    function toggleSw() {
-      if (swRunning) {
-        pauseSw();
-      } else {
-        if (pomoRunning) pausePomo();
-        startSw();
-      }
-    }
-
     function startSw() { 
       if (swRunning) return; 
       swRunning = true; 
-
-      const btn = document.getElementById('swToggleBtn');
-      btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
-      btn.className = 'btn btn-secondary me-1 px-2 fw-semibold';
-
-      const bigBtn = document.getElementById('bigSwToggleBtn');
-      if(bigBtn) {
-        bigBtn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
-        bigBtn.className = 'btn btn-secondary btn-lg px-4 fw-semibold';
-      }
-
+      swTimerId = setInterval(() => { swSeconds++; updateSwDisplay(); }, 1000); 
+      document.getElementById('swStartBtn').disabled = true;
+      document.getElementById('swPauseBtn').disabled = false;
       document.getElementById('swLapBtn').disabled = false;
-      const bigLapBtn = document.getElementById('bigSwLapBtn');
-      if(bigLapBtn) bigLapBtn.disabled = false;
-
-      swTimerId = setInterval(() => { 
-        swSeconds++; 
-        updateSwDisplay(); 
-        recordCombinedStudySeconds(1);
-      }, 1000); 
+      document.getElementById('bigSwStartBtn').disabled = true;
+      document.getElementById('bigSwPauseBtn').disabled = false;
     }
-
     function pauseSw() { 
       swRunning = false; 
       clearInterval(swTimerId); 
-
-      const btn = document.getElementById('swToggleBtn');
-      btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
-      btn.className = 'btn btn-accent me-1 px-2 fw-semibold';
-
-      const bigBtn = document.getElementById('bigSwToggleBtn');
-      if(bigBtn) {
-        bigBtn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
-        bigBtn.className = 'btn btn-accent btn-lg px-4 fw-semibold';
-      }
+      document.getElementById('swStartBtn').disabled = false;
+      document.getElementById('swPauseBtn').disabled = true;
+      document.getElementById('bigSwStartBtn').disabled = false;
+      document.getElementById('bigSwPauseBtn').disabled = true;
+      if(swSeconds > 10) recordStudySeconds(swSeconds);
     }
-
     function lapSw() {
       const li = document.createElement('li');
       li.className = 'list-group-item px-2 py-1 d-flex justify-content-between align-items-center small';
       li.innerHTML = `<span>Lap ${lapCount++}</span><span class="fw-bold">${document.getElementById('swDisplay').innerText}</span>`;
       document.getElementById('lapList').prepend(li);
     }
-
-    function resetSw() { 
-      pauseSw(); 
-      swSeconds = 0; 
-      lapCount = 1; 
-      document.getElementById('lapList').innerHTML = ''; 
-      updateSwDisplay(); 
-      document.getElementById('swLapBtn').disabled = true;
-      const bigLapBtn = document.getElementById('bigSwLapBtn');
-      if(bigLapBtn) bigLapBtn.disabled = true;
-    }
+    function resetSw() { pauseSw(); swSeconds = 0; lapCount = 1; document.getElementById('lapList').innerHTML = ''; updateSwDisplay(); }
 
     function switchBigTimerMode(mode) {
       if(mode === 'pomo') {
@@ -1296,8 +1493,8 @@
       }
     }
 
-    function toggleBigPomo() { togglePomo(); }
-    function toggleBigSw() { toggleSw(); }
+    function syncBigStart() { startPomo(); }
+    function syncBigPause() { pausePomo(); }
     function syncBigReset() { resetPomo(); }
 
     function filterSubject(subj) {
@@ -1540,7 +1737,7 @@
     function recordTodayActivity() {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
       const completedTaskNames = appData.todos.filter(t => t.completed).map(t => t.text);
       const completedChapterNames = appData.chapters.filter(c => c.completed).map(c => `${c.name} (${c.subject})`);
@@ -1563,10 +1760,10 @@
       renderCalendarHistory();
     }
 
-    function recordCombinedStudySeconds(secs) {
+    function recordStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
       }
       appData.history[today].totalSeconds += secs;
       saveData();
@@ -1588,7 +1785,10 @@
       dates.forEach(dateStr => {
         const dayData = appData.history[dateStr];
         const totalSecs = dayData.totalSeconds || 0;
-        const timeFormatted = formatHMS(totalSecs);
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+        const timeFormatted = `${h}h ${m}m ${s}s`;
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
@@ -1602,22 +1802,16 @@
           ? dayData.completedPracticeList.map(pr => `<span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-check2-square me-1"></i>${pr}</span>`).join('') 
           : '<span class="text-muted small">No practice resources completed</span>';
 
-        const manualWorksHtml = dayData.manualWorksList && dayData.manualWorksList.length > 0 
-          ? dayData.manualWorksList.map(work => `<span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-pencil-square me-1"></i>${work}</span>`).join('') 
-          : '';
-
         const div = document.createElement('div');
         div.className = 'card history-card mb-2 p-3 shadow-sm';
         div.innerHTML = `
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-dark"><i class="bi bi-calendar-check me-2 text-success"></i>${dateStr}</span>
             <div>
-              <span class="badge bg-primary me-2 font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
+              <span class="badge bg-primary me-2"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="small text-muted mb-1 fw-bold">Manual Added Works:</div>
-          <div class="mb-2">${manualWorksHtml || '<span class="text-muted small">None</span>'}</div>
           <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
           <div class="mb-2">${chaptersList}</div>
           <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs (Auto-Synced):</div>
@@ -1637,8 +1831,8 @@
 
     function renderPoster() {
       const dayOfMonth = new Date().getDate();
-      const posterIndex = (dayOfMonth - 1) * posters.length;
-      const currentPoster = posters[posterIndex % posters.length];
+      const posterIndex = (dayOfMonth - 1) % posters.length;
+      const currentPoster = posters[posterIndex];
 
       document.getElementById('posterImage').src = currentPoster.image;
       document.getElementById('posterTitle').innerText = currentPoster.title;
