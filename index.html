@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 5.0 (Dynamic IST Day-Night Sun/Moon Cycle) -->
+<!-- ENDORANK Dashboard - Version 5.1 (Fixed Text Visibility & Complete IST Day-Night Dynamic Cycle) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,11 +14,10 @@
       --bg-light: #f4f7f6;
       --card-bg: #ffffff;
       --accent: #0284c7;
-      --accent-hover: #0369a1;
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border-color: #e2e8f0;
-      --sky-glow: rgba(2, 132, 199, 0.05);
+      --table-hover: #f1f5f9;
     }
 
     body {
@@ -27,73 +26,84 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
       padding-bottom: 50px;
-      transition: background-color 1.5s ease, color 1.5s ease;
+      transition: background-color 1.2s ease, color 1.2s ease;
     }
 
-    /* ☀️ Dynamic Time-Based Themes (IST Cycle) */
+    /* ☀️🌙 IST Dynamic Theme Palettes (Guaranteed Text Contrast) */
     body.theme-sunrise {
       --bg-light: #fff7ed;
       --card-bg: #ffffff;
       --text-main: #431407;
       --text-muted: #9a3412;
-      --border-color: #ffedd5;
+      --border-color: #fed7aa;
       --accent: #ea580c;
+      --table-hover: #ffedd5;
     }
     body.theme-day {
       --bg-light: #f0f9ff;
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #475569;
-      --border-color: #e0f2fe;
+      --border-color: #bae6fd;
       --accent: #0284c7;
+      --table-hover: #e0f2fe;
     }
     body.theme-sunset {
       --bg-light: #fff1f2;
       --card-bg: #ffffff;
       --text-main: #4c0519;
       --text-muted: #9f1239;
-      --border-color: #ffe4e6;
+      --border-color: #fecdd3;
       --accent: #e11d48;
+      --table-hover: #ffe4e6;
     }
     body.theme-night {
-      --bg-light: #0f172a;
-      --card-bg: #1e293b;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: #334155;
+      --bg-light: #090d16;
+      --card-bg: #111827;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-color: #1f2937;
       --accent: #38bdf8;
+      --table-hover: #1e293b;
     }
 
+    /* Universal Element Adaptations */
     .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
+      background-color: var(--card-bg) !important;
+      border: 1px solid var(--border-color) !important;
       border-radius: 14px;
-      color: var(--text-main);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+      color: var(--text-main) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
       transition: background-color 0.8s ease, border-color 0.8s ease, color 0.8s ease;
     }
     .card:hover {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
     .card-header {
-      background-color: var(--card-bg);
-      border-bottom: 1px solid var(--border-color);
+      background-color: var(--card-bg) !important;
+      border-bottom: 1px solid var(--border-color) !important;
+      color: var(--text-main) !important;
       font-weight: 600;
-      color: var(--text-main);
       padding: 1.1rem 1.35rem;
       border-top-left-radius: 14px !important;
       border-top-right-radius: 14px !important;
-      transition: background-color 0.8s ease, color 0.8s ease;
+    }
+
+    h1, h2, h3, h4, h5, h6, label, span, p, div {
+      color: inherit;
+    }
+    .text-muted {
+      color: var(--text-muted) !important;
     }
 
     /* Header Celestial Animation Widget */
     .celestial-container {
       position: relative;
-      width: 70px;
-      height: 70px;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(240,240,240,0.1) 100%);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
@@ -102,9 +112,8 @@
       box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
     }
     .celestial-body {
-      font-size: 2.2rem;
+      font-size: 2rem;
       transition: transform 1s ease-out, filter 1s ease;
-      filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.6));
       user-select: none;
     }
 
@@ -128,8 +137,8 @@
     }
 
     .nav-pills .nav-link.active {
-      background: var(--accent);
-      color: #ffffff;
+      background: var(--accent) !important;
+      color: #ffffff !important;
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
     }
 
@@ -139,7 +148,6 @@
       border-radius: 8px;
       border: none;
     }
-
     .btn-accent:hover {
       opacity: 0.9;
       color: #ffffff;
@@ -174,7 +182,7 @@
 
     .todo-completed {
       text-decoration: line-through;
-      color: #dc2626 !important;
+      color: #ef4444 !important;
     }
 
     .lap-list {
@@ -183,17 +191,19 @@
     }
 
     .form-control, .form-select {
-      background-color: var(--card-bg);
-      border-color: var(--border-color);
-      color: var(--text-main);
+      background-color: var(--card-bg) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-main) !important;
       padding: 0.65rem 1rem;
       border-radius: 8px;
     }
     .form-control:focus, .form-select:focus {
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+    .form-control::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
     }
 
     .quote-box {
@@ -255,7 +265,7 @@
     .mood-btn.selected {
       border-color: var(--text-main);
       transform: scale(1.06);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
 
     .scheduled-test-card {
@@ -278,12 +288,23 @@
       box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
     }
 
-    .clickable-test-row {
-      cursor: pointer;
-      transition: background-color 0.2s;
+    .table {
+      color: var(--text-main) !important;
+      border-color: var(--border-color) !important;
     }
-    .clickable-test-row:hover {
-      background-color: rgba(2, 132, 199, 0.05) !important;
+    .table-light {
+      background-color: var(--card-bg) !important;
+      color: var(--text-main) !important;
+    }
+    .table-hover tbody tr:hover {
+      background-color: var(--table-hover) !important;
+      color: var(--text-main) !important;
+    }
+
+    .modal-content {
+      background-color: var(--card-bg) !important;
+      color: var(--text-main) !important;
+      border: 1px solid var(--border-color) !important;
     }
   </style>
 </head>
@@ -295,7 +316,6 @@
       
       <!-- 1. Left: Logo, Celestial Animation & Title -->
       <div class="d-flex align-items-center gap-3">
-        <!-- Sun/Moon Visual Widget -->
         <div class="celestial-container" id="celestialWidget" title="IST Day & Night Dynamic Sky Cycle">
           <span id="celestialIcon" class="celestial-body">☀️</span>
         </div>
@@ -304,7 +324,7 @@
           <div class="endorank-brand">ENDORANK</div>
           <div class="d-flex align-items-center gap-2">
             <h1 class="h6 mb-0 fw-bold">NEET Prep & Focus Dashboard</h1>
-            <span id="skyPhaseBadge" class="badge rounded-pill bg-warning text-dark small" style="font-size: 10px;">Day Time</span>
+            <span id="skyPhaseBadge" class="badge rounded-pill bg-info text-dark small" style="font-size: 10px;">Day Time</span>
           </div>
         </div>
       </div>
@@ -809,7 +829,7 @@
   <!-- 🎉 Highest Session Celebration Modal -->
   <div class="modal fade" id="streakCelebrationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-center p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+      <div class="modal-content text-center p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #111827 !important;">
         <div class="modal-body">
           <div class="display-1 mb-2">🔥🏆</div>
           <h3 class="fw-bold text-danger mb-2">New Highest Session Record!</h3>
@@ -1368,7 +1388,7 @@
         if(state === 1) btn.classList.add('btn-danger', 'text-white');
         else if(state === 2) btn.classList.add('btn-warning', 'text-dark');
         else if(state === 3) btn.classList.add('btn-primary', 'text-white');
-        else btn.classList.add('btn-outline-secondary', 'text-dark');
+        else btn.classList.add('btn-outline-secondary');
 
         container.appendChild(btn);
       }
@@ -2055,6 +2075,8 @@
     function lapSw() {
       const li = document.createElement('li');
       li.className = 'list-group-item px-2 py-1 d-flex justify-content-between align-items-center small';
+      li.style.background = 'transparent';
+      li.style.color = 'var(--text-main)';
       li.innerHTML = `<span>Lap ${lapCount++}</span><span class="fw-bold">${document.getElementById('swDisplay').innerText}</span>`;
       document.getElementById('lapList').prepend(li);
     }
@@ -2114,7 +2136,7 @@
         div.innerHTML = `
           <div class="form-check">
             <input class="form-check-input" type="checkbox" ${ch.completed ? 'checked' : ''} onchange="toggleChapter(${ch.id})">
-            <label class="form-check-label ${ch.completed ? 'todo-completed' : ''} fw-semibold">${ch.name} <span class="badge bg-light text-primary border ms-2">${ch.subject}</span></label>
+            <label class="form-check-label ${ch.completed ? 'todo-completed' : ''} fw-semibold">${ch.name} <span class="badge bg-light text-dark border ms-2">${ch.subject}</span></label>
           </div>
           <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteChapter(${ch.id})"><i class="bi bi-trash"></i></button>
         `;
@@ -2186,8 +2208,8 @@
       document.getElementById('todoCount').innerText = `${leftCount} Left`;
 
       if(appData.todos.length === 0) {
-        list.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks pending.</li>';
-        if(fullList) fullList.innerHTML = '<li class="list-group-item text-muted small text-center">No tasks added yet.</li>';
+        list.innerHTML = '<li class="list-group-item text-muted small text-center" style="background:transparent;">No tasks pending.</li>';
+        if(fullList) fullList.innerHTML = '<li class="list-group-item text-muted small text-center" style="background:transparent;">No tasks added yet.</li>';
         return;
       }
 
