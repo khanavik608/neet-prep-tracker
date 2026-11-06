@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.3 (Clean Practice Tracker, Manual Resources with Tick & Date-only Scheduler) -->
+<!-- ENDORANK Dashboard - Version 3.4 (Persistent Test Ticks, Clean Google Login & Manual Activity Editor with Full Sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -631,7 +631,7 @@
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
           <div class="mb-3">
-            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity (H:M:S)</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal" onclick="prepareManualActivityModal()"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity & Completed Items</button>
           </div>
           <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
@@ -653,17 +653,17 @@
 
   <!-- Manual Activity & Focus Log Edit Modal -->
   <div class="modal fade" id="editActivityModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity (H:M:S)</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Manually Add / Edit Study Activity & Completed Items</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="manualActivityForm">
             <div class="mb-3">
-              <label class="form-label small fw-bold text-muted">Date:</label>
-              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
+              <label class="form-label small fw-bold text-muted">Select Date:</label>
+              <input type="date" id="manualActivityDate" class="form-control form-control-sm" required onchange="loadManualActivityForDate(this.value)">
             </div>
             <div class="row g-2 mb-3">
               <div class="col-4">
@@ -679,7 +679,26 @@
                 <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
               </div>
             </div>
-            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
+
+            <hr class="my-3">
+            <h6 class="text-primary fw-bold small text-uppercase">Manually Add Completed Activities for this Date:</h6>
+            
+            <div class="mb-2">
+              <label class="form-label small fw-bold text-dark">Completed Chapters (comma-separated or item per line):</label>
+              <textarea id="manualChaptersInput" class="form-control form-control-sm" rows="2" placeholder="e.g. Kinematics (Physics), Mole Concept (Chemistry)"></textarea>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-bold text-dark">Completed Practice / PYQs Resources (comma-separated):</label>
+              <textarea id="manualPracticeInput" class="form-control form-control-sm" rows="2" placeholder="e.g. Kinematics - DC Pandey, Optics - NEET PYQs"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Completed To-Do Tasks (comma-separated):</label>
+              <textarea id="manualTasksInput" class="form-control form-control-sm" rows="2" placeholder="e.g. Revised Plant Physiology NCERT, Gave Mock Test 3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Complete Day Activity Log</button>
           </form>
         </div>
       </div>
@@ -705,15 +724,7 @@
           </div> 
 
           <div id="loggedInView" class="d-none">
-            <p class="text-muted small mb-2">Logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
-            
-            <div class="alert alert-info py-2 small mb-3" id="subStatusAlert">
-              Plan: <strong id="userPlanText">Free Plan</strong>
-            </div>
-
-            <div class="mb-3" id="upgradeSection">
-              <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="simulateUpgradeToPro()"><i class="bi bi-star-fill me-1"></i> Upgrade to Pro (Sync Enabled)</button>
-            </div>
+            <p class="text-muted small mb-3">Logged in as: <strong id="userEmailDisplay" class="text-dark"></strong></p>
 
             <div class="input-group input-group-sm mb-3">
               <input type="text" id="userNameInput" class="form-control" placeholder="Enter your display name">
@@ -735,12 +746,11 @@
     let appData = {
       userName: '',
       neetDate: '2026-05-07',
-      isPro: false,
-      chapters: [], // { id, name, subject, completed, completedDate, resources: [{name, done}], pyqDone }
+      chapters: [], 
       todos: [],
       tests: [],
-      upcomingTests: [],
-      history: {}, // { 'YYYY-MM-DD': { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] } }
+      upcomingTests: [], // { id, title, date, checked: true/false }
+      history: {}, 
       diaries: {}
     };
 
@@ -809,7 +819,7 @@
             subject, 
             completed: false, 
             completedDate: null,
-            resources: [], // clean manual resources list
+            resources: [], 
             pyqDone: false 
           });
           document.getElementById('chapterNameInput').value = '';
@@ -854,7 +864,7 @@
         const date = document.getElementById('upcomingDate').value;
         if(title && date) {
           if(!appData.upcomingTests) appData.upcomingTests = [];
-          appData.upcomingTests.push({ id: Date.now(), title, date });
+          appData.upcomingTests.push({ id: Date.now(), title, date, checked: false });
           document.getElementById('upcomingTestForm').reset();
           saveData();
           renderUpcomingTests();
@@ -869,14 +879,22 @@
         const secs = parseInt(document.getElementById('manualSecs').value) || 0;
         const totalSecs = (hrs * 3600) + (mins * 60) + secs;
 
+        const manualChaps = document.getElementById('manualChaptersInput').value.split(',').map(s => s.trim()).filter(Boolean);
+        const manualPracs = document.getElementById('manualPracticeInput').value.split(',').map(s => s.trim()).filter(Boolean);
+        const manualTasks = document.getElementById('manualTasksInput').value.split(',').map(s => s.trim()).filter(Boolean);
+
         if(date) {
           if(!appData.history[date]) {
             appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
+          appData.history[date].completedChaptersList = manualChaps;
+          appData.history[date].completedPracticeList = manualPracs;
+          appData.history[date].completedTasksList = manualTasks;
+
           saveData();
           renderCalendarHistory();
-          alert('Study activity time updated successfully!');
+          alert('Study activity time and manual logs updated successfully!');
         }
       });
 
@@ -947,12 +965,21 @@
       });
     });
 
-    // --- Upcoming Test Auto-Fill Feature ---
+    // --- Upcoming Test Feature with Persistent Ticks ---
     function selectUpcomingTestForAnalysis(testTitle) {
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
       document.getElementById('testName').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.getElementById('testName').focus();
+    }
+
+    function toggleUpcomingTestCheck(id) {
+      if(!appData.upcomingTests) return;
+      const ut = appData.upcomingTests.find(t => t.id === id);
+      if(ut) {
+        ut.checked = !ut.checked;
+        saveData();
+      }
     }
 
     function renderUpcomingTests() {
@@ -968,10 +995,13 @@
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
         div.innerHTML = `
           <div class="d-flex align-items-center gap-2">
-            <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
+            <input class="form-check-input mt-0" type="checkbox" ${ut.checked ? 'checked' : ''} onchange="toggleUpcomingTestCheck(${ut.id})" title="Check test completion">
             <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
           </div>
-          <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
+          <div>
+            <button class="btn btn-xs btn-outline-primary py-0 px-1 me-1" style="font-size:11px;" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')" title="Autofill in Test Analysis">Analyze</button>
+            <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})" title="Delete"><i class="bi bi-trash"></i></button>
+          </div>
         `;
         container.appendChild(div);
       });
@@ -981,6 +1011,34 @@
       appData.upcomingTests = appData.upcomingTests.filter(t => t.id !== id);
       saveData();
       renderUpcomingTests();
+    }
+
+    // --- Manual Activity Editor with Full Sync Support ---
+    function prepareManualActivityModal() {
+      const todayStr = getISTDateString();
+      document.getElementById('manualActivityDate').value = todayStr;
+      loadManualActivityForDate(todayStr);
+    }
+
+    function loadManualActivityForDate(dateStr) {
+      if(appData.history && appData.history[dateStr]) {
+        const hData = appData.history[dateStr];
+        const totalSecs = hData.totalSeconds || 0;
+        document.getElementById('manualHours').value = Math.floor(totalSecs / 3600);
+        document.getElementById('manualMins').value = Math.floor((totalSecs % 3600) / 60);
+        document.getElementById('manualSecs').value = totalSecs % 60;
+
+        document.getElementById('manualChaptersInput').value = hData.completedChaptersList ? hData.completedChaptersList.join(', ') : '';
+        document.getElementById('manualPracticeInput').value = hData.completedPracticeList ? hData.completedPracticeList.join(', ') : '';
+        document.getElementById('manualTasksInput').value = hData.completedTasksList ? hData.completedTasksList.join(', ') : '';
+      } else {
+        document.getElementById('manualHours').value = 0;
+        document.getElementById('manualMins').value = 0;
+        document.getElementById('manualSecs').value = 0;
+        document.getElementById('manualChaptersInput').value = '';
+        document.getElementById('manualPracticeInput').value = '';
+        document.getElementById('manualTasksInput').value = '';
+      }
     }
 
     // --- Practice & PYQs Tracker Functions ---
@@ -1012,7 +1070,7 @@
             <div class="input-group-text bg-white">
               <input class="form-check-input mt-0" type="checkbox" ${resObj.done ? 'checked' : ''} onchange="toggleResourceDone(${ch.id}, ${rIdx})" title="Mark resource practice completed">
             </div>
-            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name (e.g. Module, Errorless)...">
+            <input type="text" class="form-control form-control-sm ${resObj.done ? 'text-success fw-bold text-decoration-line-through' : ''}" value="${resObj.name}" onchange="updateResourceName(${ch.id}, ${rIdx}, this.value)" placeholder="Enter resource name...">
             <button class="btn btn-outline-danger" type="button" onclick="removeResource(${ch.id}, ${rIdx})" title="Delete Resource"><i class="bi bi-trash"></i></button>
           </div>
         `).join('');
@@ -1286,16 +1344,6 @@
       }
     }
 
-    function simulateUpgradeToPro() {
-      const confirmUpgrade = confirm("Upgrade to Pro Student Membership? (Demo Mode)");
-      if(confirmUpgrade) {
-        appData.isPro = true;
-        saveData();
-        updateAuthUI();
-        alert('Congratulations! You are now a Pro Member.');
-      }
-    }
-
     function loadLocalStorageData() {
       const saved = localStorage.getItem('endorank_neet_data');
       if (saved) {
@@ -1382,8 +1430,6 @@
       const loggedInView = document.getElementById('loggedInView');
       const userEmailDisplay = document.getElementById('userEmailDisplay');
       const userNameInput = document.getElementById('userNameInput');
-      const userPlanText = document.getElementById('userPlanText');
-      const upgradeSection = document.getElementById('upgradeSection');
 
       if (currentUserEmail) {
         const displayName = appData.userName || currentUserEmail.split('@')[0];
@@ -1392,14 +1438,6 @@
         loggedInView.classList.remove('d-none');
         userEmailDisplay.innerText = currentUserEmail;
         if(userNameInput) userNameInput.value = appData.userName || '';
-
-        if (appData.isPro) {
-          userPlanText.innerText = "⭐ Pro Member (Active)";
-          upgradeSection.classList.add('d-none');
-        } else {
-          userPlanText.innerText = "Free Plan";
-          upgradeSection.classList.remove('d-none');
-        }
       } else {
         authBtnText.innerText = 'Login';
         loggedOutView.classList.remove('d-none');
@@ -1754,9 +1792,16 @@
         }
       });
 
-      appData.history[today].completedTasksList = completedTaskNames;
-      appData.history[today].completedChaptersList = completedChapterNames;
-      appData.history[today].completedPracticeList = completedPracticeNames;
+      // Keep manually added items if any, merge with auto synced
+      const existingTasks = appData.history[today].completedTasksList || [];
+      const existingChaps = appData.history[today].completedChaptersList || [];
+      const existingPracs = appData.history[today].completedPracticeList || [];
+
+      // Combine unique
+      appData.history[today].completedTasksList = Array.from(new Set([...existingTasks, ...completedTaskNames]));
+      appData.history[today].completedChaptersList = Array.from(new Set([...existingChaps, ...completedChapterNames]));
+      appData.history[today].completedPracticeList = Array.from(new Set([...existingPracs, ...completedPracticeNames]));
+
       renderCalendarHistory();
     }
 
@@ -1792,15 +1837,15 @@
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
-          : '<span class="text-muted small">No tasks completed</span>';
+          : '<span class="text-muted small">No tasks logged</span>';
 
         const chaptersList = dayData.completedChaptersList && dayData.completedChaptersList.length > 0 
           ? dayData.completedChaptersList.map(ch => `<span class="badge bg-success text-white me-1 mb-1"><i class="bi bi-check-circle me-1"></i>${ch}</span>`).join('') 
-          : '<span class="text-muted small">No chapters completed</span>';
+          : '<span class="text-muted small">No chapters logged</span>';
 
         const practiceList = dayData.completedPracticeList && dayData.completedPracticeList.length > 0 
           ? dayData.completedPracticeList.map(pr => `<span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-check2-square me-1"></i>${pr}</span>`).join('') 
-          : '<span class="text-muted small">No practice resources completed</span>';
+          : '<span class="text-muted small">No practice resources logged</span>';
 
         const div = document.createElement('div');
         div.className = 'card history-card mb-2 p-3 shadow-sm';
@@ -1812,11 +1857,11 @@
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Chapters:</div>
           <div class="mb-2">${chaptersList}</div>
-          <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs:</div>
           <div class="mb-2">${practiceList}</div>
-          <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks (Auto-Synced):</div>
+          <div class="small text-muted mb-1 fw-bold">Completed To-Do Tasks:</div>
           <div>${tasksList}</div>
         `;
         container.appendChild(div);
