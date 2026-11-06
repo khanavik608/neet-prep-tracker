@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.8 (Streak Rules Modal Added) -->
+<!-- ENDORANK Dashboard - Version 4.9 (Refined Layout & Modern UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
-      --bg-light: #f8fafc;
+      --bg-light: #f4f7f6;
       --card-bg: #ffffff;
       --accent: #0284c7;
       --accent-hover: #0369a1;
@@ -31,9 +31,13 @@
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 14px;
       color: var(--text-main);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
     }
 
     .card-header {
@@ -41,7 +45,9 @@
       border-bottom: 1px solid var(--border-color);
       font-weight: 600;
       color: var(--text-main);
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.35rem;
+      border-top-left-radius: 14px !important;
+      border-top-right-radius: 14px !important;
     }
 
     .endorank-brand {
@@ -51,26 +57,28 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       font-family: 'Segoe UI Black', sans-serif;
     }
 
     .nav-pills .nav-link {
       color: var(--text-muted);
       font-weight: 600;
-      border-radius: 8px;
-      padding: 8px 16px;
-      transition: all 0.2s ease;
+      border-radius: 10px;
+      padding: 10px 18px;
+      transition: all 0.25s ease;
     }
 
     .nav-pills .nav-link.active {
-      background-color: var(--accent);
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
       color: #ffffff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
     }
 
     .btn-accent {
       background-color: var(--accent);
       color: #ffffff;
+      border-radius: 8px;
     }
 
     .btn-accent:hover {
@@ -97,11 +105,12 @@
     .progress {
       background-color: #e2e8f0;
       height: 10px;
-      border-radius: 5px;
+      border-radius: 6px;
     }
 
     .progress-bar {
-      background-color: #16a34a;
+      background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
+      border-radius: 6px;
     }
 
     .todo-completed {
@@ -118,12 +127,18 @@
       background-color: #ffffff;
       border-color: var(--border-color);
       color: var(--text-main);
-      padding: 0.6rem 0.9rem;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
     }
 
     .quote-box {
-      border-left: 4px solid var(--accent);
-      background-color: #f0f9ff;
+      border-left: 5px solid var(--accent);
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-radius: 12px;
     }
 
     .poster-img {
@@ -134,13 +149,14 @@
     }
 
     .history-card {
-      border-left: 4px solid #16a34a;
+      border-left: 5px solid #16a34a;
       background: #ffffff;
     }
 
     .revision-alert-box {
-      background-color: #fff7ed;
-      border-left: 4px solid #f97316;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border-left: 5px solid #f97316;
+      border-radius: 12px;
     }
 
     .bubble-grid-box {
@@ -148,8 +164,8 @@
       overflow-y: auto;
       border: 1px solid var(--border-color);
       background: #f8fafc;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 12px;
+      border-radius: 10px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
       gap: 6px;
@@ -166,37 +182,39 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 6px !important;
+      border-radius: 8px !important;
       line-height: 1 !important;
     }
 
     .mood-btn {
       border: 2px solid transparent;
       transition: all 0.2s;
+      border-radius: 10px;
     }
     .mood-btn.selected {
       border-color: #0f172a;
-      transform: scale(1.08);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: scale(1.06);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
     }
 
     .scheduled-test-card {
-      border-left: 4px solid var(--accent);
+      border-left: 5px solid var(--accent);
       background: #f0f9ff;
     }
 
     .streak-widget-box {
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       border: 1px solid #f59e0b;
-      border-radius: 10px;
-      padding: 8px 12px;
+      border-radius: 12px;
+      padding: 8px 14px;
       color: #92400e;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .streak-widget-box:hover {
-      transform: scale(1.02);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
     }
 
     .clickable-test-row {
@@ -211,8 +229,10 @@
 <body>
 
   <div class="container py-4">
-    <!-- Header -->
-    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+    <!-- Header: Perfectly arranged according to your instruction -->
+    <header class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+      
+      <!-- 1. Left: Logo & Subtitle -->
       <div class="d-flex align-items-center gap-3">
         <div class="endorank-brand">ENDORANK</div>
         <div class="border-start ps-3">
@@ -221,9 +241,11 @@
         </div>
       </div>
 
+      <!-- 2. Right Side Group: Focus Metrics -> Exam Target -> Login -->
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Clickable Streak & Highest Session Widget -->
-        <div class="streak-widget-box d-flex align-items-center justify-content-between gap-3 shadow-sm" onclick="openStreakRulesModal()" title="Click to view Streak Rules">
+        
+        <!-- Focus Metrics Widget (Clickable for Rules) -->
+        <div class="streak-widget-box d-flex align-items-center justify-content-between gap-3 shadow-sm" onclick="openStreakRulesModal()" title="Click to view Streak & Highest Session Rules">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-fire text-danger fs-5"></i>
             <div>
@@ -234,14 +256,17 @@
           <button class="btn btn-xs btn-outline-danger border-0 py-0 px-1" style="font-size: 12px;" onclick="event.stopPropagation(); resetHighestSessionRecord()" title="Delete / Reset Highest Session Record"><i class="bi bi-trash-fill"></i></button>
         </div>
 
-        <div id="authSection">
-          <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
+        <!-- Exam Target Date Picker (Placed right next to Focus Metrics) -->
+        <div class="d-flex align-items-center gap-2 bg-white p-2 rounded border shadow-sm">
+          <label for="neetDate" class="small text-nowrap fw-bold text-dark mb-0"><i class="bi bi-calendar-event text-primary me-1"></i>Exam Target:</label>
+          <input type="date" id="neetDate" class="form-control form-control-sm text-dark fw-semibold border-0 bg-light py-1 px-2" style="width: auto;">
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-          <label for="neetDate" class="small text-nowrap fw-bold text-dark"><i class="bi bi-calendar-event me-1"></i>Exam Target (IST):</label>
-          <input type="date" id="neetDate" class="form-control form-control-sm text-dark fw-semibold" style="width: auto;">
+        <!-- Login Section (Strictly on the extreme right) -->
+        <div id="authSection">
+          <button class="btn btn-sm btn-outline-primary fw-semibold px-3 py-2 shadow-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-person-circle me-1"></i><span id="authButtonText">Login</span></button>
         </div>
+
       </div>
     </header>
 
@@ -281,7 +306,7 @@
             <small id="quoteAuthor" class="text-muted fw-bold">— Dr. A.P.J. Abdul Kalam</small>
           </div>
         </div>
-        <button class="btn btn-sm btn-outline-primary text-nowrap ms-auto fw-semibold" onclick="getRandomQuote()"><i class="bi bi-shuffle me-1"></i>New Quote</button>
+        <button class="btn btn-sm btn-outline-primary text-nowrap ms-auto fw-semibold rounded-pill px-3" onclick="getRandomQuote()"><i class="bi bi-shuffle me-1"></i>New Quote</button>
       </div>
     </div>
 
@@ -1159,7 +1184,6 @@
       updateStreakUI();
     }
 
-    // Opens Streak & Highest Session Rules Modal
     function openStreakRulesModal() {
       const rulesModal = new bootstrap.Modal(document.getElementById('streakRulesModal'));
       rulesModal.show();
