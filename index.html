@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.6 (Strict Single-Session Peak Focus Fix) -->
+<!-- ENDORANK Dashboard - Version 4.7 (Highest Session Rename & Delete Option) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -217,13 +217,16 @@
       </div>
 
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <!-- Streak Badges Widget -->
-        <div class="streak-widget-box d-flex align-items-center gap-2 shadow-sm">
-          <i class="bi bi-fire text-danger fs-5"></i>
-          <div>
-            <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Focus Metrics</span>
-            <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Peak Single Session: <b>0h 0m 0s</b></span>
+        <!-- Streak & Highest Session Widget -->
+        <div class="streak-widget-box d-flex align-items-center justify-content-between gap-3 shadow-sm">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-fire text-danger fs-5"></i>
+            <div>
+              <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Focus Metrics</span>
+              <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Highest Session: <b>0h 0m 0s</b></span>
+            </div>
           </div>
+          <button class="btn btn-xs btn-outline-danger border-0 py-0 px-1" style="font-size: 12px;" onclick="resetHighestSessionRecord()" title="Delete / Reset Highest Session Record"><i class="bi bi-trash-fill"></i></button>
         </div>
 
         <div id="authSection">
@@ -680,14 +683,14 @@
     </div>
   </div>
 
-  <!-- 🎉 Peak Single-Session Celebration Modal -->
+  <!-- 🎉 Highest Session Celebration Modal -->
   <div class="modal fade" id="streakCelebrationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
         <div class="modal-body">
           <div class="display-1 mb-2">🔥🏆</div>
-          <h3 class="fw-bold text-danger mb-2">New Peak Single-Session Record!</h3>
-          <p id="streakCelebText" class="text-dark fs-5 fw-semibold mb-3">Congratulations! You broke your previous highest continuous study session record!</p>
+          <h3 class="fw-bold text-danger mb-2">New Highest Session Record!</h3>
+          <p id="streakCelebText" class="text-dark fs-5 fw-semibold mb-3">Congratulations! You broke your previous longest continuous study session record!</p>
           <p class="text-muted small mb-4">Incredible focus! Building a future Doctor takes consistency and deep work like this. Keep crushing it! 🩺✨</p>
           <button type="button" class="btn btn-danger btn-lg px-5 fw-bold shadow-sm" data-bs-dismiss="modal">Let's Crush Today!</button>
         </div>
@@ -1082,7 +1085,6 @@
       });
     });
 
-    // Evaluates Day Streak Only without popping anything on page load
     function evaluateDayStreakOnly() {
       const todayStr = getISTDateString();
       if (!appData.streakData) {
@@ -1127,7 +1129,17 @@
       updateStreakUI();
     }
 
-    // Checks if a newly finished single session duration breaks the peak single session record
+    // Option to delete / reset Highest Session record
+    function resetHighestSessionRecord() {
+      if(confirm("Are you sure you want to delete / reset your Highest Session record?")) {
+        if(!appData.streakData) appData.streakData = {};
+        appData.streakData.bestSingleSessionRecord = 0;
+        saveData();
+        updateStreakUI();
+        alert("Highest Session record has been reset successfully!");
+      }
+    }
+
     function checkSingleSessionRecord(sessionSecs) {
       if (!appData.streakData) {
         appData.streakData = { dayStreak: 0, bestSingleSessionRecord: 0, lastActiveDate: '' };
@@ -1140,9 +1152,8 @@
         saveDataWithoutRecurse();
         updateStreakUI();
 
-        // Trigger Celebration Pop-up strictly when single session record is broken!
         const peakFormatted = formatSecondsToHoursMins(sessionSecs);
-        document.getElementById('streakCelebText').innerText = `Congratulations! You just finished a continuous study session of ${peakFormatted} and broke your previous longest single-session record!`;
+        document.getElementById('streakCelebText').innerText = `Congratulations! You just finished a continuous study session of ${peakFormatted} and broke your previous highest session record!`;
         
         const celebModal = new bootstrap.Modal(document.getElementById('streakCelebrationModal'));
         celebModal.show();
@@ -1161,7 +1172,7 @@
     function updateStreakUI() {
       if(!appData.streakData) return;
       const peakFormatted = formatSecondsToHoursMins(appData.streakData.bestSingleSessionRecord || 0);
-      document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Peak Single Session: <b>${peakFormatted}</b>`;
+      document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Highest Session: <b>${peakFormatted}</b>`;
     }
 
     function openTestReviewModal(testId) {
@@ -1743,10 +1754,10 @@
           pomoTimeLeft--; 
           updatePomoDisplay(); 
         } else { 
-          pausePomo(true); // Pomodoro finished naturally
+          pausePomo(true); 
           alert('Focus time complete!'); 
           recordStudySeconds(25 * 60); 
-          checkSingleSessionRecord(25 * 60); // Check single session record on completion
+          checkSingleSessionRecord(25 * 60); 
         }
       }, 1000);
       
@@ -1829,7 +1840,6 @@
       updateSwToggleUI(false);
     }
 
-    // Save & Reset Function for Stopwatch (Triggers celebration ONLY when single session record is broken and user clicks Save)
     function saveAndResetSw() {
       if (swSeconds > 0) {
         if (swRunning) {
@@ -1838,8 +1848,8 @@
           updateSwToggleUI(false);
         }
         const sessionTime = swSeconds;
-        recordStudySeconds(sessionTime); // Adds to daily history log
-        checkSingleSessionRecord(sessionTime); // Checks if this single continuous block beat the record
+        recordStudySeconds(sessionTime); 
+        checkSingleSessionRecord(sessionTime); 
         alert(`Successfully saved continuous session of ${formatSecondsToHoursMins(sessionTime)} to your focus log!`);
       }
       swSeconds = 0;
