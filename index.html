@@ -375,6 +375,17 @@
 
       <!-- Tab: NEET Arena & Real Rooms -->
       <div class="tab-pane fade" id="tab-arena" role="tabpanel">
+        <!-- Live Active Study Counter Banner -->
+        <div class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center justify-content-between border-0 shadow-sm" style="background-color: #f0f9ff; border-left: 4px solid #0284c7 !important;">
+          <div class="d-flex align-items-center gap-2">
+            <span class="spinner-grow spinner-grow-sm text-primary" role="status"></span>
+            <span class="small fw-semibold text-dark">
+              🔥 <strong id="activeStudyCountDisplay" class="text-primary fs-6">0</strong> Students abhi Pomodoro ya Stopwatch se live padh rahe hain!
+            </span>
+          </div>
+          <small class="text-muted" style="font-size: 11px;">Live Sync</small>
+        </div>
+
         <div class="row g-4">
           <!-- Left Column: NEET Arena Leaderboard -->
           <div class="col-lg-7">
@@ -693,7 +704,7 @@
             <span id="totalLoggedDays" class="badge bg-secondary">0 Days Logged</span>
           </div>
           <div class="mb-3">
-            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity (H:M:S)</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal"><i class="bi bi-plus-circle me-1"></i> Manually Add / Edit Study Activity & Works</button>
           </div>
           <div id="calendarHistoryContainer" style="max-height: 450px; overflow-y: auto;" class="pe-2"></div>
         </div>
@@ -718,13 +729,13 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Add or Edit Study Activity (H:M:S)</h5>
+          <h5 class="modal-title fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Manually Add / Edit Study Activity & Works</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="manualActivityForm">
             <div class="mb-3">
-              <label class="form-label small fw-bold text-muted">Date:</label>
+              <label class="form-label small fw-bold text-muted">Select Date:</label>
               <input type="date" id="manualActivityDate" class="form-control form-control-sm" required>
             </div>
             <div class="row g-2 mb-3">
@@ -741,7 +752,11 @@
                 <input type="number" id="manualSecs" class="form-control form-control-sm" placeholder="0" min="0" max="59" value="0">
               </div>
             </div>
-            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Activity Log</button>
+            <div class="mb-3">
+              <label for="manualWorksInput" class="form-label small fw-bold text-muted">Manual Works / Completed Tasks (Comma separated):</label>
+              <input type="text" id="manualWorksInput" class="form-control form-control-sm" placeholder="e.g. Plant Physiology revision, 90 questions solved">
+            </div>
+            <button type="submit" class="btn btn-accent w-100"><i class="bi bi-check-circle me-1"></i> Save Manual Log</button>
           </form>
         </div>
       </div>
@@ -833,6 +848,7 @@
       getRandomQuote();
       loadLeaderboard();
       checkActiveRoomOnLoad();
+      fetchActiveStudyingCount();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
       if (savedEmail) {
@@ -908,7 +924,7 @@
         const date = document.getElementById('upcomingDate').value;
         if(title && date) {
           if(!appData.upcomingTests) appData.upcomingTests = [];
-          appData.upcomingTests.push({ id: Date.now(), title, date });
+          appData.upcomingTests.push({ id: Date.now(), title, date, done: false });
           document.getElementById('upcomingTestForm').reset();
           saveData();
           renderUpcomingTests();
@@ -922,15 +938,22 @@
         const mins = parseInt(document.getElementById('manualMins').value) || 0;
         const secs = parseInt(document.getElementById('manualSecs').value) || 0;
         const totalSecs = (hrs * 3600) + (mins * 60) + secs;
+        const manualWorks = document.getElementById('manualWorksInput').value.trim();
 
         if(date) {
           if(!appData.history[date]) {
-            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
+            appData.history[date] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
           }
           appData.history[date].totalSeconds = totalSecs;
+          
+          if(manualWorks) {
+            const worksArray = manualWorks.split(',').map(w => w.trim()).filter(w => w.length > 0);
+            appData.history[date].manualWorksList = worksArray;
+          }
+
           saveData();
           renderCalendarHistory();
-          alert('Study activity time updated successfully!');
+          alert('Study activity & manual works updated successfully!');
         }
       });
 
@@ -1009,6 +1032,30 @@
       return `${h}h ${m}m ${s}s`;
     }
 
+    // --- Live Study Counter (Active Pomodoro / Stopwatch users) ---
+    async function fetchActiveStudyingCount() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/study/active-count`);
+        const data = await res.json();
+        const countEl = document.getElementById("activeStudyCountDisplay");
+        if(countEl && data && typeof data.activeCount !== 'undefined') {
+          countEl.innerText = data.activeCount;
+        }
+      } catch(e) {}
+    }
+    setInterval(fetchActiveStudyingCount, 10000);
+
+    function sendStudyHeartbeat(isStudying, timerType) {
+      if(currentUserEmail || appData.userName) {
+        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+        fetch(`${API_BASE_URL}/api/study/heartbeat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userName: myName, email: currentUserEmail || 'guest', isStudying, type: timerType })
+        }).catch(()=>{});
+      }
+    }
+
     // --- NEET Arena Leaderboard & Real Rooms (Backend Sync) ---
     async function loadLeaderboard() {
       const tbody = document.getElementById('globalLeaderboardBody');
@@ -1023,7 +1070,7 @@
           tbody.innerHTML = '';
           data.forEach((user, idx) => {
             const totalSecs = user.totalSeconds || 0;
-            const timeStr = formatHMS(totalSecs); // H:M:S Format
+            const timeStr = formatHMS(totalSecs);
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -1048,7 +1095,7 @@
       
       const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'You (Aspirant)');
       const totalSecsToday = getTotalCombinedTodaySeconds();
-      const timeStr = formatHMS(totalSecsToday); // H:M:S Format
+      const timeStr = formatHMS(totalSecsToday);
 
       tbody.innerHTML = `
         <tr>
@@ -1068,7 +1115,7 @@
       return 0; 
     }
 
-    // --- Real Student Rooms API Functions ---
+    // --- Real Student Rooms API Functions (With Admin & Kick Feature) ---
     async function createPersonalRoom() {
       const roomName = document.getElementById('newRoomNameInput').value.trim();
       if(!roomName) {
@@ -1101,7 +1148,8 @@
     function localRoomSave(roomName, roomCode) {
       localStorage.setItem('endorank_active_room', JSON.stringify({ name: roomName, code: roomCode }));
       document.getElementById('newRoomNameInput').value = '';
-      showActiveRoomUI(roomName, roomCode, [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }]);
+      const myName = appData.userName || 'You';
+      showActiveRoomUI(roomName, roomCode, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
       alert(`Room "${roomName}" created successfully! Code: ${roomCode}`);
     }
 
@@ -1131,16 +1179,15 @@
       } catch(e) {
         localStorage.setItem('endorank_active_room', JSON.stringify({ name: 'Private Room', code }));
         document.getElementById('joinRoomCodeInput').value = '';
-        showActiveRoomUI('Private Room', code, [{ name: myName, time: getTotalCombinedTodaySeconds() }]);
+        showActiveRoomUI('Private Room', code, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
         alert('Joined room successfully!');
       }
     }
 
     async function fetchRoomMembers(roomCode, roomName) {
       try {
-        // Also update backend with our latest ticking seconds on every poll sync heartbeat
+        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
         if(currentUserEmail || appData.userName) {
-          const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
           await fetch(`${API_BASE_URL}/api/room/join`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1150,17 +1197,41 @@
 
         const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
         const data = await res.json();
-        const members = data.members || [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }];
-        showActiveRoomUI(roomName, roomCode, members);
+        const members = data.members || [{ name: myName, time: getTotalCombinedTodaySeconds() }];
+        const adminName = data.adminName || members[0]?.name;
+
+        showActiveRoomUI(roomName, roomCode, members, adminName, myName);
       } catch(e) {
-        showActiveRoomUI(roomName, roomCode, [{ name: appData.userName || 'You', time: getTotalCombinedTodaySeconds() }]);
+        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+        showActiveRoomUI(roomName, roomCode, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
+      }
+    }
+
+    async function kickRoomMember(roomCode, memberNameToKick) {
+      if(!confirm(`Kya aap ${memberNameToKick} ko is room se remove karna chahte hain?`)) return;
+
+      try {
+        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
+        const res = await fetch(`${API_BASE_URL}/api/room/kick`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode, adminName: myName, memberToKick: memberNameToKick })
+        });
+        const data = await res.json();
+        if(res.ok || data.success) {
+          alert(`${memberNameToKick} ko room se remove kar diya gaya hai.`);
+          fetchRoomMembers(roomCode, document.getElementById('activeRoomTitle').innerText);
+        } else {
+          alert(data.error || 'Only room admin can kick members.');
+        }
+      } catch(err) {
+        alert('Failed to kick member.');
       }
     }
 
     function startRoomAutoSync(roomCode, roomName) {
       if(roomPollInterval) clearInterval(roomPollInterval);
       fetchRoomMembers(roomCode, roomName);
-      // Auto poll every 3 seconds to instantly popup/disappear members and update seconds live
       roomPollInterval = setInterval(() => {
         fetchRoomMembers(roomCode, roomName);
       }, 3000);
@@ -1195,7 +1266,7 @@
       document.getElementById('activeRoomCard').classList.add('d-none');
     }
 
-    function showActiveRoomUI(roomName, roomCode, members) {
+    function showActiveRoomUI(roomName, roomCode, members, adminName, currentUserName) {
       const card = document.getElementById('activeRoomCard');
       card.classList.remove('d-none');
       document.getElementById('activeRoomTitle').innerText = roomName;
@@ -1204,24 +1275,43 @@
       const membersList = document.getElementById('roomMembersList');
       membersList.innerHTML = '';
 
+      const isAdmin = (currentUserName === adminName);
+
       if(!members || members.length === 0) {
         membersList.innerHTML = '<span class="text-muted">No members found in this room.</span>';
         return;
       }
 
       members.forEach(m => {
-        const timeFormatted = formatHMS(m.time || 0); // H:M:S Format for Room Members
+        const timeFormatted = formatHMS(m.time || 0);
+        const isSelf = (m.name === currentUserName);
         const div = document.createElement('div');
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border';
+        
+        let actionBtn = '';
+        if(isAdmin && !isSelf) {
+          actionBtn = `<button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:11px;" onclick="kickRoomMember('${roomCode}', '${m.name}')">Remove</button>`;
+        } else if(isSelf) {
+          actionBtn = `<span class="badge bg-light text-primary border">You</span>`;
+        } else if(m.name === adminName) {
+          actionBtn = `<span class="badge bg-warning text-dark">Admin 👑</span>`;
+        }
+
         div.innerHTML = `
-          <span>👤 ${m.name}</span>
-          <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
+          <div>
+            <span>👤 ${m.name}</span>
+            ${m.name === adminName ? '<span class="ms-1 badge bg-warning text-dark" style="font-size:9px;">Admin</span>' : ''}
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary font-monospace"><i class="bi bi-clock me-1"></i>${timeFormatted}</span>
+            ${actionBtn}
+          </div>
         `;
         membersList.appendChild(div);
       });
     }
 
-    // --- Upcoming Test Auto-Fill Feature ---
+    // --- Upcoming Test Auto-Fill & Persistent Checkbox State ---
     function selectUpcomingTestForAnalysis(testTitle) {
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
@@ -1242,13 +1332,24 @@
         div.className = 'd-flex justify-content-between align-items-center bg-white p-2 rounded mb-1 border small';
         div.innerHTML = `
           <div class="d-flex align-items-center gap-2">
-            <input class="form-check-input mt-0" type="checkbox" title="Click to autofill test name in analysis form" onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')">
-            <div><strong>${ut.title}</strong><br><small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small></div>
+            <input class="form-check-input mt-0" type="checkbox" ${ut.done ? 'checked' : ''} onchange="toggleUpcomingTest(${ut.id})" title="Click to autofill test name in analysis form">
+            <div onclick="selectUpcomingTestForAnalysis('${ut.title.replace(/'/g, "\\'")}')" style="cursor:pointer;">
+              <strong class="${ut.done ? 'text-decoration-line-through text-success' : ''}">${ut.title}</strong><br>
+              <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${ut.date}</small>
+            </div>
           </div>
           <button class="btn btn-xs btn-outline-danger border-0" onclick="deleteUpcomingTest(${ut.id})"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
       });
+    }
+
+    function toggleUpcomingTest(id) {
+      const ut = appData.upcomingTests.find(t => t.id === id);
+      if(ut) {
+        ut.done = !ut.done;
+        saveData();
+      }
     }
 
     function deleteUpcomingTest(id) {
@@ -1702,6 +1803,7 @@
     function startPomo() {
       if (pomoRunning) return;
       pomoRunning = true;
+      sendStudyHeartbeat(true, 'pomo');
       
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1729,6 +1831,7 @@
     function pausePomo() { 
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
+      sendStudyHeartbeat(false, null);
 
       const btn = document.getElementById('pomoToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -1771,6 +1874,7 @@
     function startSw() { 
       if (swRunning) return; 
       swRunning = true; 
+      sendStudyHeartbeat(true, 'stopwatch');
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-pause-fill me-1"></i>Pause`;
@@ -1797,6 +1901,7 @@
     function pauseSw() { 
       swRunning = false; 
       clearInterval(swTimerId); 
+      sendStudyHeartbeat(false, null);
 
       const btn = document.getElementById('swToggleBtn');
       btn.innerHTML = `<i class="bi bi-play-fill me-1"></i>Start`;
@@ -2086,7 +2191,7 @@
     function recordTodayActivity() {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
       }
       const completedTaskNames = appData.todos.filter(t => t.completed).map(t => t.text);
       const completedChapterNames = appData.chapters.filter(c => c.completed).map(c => `${c.name} (${c.subject})`);
@@ -2112,7 +2217,7 @@
     function recordCombinedStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
-        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
+        appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [], manualWorksList: [] };
       }
       appData.history[today].totalSeconds += secs;
       saveData();
@@ -2134,7 +2239,7 @@
       dates.forEach(dateStr => {
         const dayData = appData.history[dateStr];
         const totalSecs = dayData.totalSeconds || 0;
-        const timeFormatted = formatHMS(totalSecs); // H:M:S format
+        const timeFormatted = formatHMS(totalSecs);
 
         const tasksList = dayData.completedTasksList && dayData.completedTasksList.length > 0 
           ? dayData.completedTasksList.map(task => `<span class="badge bg-light text-dark border me-1 mb-1">${task}</span>`).join('') 
@@ -2148,6 +2253,10 @@
           ? dayData.completedPracticeList.map(pr => `<span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-check2-square me-1"></i>${pr}</span>`).join('') 
           : '<span class="text-muted small">No practice resources completed</span>';
 
+        const manualWorksHtml = dayData.manualWorksList && dayData.manualWorksList.length > 0 
+          ? dayData.manualWorksList.map(work => `<span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-pencil-square me-1"></i>${work}</span>`).join('') 
+          : '';
+
         const div = document.createElement('div');
         div.className = 'card history-card mb-2 p-3 shadow-sm';
         div.innerHTML = `
@@ -2158,6 +2267,8 @@
               <button class="btn btn-xs btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteActivityLog('${dateStr}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>
+          <div class="small text-muted mb-1 fw-bold">Manual Added Works:</div>
+          <div class="mb-2">${manualWorksHtml || '<span class="text-muted small">None</span>'}</div>
           <div class="small text-muted mb-1 fw-bold">Completed Chapters (Auto-Synced):</div>
           <div class="mb-2">${chaptersList}</div>
           <div class="small text-muted mb-1 fw-bold">Completed Question Practice & PYQs (Auto-Synced):</div>
