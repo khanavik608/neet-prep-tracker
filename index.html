@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 3.4 (Persistent Test Ticks, Clean Google Login & Manual Activity Editor with Full Sync) -->
+<!-- ENDORANK Dashboard - Version 3.5 (Exclusive Timers & Combined Study Time Log Sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -749,7 +749,7 @@
       chapters: [], 
       todos: [],
       tests: [],
-      upcomingTests: [], // { id, title, date, checked: true/false }
+      upcomingTests: [], 
       history: {}, 
       diaries: {}
     };
@@ -1464,22 +1464,40 @@
       document.getElementById('pomoDisplay').innerText = formatted;
       document.getElementById('bigTimerDisplay').innerText = formatted;
     }
+
     function startPomo() {
       if (pomoRunning) return;
+      // MUTUAL EXCLUSIVITY: Pause stopwatch if running
+      if (swRunning) {
+        pauseSw();
+      }
       pomoRunning = true;
       pomoTimerId = setInterval(() => {
-        if (pomoTimeLeft > 0) { pomoTimeLeft--; updatePomoDisplay(); }
-        else { pausePomo(); alert('Focus time complete!'); recordStudySeconds(25 * 60); }
+        if (pomoTimeLeft > 0) { 
+          pomoTimeLeft--; 
+          updatePomoDisplay(); 
+        } else { 
+          pausePomo(); 
+          alert('Focus time complete!'); 
+          recordStudySeconds(25 * 60); 
+        }
       }, 1000);
       document.getElementById('pomoStartBtn').disabled = true;
       document.getElementById('pomoPauseBtn').disabled = false;
+      document.getElementById('bigStartBtn').disabled = true;
+      document.getElementById('bigPauseBtn').disabled = false;
     }
+
     function pausePomo() { 
+      if (!pomoRunning) return;
       pomoRunning = false; 
       clearInterval(pomoTimerId); 
       document.getElementById('pomoStartBtn').disabled = false;
       document.getElementById('pomoPauseBtn').disabled = true;
+      document.getElementById('bigStartBtn').disabled = false;
+      document.getElementById('bigPauseBtn').disabled = true;
     }
+
     function resetPomo() { pausePomo(); pomoTimeLeft = 25 * 60; updatePomoDisplay(); }
 
     function updateSwDisplay() {
@@ -1490,32 +1508,54 @@
       document.getElementById('swDisplay').innerText = formatted;
       document.getElementById('bigSwDisplay').innerText = formatted;
     }
+
     function startSw() { 
       if (swRunning) return; 
+      // MUTUAL EXCLUSIVITY: Pause pomodoro if running
+      if (pomoRunning) {
+        pausePomo();
+      }
       swRunning = true; 
-      swTimerId = setInterval(() => { swSeconds++; updateSwDisplay(); }, 1000); 
+      swTimerId = setInterval(() => { 
+        swSeconds++; 
+        updateSwDisplay(); 
+      }, 1000); 
       document.getElementById('swStartBtn').disabled = true;
       document.getElementById('swPauseBtn').disabled = false;
       document.getElementById('swLapBtn').disabled = false;
       document.getElementById('bigSwStartBtn').disabled = true;
       document.getElementById('bigSwPauseBtn').disabled = false;
     }
+
     function pauseSw() { 
+      if (!swRunning && swSeconds === 0) return;
       swRunning = false; 
       clearInterval(swTimerId); 
       document.getElementById('swStartBtn').disabled = false;
       document.getElementById('swPauseBtn').disabled = true;
       document.getElementById('bigSwStartBtn').disabled = false;
       document.getElementById('bigSwPauseBtn').disabled = true;
-      if(swSeconds > 10) recordStudySeconds(swSeconds);
+      if(swSeconds > 0) {
+        recordStudySeconds(swSeconds);
+        swSeconds = 0; // Record elapsed session and reset counter so it doesn't double add on pause
+        updateSwDisplay();
+      }
     }
+
     function lapSw() {
       const li = document.createElement('li');
       li.className = 'list-group-item px-2 py-1 d-flex justify-content-between align-items-center small';
       li.innerHTML = `<span>Lap ${lapCount++}</span><span class="fw-bold">${document.getElementById('swDisplay').innerText}</span>`;
       document.getElementById('lapList').prepend(li);
     }
-    function resetSw() { pauseSw(); swSeconds = 0; lapCount = 1; document.getElementById('lapList').innerHTML = ''; updateSwDisplay(); }
+
+    function resetSw() { 
+      pauseSw(); 
+      swSeconds = 0; 
+      lapCount = 1; 
+      document.getElementById('lapList').innerHTML = ''; 
+      updateSwDisplay(); 
+    }
 
     function switchBigTimerMode(mode) {
       if(mode === 'pomo') {
@@ -1792,12 +1832,10 @@
         }
       });
 
-      // Keep manually added items if any, merge with auto synced
       const existingTasks = appData.history[today].completedTasksList || [];
       const existingChaps = appData.history[today].completedChaptersList || [];
       const existingPracs = appData.history[today].completedPracticeList || [];
 
-      // Combine unique
       appData.history[today].completedTasksList = Array.from(new Set([...existingTasks, ...completedTaskNames]));
       appData.history[today].completedChaptersList = Array.from(new Set([...existingChaps, ...completedChapterNames]));
       appData.history[today].completedPracticeList = Array.from(new Set([...existingPracs, ...completedPracticeNames]));
