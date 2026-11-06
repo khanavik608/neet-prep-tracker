@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.0 (Live Hours, Minutes & Seconds Time Display) -->
+<!-- ENDORANK Dashboard - Version 4.1 (Clean Live Counter & Updated UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -375,12 +375,12 @@
 
       <!-- Tab: NEET Arena & Real Rooms -->
       <div class="tab-pane fade" id="tab-arena" role="tabpanel">
-        <!-- Live Active Study Counter Banner -->
+        <!-- Live Active Study Counter Banner (Clean Text without timer keywords) -->
         <div class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center justify-content-between border-0 shadow-sm" style="background-color: #f0f9ff; border-left: 4px solid #0284c7 !important;">
           <div class="d-flex align-items-center gap-2">
             <span class="spinner-grow spinner-grow-sm text-primary" role="status"></span>
             <span class="small fw-semibold text-dark">
-              🔥 <strong id="activeStudyCountDisplay" class="text-primary fs-6">0</strong> Students abhi Pomodoro ya Stopwatch se live padh rahe hain!
+              🔥 <strong id="activeStudyCountDisplay" class="text-primary fs-6">0</strong> students are studying right now!
             </span>
           </div>
           <small class="text-muted" style="font-size: 11px;">Live Sync</small>
@@ -391,10 +391,10 @@
           <div class="col-lg-7">
             <div class="card p-4 h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard</h3>
+                <h3 class="h5 text-primary mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>NEET Arena Leaderboard (Daily Reset)</h3>
                 <button class="btn btn-sm btn-outline-primary" onclick="loadLeaderboard()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
               </div>
-              <p class="text-muted small">Real aspirants using ENDORANK appear here when active (showing live H:M:S).</p>
+              <p class="text-muted small">Real aspirants using ENDORANK appear here when active (showing today's study time).</p>
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead class="table-light">
@@ -1024,7 +1024,6 @@
       });
     });
 
-    // --- Helper to format total seconds into Hours, Minutes, Seconds (H:M:S) ---
     function formatHMS(totalSecs) {
       const h = Math.floor(totalSecs / 3600);
       const m = Math.floor((totalSecs % 3600) / 60);
@@ -1032,7 +1031,7 @@
       return `${h}h ${m}m ${s}s`;
     }
 
-    // --- Live Study Counter (Active Pomodoro / Stopwatch users) ---
+    // --- Live Study Counter (Clean text without timer keywords) ---
     async function fetchActiveStudyingCount() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/study/active-count`);
@@ -1056,7 +1055,7 @@
       }
     }
 
-    // --- NEET Arena Leaderboard & Real Rooms (Backend Sync) ---
+    // --- NEET Arena Leaderboard & Real Rooms ---
     async function loadLeaderboard() {
       const tbody = document.getElementById('globalLeaderboardBody');
       if(!tbody) return;
@@ -1115,7 +1114,6 @@
       return 0; 
     }
 
-    // --- Real Student Rooms API Functions (With Admin & Kick Feature) ---
     async function createPersonalRoom() {
       const roomName = document.getElementById('newRoomNameInput').value.trim();
       if(!roomName) {
@@ -1168,19 +1166,16 @@
           body: JSON.stringify({ roomCode: code, userName: myName, todaySeconds: getTotalCombinedTodaySeconds() })
         });
         const data = await res.json();
-        if(data && (data.success || data.members)) {
+        if(res.ok && data && (data.success || data.members)) {
           localStorage.setItem('endorank_active_room', JSON.stringify({ name: data.roomName || 'Study Room', code }));
           document.getElementById('joinRoomCodeInput').value = '';
           startRoomAutoSync(code, data.roomName || 'Study Room');
           alert(`Joined room successfully!`);
         } else {
-          alert('Room not found or invalid code.');
+          alert(data.error || 'Room not found or invalid code.');
         }
       } catch(e) {
-        localStorage.setItem('endorank_active_room', JSON.stringify({ name: 'Private Room', code }));
-        document.getElementById('joinRoomCodeInput').value = '';
-        showActiveRoomUI('Private Room', code, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
-        alert('Joined room successfully!');
+        alert('Room not found or invalid code.');
       }
     }
 
@@ -1197,14 +1192,18 @@
 
         const res = await fetch(`${API_BASE_URL}/api/room/members?code=${encodeURIComponent(roomCode)}`);
         const data = await res.json();
-        const members = data.members || [{ name: myName, time: getTotalCombinedTodaySeconds() }];
-        const adminName = data.adminName || members[0]?.name;
+        
+        const members = data.members || [];
+        const isUserStillInRoom = members.some(m => m.name === myName);
+        if(!isUserStillInRoom && members.length > 0) {
+          leavePersonalRoom();
+          alert('You have been removed from the room by the admin.');
+          return;
+        }
 
+        const adminName = data.adminName || members[0]?.name;
         showActiveRoomUI(roomName, roomCode, members, adminName, myName);
-      } catch(e) {
-        const myName = appData.userName || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Aspirant');
-        showActiveRoomUI(roomName, roomCode, [{ name: myName, time: getTotalCombinedTodaySeconds() }], myName, myName);
-      }
+      } catch(e) {}
     }
 
     async function kickRoomMember(roomCode, memberNameToKick) {
@@ -1311,7 +1310,6 @@
       });
     }
 
-    // --- Upcoming Test Auto-Fill & Persistent Checkbox State ---
     function selectUpcomingTestForAnalysis(testTitle) {
       document.getElementById('testName').value = testTitle;
       document.getElementById('testDate').value = getISTDateString();
@@ -1358,7 +1356,6 @@
       renderUpcomingTests();
     }
 
-    // --- Practice & PYQs Tracker Functions ---
     function filterPracticeSubject(subj) {
       currentPracticeSubject = subj;
       const buttons = document.querySelectorAll('#practiceSubjectFilter button');
@@ -1464,7 +1461,6 @@
       }
     }
 
-    // --- Diary Functions ---
     function loadDiaryForDate(dateStr) {
       if(appData.diaries && appData.diaries[dateStr]) {
         const entry = appData.diaries[dateStr];
@@ -1762,7 +1758,6 @@
       }
     }
 
-    // --- Unified Timers State (Mutual Exclusion & Combined Active Log) ---
     let pomoTimeLeft = 25 * 60, pomoTimerId = null, pomoRunning = false;
     let swSeconds = 0, swTimerId = null, swRunning = false, lapCount = 1;
 
