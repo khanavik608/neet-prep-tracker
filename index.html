@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 4.5 (Fixed Peak Focus Celebration Bug) -->
+<!-- ENDORANK Dashboard - Version 4.6 (Strict Single-Session Peak Focus Fix) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -221,8 +221,8 @@
         <div class="streak-widget-box d-flex align-items-center gap-2 shadow-sm">
           <i class="bi bi-fire text-danger fs-5"></i>
           <div>
-            <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Study Metrics</span>
-            <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Peak Focus: <b>0h 0m 0s</b></span>
+            <span class="small d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Focus Metrics</span>
+            <span id="streakInfoDisplay" class="fs-6">Day Streak: <b>0d</b> | Peak Single Session: <b>0h 0m 0s</b></span>
           </div>
         </div>
 
@@ -680,15 +680,15 @@
     </div>
   </div>
 
-  <!-- 🎉 Peak Focus Record Celebration Modal -->
+  <!-- 🎉 Peak Single-Session Celebration Modal -->
   <div class="modal fade" id="streakCelebrationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
         <div class="modal-body">
           <div class="display-1 mb-2">🔥🏆</div>
-          <h3 class="fw-bold text-danger mb-2">New Peak Focus Record!</h3>
-          <p id="streakCelebText" class="text-dark fs-5 fw-semibold mb-3">Congratulations! You broke your previous highest study hours record today!</p>
-          <p class="text-muted small mb-4">Your dedication is building a future Doctor. Keep pushing forward and maintain this incredible momentum! 🩺✨</p>
+          <h3 class="fw-bold text-danger mb-2">New Peak Single-Session Record!</h3>
+          <p id="streakCelebText" class="text-dark fs-5 fw-semibold mb-3">Congratulations! You broke your previous highest continuous study session record!</p>
+          <p class="text-muted small mb-4">Incredible focus! Building a future Doctor takes consistency and deep work like this. Keep crushing it! 🩺✨</p>
           <button type="button" class="btn btn-danger btn-lg px-5 fw-bold shadow-sm" data-bs-dismiss="modal">Let's Crush Today!</button>
         </div>
       </div>
@@ -851,7 +851,7 @@
       upcomingTests: [], 
       history: {}, 
       diaries: {},
-      streakData: { dayStreak: 0, bestHoursRecord: 0, lastActiveDate: '' }
+      streakData: { dayStreak: 0, bestSingleSessionRecord: 0, lastActiveDate: '' }
     };
 
     let currentFilter = 'all';
@@ -874,7 +874,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
-      evaluateStreaksAndHours(false); // No pop-up on simple page load
+      evaluateDayStreakOnly();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -997,7 +997,6 @@
 
           saveData();
           renderCalendarHistory();
-          evaluateStreaksAndHours(true); // Allow celebration if manual log breaks record
           alert('Study activity time and manual logs updated successfully!');
         }
       });
@@ -1083,15 +1082,14 @@
       });
     });
 
-    function evaluateStreaksAndHours(allowCelebration = false) {
+    // Evaluates Day Streak Only without popping anything on page load
+    function evaluateDayStreakOnly() {
       const todayStr = getISTDateString();
-
       if (!appData.streakData) {
-        appData.streakData = { dayStreak: 0, bestHoursRecord: 0, lastActiveDate: '' };
+        appData.streakData = { dayStreak: 0, bestSingleSessionRecord: 0, lastActiveDate: '' };
       }
 
       const historyDates = Object.keys(appData.history || {}).sort((a,b) => new Date(b) - new Date(a));
-      
       if(historyDates.length === 0) {
         appData.streakData.dayStreak = 0;
         updateStreakUI();
@@ -1125,34 +1123,32 @@
       }
 
       appData.streakData.dayStreak = dayStreak;
+      saveDataWithoutRecurse();
+      updateStreakUI();
+    }
 
-      let todaySecs = appData.history[todayStr] ? (appData.history[todayStr].totalSeconds || 0) : 0;
-      
-      let maxPastSecs = 0;
-      historyDates.forEach(d => {
-        if(d !== todayStr) {
-          const s = appData.history[d].totalSeconds || 0;
-          if(s > maxPastSecs) maxPastSecs = s;
-        }
-      });
+    // Checks if a newly finished single session duration breaks the peak single session record
+    function checkSingleSessionRecord(sessionSecs) {
+      if (!appData.streakData) {
+        appData.streakData = { dayStreak: 0, bestSingleSessionRecord: 0, lastActiveDate: '' };
+      }
 
-      const previousBestSecs = appData.streakData.bestHoursRecord || 0;
-      const absoluteBest = Math.max(previousBestSecs, maxPastSecs);
+      const previousBest = appData.streakData.bestSingleSessionRecord || 0;
 
-      // Only trigger celebration modal if explicitly allowed (i.e. from active timer stop/save or manual save) and previous record is actually beaten
-      if (allowCelebration && todaySecs > 0 && todaySecs > absoluteBest && absoluteBest > 0 && todaySecs > previousBestSecs) {
-        appData.streakData.bestHoursRecord = todaySecs;
-        const peakFormatted = formatSecondsToHoursMins(todaySecs);
-        document.getElementById('streakCelebText').innerText = `Congratulations! You studied for a total of ${peakFormatted} today and broke your previous highest peak focus record!`;
+      if (sessionSecs > previousBest) {
+        appData.streakData.bestSingleSessionRecord = sessionSecs;
+        saveDataWithoutRecurse();
+        updateStreakUI();
+
+        // Trigger Celebration Pop-up strictly when single session record is broken!
+        const peakFormatted = formatSecondsToHoursMins(sessionSecs);
+        document.getElementById('streakCelebText').innerText = `Congratulations! You just finished a continuous study session of ${peakFormatted} and broke your previous longest single-session record!`;
         
         const celebModal = new bootstrap.Modal(document.getElementById('streakCelebrationModal'));
         celebModal.show();
-      } else if (todaySecs > appData.streakData.bestHoursRecord) {
-        appData.streakData.bestHoursRecord = todaySecs;
+      } else {
+        updateStreakUI();
       }
-
-      saveDataWithoutRecurse();
-      updateStreakUI();
     }
 
     function formatSecondsToHoursMins(totalSecs) {
@@ -1164,18 +1160,8 @@
 
     function updateStreakUI() {
       if(!appData.streakData) return;
-      
-      let maxSecs = appData.streakData.bestHoursRecord || 0;
-      if(appData.history) {
-        Object.keys(appData.history).forEach(d => {
-          const s = appData.history[d].totalSeconds || 0;
-          if(s > maxSecs) maxSecs = s;
-        });
-      }
-      appData.streakData.bestHoursRecord = maxSecs;
-
-      const peakFormatted = formatSecondsToHoursMins(maxSecs);
-      document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Peak Focus: <b>${peakFormatted}</b>`;
+      const peakFormatted = formatSecondsToHoursMins(appData.streakData.bestSingleSessionRecord || 0);
+      document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Peak Single Session: <b>${peakFormatted}</b>`;
     }
 
     function openTestReviewModal(testId) {
@@ -1453,7 +1439,7 @@
         delete appData.history[dateStr];
         saveData();
         renderCalendarHistory();
-        evaluateStreaksAndHours(false);
+        evaluateDayStreakOnly();
       }
     }
 
@@ -1619,7 +1605,7 @@
       updateProgress();
       checkSmartRevisionAlerts();
       recordTodayActivity();
-      evaluateStreaksAndHours(false);
+      evaluateDayStreakOnly();
       if (currentUserEmail) {
         syncToCloudflare();
       }
@@ -1659,7 +1645,7 @@
           updateScoreChart();
           renderCalendarHistory();
           renderDiarySection();
-          evaluateStreaksAndHours(false);
+          evaluateDayStreakOnly();
           updateAuthUI();
         }
       } catch (err) {
@@ -1757,9 +1743,10 @@
           pomoTimeLeft--; 
           updatePomoDisplay(); 
         } else { 
-          pausePomo(true); // Pomodoro finished naturally -> allow celebration check
+          pausePomo(true); // Pomodoro finished naturally
           alert('Focus time complete!'); 
-          recordStudySeconds(25 * 60, true); 
+          recordStudySeconds(25 * 60); 
+          checkSingleSessionRecord(25 * 60); // Check single session record on completion
         }
       }, 1000);
       
@@ -1772,8 +1759,8 @@
       clearInterval(pomoTimerId); 
       updatePomoToggleUI(false);
       const elapsed = 25 * 60 - pomoTimeLeft;
-      if(elapsed > 0) {
-        recordStudySeconds(elapsed, completedNaturally);
+      if(elapsed > 0 && completedNaturally) {
+        recordStudySeconds(elapsed);
       }
     }
 
@@ -1842,7 +1829,7 @@
       updateSwToggleUI(false);
     }
 
-    // Save & Reset Function for Stopwatch (Triggers celebration only when record is broken)
+    // Save & Reset Function for Stopwatch (Triggers celebration ONLY when single session record is broken and user clicks Save)
     function saveAndResetSw() {
       if (swSeconds > 0) {
         if (swRunning) {
@@ -1850,8 +1837,10 @@
           clearInterval(swTimerId);
           updateSwToggleUI(false);
         }
-        recordStudySeconds(swSeconds, true); // Allow celebration check on explicit Save
-        alert(`Successfully saved ${formatSecondsToHoursMins(swSeconds)} to your focus log!`);
+        const sessionTime = swSeconds;
+        recordStudySeconds(sessionTime); // Adds to daily history log
+        checkSingleSessionRecord(sessionTime); // Checks if this single continuous block beat the record
+        alert(`Successfully saved continuous session of ${formatSecondsToHoursMins(sessionTime)} to your focus log!`);
       }
       swSeconds = 0;
       lapCount = 1;
@@ -2188,10 +2177,10 @@
       appData.history[today].completedPracticeList = Array.from(new Set([...existingPracs, ...completedPracticeNames]));
 
       renderCalendarHistory();
-      evaluateStreaksAndHours(false);
+      evaluateDayStreakOnly();
     }
 
-    function recordStudySeconds(secs, allowCelebration = false) {
+    function recordStudySeconds(secs) {
       const today = getISTDateString();
       if(!appData.history[today]) {
         appData.history[today] = { totalSeconds: 0, completedTasksList: [], completedChaptersList: [], completedPracticeList: [] };
@@ -2199,7 +2188,7 @@
       appData.history[today].totalSeconds += secs;
       saveDataWithoutRecurse();
       renderCalendarHistory();
-      evaluateStreaksAndHours(allowCelebration);
+      evaluateDayStreakOnly();
       if (currentUserEmail) {
         syncToCloudflare();
       }
