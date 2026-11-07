@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 6.4 (With Brain Gym & Scientific Under-10-Min Focus Exercises) -->
+<!-- ENDORANK Dashboard - Version 6.7 Secure Sync + Brain Gym with Voice (Clean Error Notebook Popup with Question Number Badges) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -347,6 +347,21 @@
       color: var(--text-main) !important;
       border: 1px solid var(--border-color) !important;
     }
+
+    /* Brain Gym & Meditation */
+    .bk-skin{fill:#e8b48a}.bk-shirt{fill:var(--accent)}.bk-pants{fill:#475569}.bk-hair{fill:#6b4423}
+    .bk-shirtS,.bk-pantsS{fill:none;stroke-linecap:round;stroke-linejoin:round}.bk-shirtS{stroke:var(--accent)}.bk-pantsS{stroke:#475569}
+    .bg-stage .ln{stroke:#1f2937;fill:none;stroke-width:1.6;stroke-linecap:round}
+    .bg-stage{background:var(--table-hover);border:1px solid var(--border-color);border-radius:16px;padding:8px}
+    .bg-stage svg{width:100%;max-height:320px}
+    .bg-stage text{fill:var(--text-main);font-size:11px;font-family:inherit}
+    .bg-stage .sk{stroke:var(--text-main);fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+    .bg-stage .bd{stroke:var(--border-color);fill:none;stroke-linecap:round}
+    .bg-stage .bdf{fill:var(--border-color)}
+    .bg-stage .pg{fill:transparent}.bg-stage .pg.tense{fill:#ef4444;fill-opacity:.75}.bg-stage .pg.rel{fill:#22c55e;fill-opacity:.55}
+    #bgTime{font-size:2.8rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1}
+    .bg-step{cursor:pointer;border:1px solid var(--border-color);border-radius:10px;padding:6px 10px;display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px}
+    .bg-step.on{background:var(--accent);color:#fff;border-color:var(--accent)}.bg-step.done{opacity:.55}
   </style>
 </head>
 <body>
@@ -402,7 +417,6 @@
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
-      <li class="nav-item"><button class="nav-link" id="brain-gym-tab" data-bs-toggle="pill" data-bs-target="#tab-brain-gym" type="button"><i class="bi bi-cpu me-1"></i>🧠 Brain Gym (5-10 Min)</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
@@ -410,6 +424,7 @@
       <li class="nav-item"><button class="nav-link" id="diary-tab" data-bs-toggle="pill" data-bs-target="#tab-diary" type="button"><i class="bi bi-journal-richtext me-1"></i>Daily Diary & Mood</button></li>
       <li class="nav-item"><button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#tab-calendar" type="button"><i class="bi bi-calendar-check me-1"></i>Daily Activity & Focus Log</button></li>
       <li class="nav-item"><button class="nav-link" id="motivation-tab" data-bs-toggle="pill" data-bs-target="#tab-motivation" type="button"><i class="bi bi-image me-1"></i>Poster of the Day</button></li>
+      <li class="nav-item"><button class="nav-link" id="braingym-tab" data-bs-toggle="pill" data-bs-target="#tab-braingym" type="button"><i class="bi bi-flower1 me-1"></i>Brain Gym & Meditation</button></li>
     </ul>
 
     <!-- Revision Alert Widget -->
@@ -584,110 +599,6 @@
               </thead>
               <tbody id="practiceTableBody"></tbody>
             </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: 🧠 Brain Gym & Neuro-Boost Section (5 Scientific Exercises under 5-10 Mins) -->
-      <div class="tab-pane fade" id="tab-brain-gym" role="tabpanel">
-        <div class="card p-4 mb-4">
-          <div class="text-center mb-4">
-            <h3 class="h4 fw-bold" style="color: var(--accent);"><i class="bi bi-cpu me-2"></i>🧠 Brain Gym & Neuro-Boost (Under 5-10 Min Exercises)</h3>
-            <p class="text-muted small">Scientifically proven micro-exercises backed by neuroscience to instantly spike dopamine, clear brain fog, boost working memory, and sharpen NEET analytical focus.</p>
-          </div>
-
-          <div class="row g-4">
-            <!-- Exercise 1 -->
-            <div class="col-md-6">
-              <div class="card p-3 h-100 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="fw-bold mb-0" style="color: var(--accent);">1. Dual N-Back Working Memory Drill</h5>
-                  <span class="badge bg-warning text-dark">5 Mins</span>
-                </div>
-                <p class="small text-muted mb-3"><b>Science:</b> Proven by neuroscientists to increase fluid intelligence (IQ) and prefrontal cortex activation by holding auditory and visual stimuli simultaneously.</p>
-                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain1">05:00</div>
-                <div class="d-flex justify-content-center gap-2 mt-auto">
-                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain1', 300)"><i class="bi bi-play-fill"></i> Start (5m)</button>
-                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain1')"><i class="bi bi-pause-fill"></i></button>
-                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain1', 300)"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Exercise 2 -->
-            <div class="col-md-6">
-              <div class="card p-3 h-100 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="fw-bold mb-0" style="color: var(--accent);">2. Aerobic High-Focus Interval Sprint</h5>
-                  <span class="badge bg-danger">10 Mins</span>
-                </div>
-                <p class="small text-muted mb-3"><b>Science:</b> Rapid heart rate boosts BDNF (Brain-Derived Neurotrophic Factor), instantly clearing cognitive fatigue and enhancing synaptic plasticity.</p>
-                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain2">10:00</div>
-                <div class="d-flex justify-content-center gap-2 mt-auto">
-                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain2', 600)"><i class="bi bi-play-fill"></i> Start (10m)</button>
-                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain2')"><i class="bi bi-pause-fill"></i></button>
-                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain2', 600)"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Exercise 3 -->
-            <div class="col-md-6">
-              <div class="card p-3 h-100 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="fw-bold mb-0" style="color: var(--accent);">3. Non-Sleep Deep Rest (NSDR) Protocol</h5>
-                  <span class="badge bg-info text-dark">10 Mins</span>
-                </div>
-                <p class="small text-muted mb-3"><b>Science:</b> Deep sensory relaxation protocol popularized by Stanford neurobiologists to clear adenosine, reset dopamine, and fast-track memory consolidation.</p>
-                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain3">10:00</div>
-                <div class="d-flex justify-content-center gap-2 mt-auto">
-                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain3', 600)"><i class="bi bi-play-fill"></i> Start (10m)</button>
-                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain3')"><i class="bi bi-pause-fill"></i></button>
-                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain3', 600)"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Exercise 4 -->
-            <div class="col-md-6">
-              <div class="card p-3 h-100 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="fw-bold mb-0" style="color: var(--accent);">4. Finger-Tapping Motor Skill Circuit</h5>
-                  <span class="badge bg-success">5 Mins</span>
-                </div>
-                <p class="small text-muted mb-3"><b>Science:</b> Complex fine-motor sequencing activates the cerebellum and motor cortex, triggering immediate neural firing and alertness.</p>
-                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain4">05:00</div>
-                <div class="d-flex justify-content-center gap-2 mt-auto">
-                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain4', 300)"><i class="bi bi-play-fill"></i> Start (5m)</button>
-                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain4')"><i class="bi bi-pause-fill"></i></button>
-                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain4', 300)"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Exercise 5 -->
-            <div class="col-md-12">
-              <div class="card p-3 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="fw-bold mb-0" style="color: var(--accent);">5. Spatial Recall & Mental Rotation Drill</h5>
-                  <span class="badge bg-primary">5 Mins</span>
-                </div>
-                <p class="small text-muted mb-3"><b>Science:</b> Visualizing and mentally rotating 3D objects stimulates parietal lobe networks, directly strengthening physics diagram visualization.</p>
-                <div class="row align-items-center">
-                  <div class="col-md-4 text-center">
-                    <div class="p-3 rounded border font-monospace" style="background: var(--card-bg); font-size: 2.2rem;" id="timerDisplay_brain5">05:00</div>
-                  </div>
-                  <div class="col-md-8">
-                    <div class="d-flex justify-content-start gap-2">
-                      <button class="btn btn-sm btn-accent px-4 fw-semibold" onclick="startBrainTimer('brain5', 300)"><i class="bi bi-play-fill"></i> Start Drill (5m)</button>
-                      <button class="btn btn-sm btn-outline-secondary px-3" onclick="pauseBrainTimer('brain5')"><i class="bi bi-pause-fill"></i> Pause</button>
-                      <button class="btn btn-sm btn-outline-danger px-3" onclick="resetBrainTimer('brain5', 300)"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
@@ -932,6 +843,111 @@
         </div>
       </div>
 
+      <!-- Tab: Brain Gym & Meditation -->
+      <div class="tab-pane fade" id="tab-braingym" role="tabpanel">
+        <div class="card p-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h3 class="h4 mb-0" style="color: var(--accent);"><i class="bi bi-flower1 me-2"></i>Brain Gym & Meditation</h3>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <div class="btn-group" id="bgModes">
+                <button type="button" class="btn btn-sm btn-primary" data-m="gym">Brain Gym (5 exercises)</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-m="med">Meditation</button>
+              </div>
+              <select id="bgMedLen" class="form-select form-select-sm w-auto d-none"><option value="1">1 min</option><option value="3">3 min</option><option value="5" selected>5 min</option></select>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="bg-stage">
+                <svg id="bgSvg" viewBox="0 0 300 220">
+                  <defs><g id="sit">
+                    <ellipse cx="0" cy="52" rx="56" ry="15" class="bk-pants"/>
+                    <rect x="-20" y="-30" width="40" height="70" rx="16" class="bk-shirt"/>
+                    <polyline points="-20,-18 -36,8 -30,38" class="bk-shirtS" style="stroke-width:9"/><polyline points="20,-18 36,8 30,38" class="bk-shirtS" style="stroke-width:9"/>
+                    <circle cx="-30" cy="41" r="5.5" class="bk-skin"/><circle cx="30" cy="41" r="5.5" class="bk-skin"/>
+                    <rect x="-5" y="-40" width="10" height="12" class="bk-skin"/><circle cx="0" cy="-52" r="15" class="bk-skin"/>
+                    <path d="M-15,-54 A15 15 0 0 1 15,-54 Q0,-62 -15,-54Z" class="bk-hair"/>
+                  </g></defs>
+                  <g id="v0">
+                    <g transform="translate(105 104)"><use href="#sit"/>
+                      <g id="bgChest"><ellipse cx="0" cy="-4" rx="21" ry="25" class="bk-shirt"/><ellipse cx="-8" cy="-6" rx="7" ry="12" fill="#fff" fill-opacity=".45"/><ellipse cx="8" cy="-6" rx="7" ry="12" fill="#fff" fill-opacity=".45"/></g>
+                      <circle cx="-6" cy="-51" r="1.7" class="bk-hair"/><circle cx="6" cy="-51" r="1.7" class="bk-hair"/><path d="M-5,-44 Q0,-40 5,-44" class="ln"/>
+                    </g>
+                    <rect x="190" y="52" width="70" height="70" rx="4" class="bd" style="stroke-width:3"/>
+                    <circle id="bgDot" cx="190" cy="122" r="7" style="fill:var(--accent)"/>
+                    <text id="bgBoxTxt" x="225" y="150" text-anchor="middle" style="font-size:18px;font-weight:700">Inhale</text>
+                    <text id="bgBoxN" x="225" y="176" text-anchor="middle" style="font-size:22px">4</text>
+                    <text id="bgAir" x="105" y="18" text-anchor="middle" style="font-size:13px;font-weight:700"></text>
+                  </g>
+                  <g id="v1">
+                    <circle cx="100" cy="118" r="58" class="bk-skin"/><path d="M45,100 A58 58 0 0 1 155,100 Q100,62 45,100Z" class="bk-hair"/>
+                    <line x1="66" y1="90" x2="92" y2="90" class="ln" style="stroke-width:3"/><line x1="108" y1="90" x2="134" y2="90" class="ln" style="stroke-width:3"/>
+                    <ellipse cx="80" cy="106" rx="14" ry="9" fill="#fff" class="ln"/><ellipse cx="120" cy="106" rx="14" ry="9" fill="#fff" class="ln"/>
+                    <path d="M100,112 Q95,128 103,130" class="ln"/><path d="M82,143 Q100,155 118,143" class="ln"/>
+                    <line id="bgG1" class="ln" style="stroke:var(--accent);stroke-dasharray:4 3"/><line id="bgG2" class="ln" style="stroke:var(--accent);stroke-dasharray:4 3"/>
+                    <circle id="bgPL" cx="80" cy="106" r="5" class="bk-hair"/><circle id="bgPR" cx="120" cy="106" r="5" class="bk-hair"/>
+                    <g id="bgNear"><rect x="172" y="104" width="18" height="42" rx="9" class="bk-skin" style="stroke:#1f2937;stroke-width:1.5"/><text x="200" y="165" text-anchor="middle">NEAR: thumb, 25 cm</text></g>
+                    <g id="bgFar"><rect x="236" y="26" width="46" height="46" rx="3" class="bd" style="stroke-width:3"/><line x1="259" y1="26" x2="259" y2="72" class="bd" style="stroke-width:2"/><line x1="236" y1="49" x2="282" y2="49" class="bd" style="stroke-width:2"/><text x="259" y="88" text-anchor="middle">FAR: window, 6 m+</text></g>
+                  </g>
+                  <g id="v2">
+                    <ellipse cx="150" cy="200" rx="50" ry="5" fill="#000" fill-opacity=".12"/>
+                    <rect x="136" y="64" width="28" height="62" rx="13" class="bk-shirt"/><rect x="145" y="52" width="10" height="14" class="bk-skin"/>
+                    <polyline id="bgLL" class="bk-pantsS" style="stroke-width:13"/><polyline id="bgLR" class="bk-pantsS" style="stroke-width:13"/>
+                    <circle id="bgFL" r="7" style="fill:#94a3b8"/><circle id="bgFR" r="7" style="fill:#94a3b8"/>
+                    <circle cx="150" cy="42" r="14" class="bk-skin"/><path d="M136,40 A14 14 0 0 1 164,40 Q150,32 136,40Z" class="bk-hair"/>
+                    <circle cx="145" cy="43" r="1.6" class="bk-hair"/><circle cx="155" cy="43" r="1.6" class="bk-hair"/><path d="M146,49 Q150,52 154,49" class="ln"/>
+                    <polyline id="bgAL" class="bk-shirtS" style="stroke-width:9"/><polyline id="bgAR" class="bk-shirtS" style="stroke-width:9"/>
+                    <circle id="bgHL" r="5" class="bk-skin"/><circle id="bgHR" r="5" class="bk-skin"/>
+                    <text id="bgMarchTxt" x="150" y="214" text-anchor="middle" style="font-size:13px">Touches: 1</text>
+                  </g>
+                  <g id="v3">
+                    <line x1="143" y1="128" x2="140" y2="186" class="bk-pantsS" style="stroke-width:14"/><line x1="157" y1="128" x2="160" y2="186" class="bk-pantsS" style="stroke-width:14"/>
+                    <line x1="150" y1="64" x2="150" y2="124" class="bk-shirtS" style="stroke-width:32"/>
+                    <line x1="136" y1="72" x2="114" y2="118" class="bk-shirtS" style="stroke-width:10"/><line x1="164" y1="72" x2="186" y2="118" class="bk-shirtS" style="stroke-width:10"/>
+                    <circle cx="113" cy="123" r="6" class="bk-skin"/><circle cx="187" cy="123" r="6" class="bk-skin"/>
+                    <circle cx="150" cy="40" r="16" class="bk-skin"/><path d="M134,38 A16 16 0 0 1 166,38 Q150,28 134,38Z" class="bk-hair"/>
+                    <g id="bgP0" class="pg"><circle cx="113" cy="122" r="12"/><circle cx="187" cy="122" r="12"/></g>
+                    <g id="bgP1" class="pg"><ellipse cx="132" cy="72" rx="17" ry="10"/><ellipse cx="168" cy="72" rx="17" ry="10"/></g>
+                    <g id="bgP2" class="pg"><circle cx="150" cy="40" r="19"/></g>
+                    <g id="bgP3" class="pg"><ellipse cx="150" cy="98" rx="20" ry="26"/></g>
+                    <g id="bgP4" class="pg"><ellipse cx="141" cy="158" rx="11" ry="30"/><ellipse cx="159" cy="158" rx="11" ry="30"/></g>
+                    <text id="bgPmrName" x="150" y="14" text-anchor="middle" style="font-size:13px;font-weight:700"></text>
+                    <text id="bgPmrTxt" x="150" y="212" text-anchor="middle" style="font-size:13px"></text>
+                  </g>
+                  <g id="v4">
+                    <circle id="bgOrb" cx="150" cy="118" r="66" style="fill:var(--accent);fill-opacity:.18;stroke:var(--accent);stroke-width:2"/>
+                    <g transform="translate(150 118)"><use href="#sit"/>
+                      <g id="bgChest2"><ellipse cx="0" cy="-4" rx="21" ry="25" class="bk-shirt"/><ellipse cx="-8" cy="-6" rx="7" ry="12" fill="#fff" fill-opacity=".45"/><ellipse cx="8" cy="-6" rx="7" ry="12" fill="#fff" fill-opacity=".45"/></g>
+                      <path d="M-9,-52 Q-6,-49 -3,-52" class="ln"/><path d="M3,-52 Q6,-49 9,-52" class="ln"/><path d="M-5,-44 Q0,-40 5,-44" class="ln"/>
+                    </g>
+                    <text id="bgOrbTxt" x="150" y="16" text-anchor="middle" style="font-size:18px;font-weight:700">Inhale</text>
+                    <text id="bgOrbN" x="150" y="214" text-anchor="middle" style="font-size:13px">Breath count: 1</text>
+                  </g>
+                </svg>
+              </div>
+              <p id="bgCue" class="fw-semibold fs-5 text-center mt-3 mb-0" style="color: var(--accent);">Press Start</p>
+            </div>
+            <div class="col-lg-5">
+              <h5 id="bgName" class="fw-bold mb-1"></h5>
+              <div class="d-flex align-items-center gap-3 mb-2"><div id="bgTime">5:00</div><div class="small text-muted">total time left<br>one timer for the whole session</div></div>
+              <div class="progress mb-3" style="height:8px"><div id="bgBar" class="progress-bar" style="width:0%;background:var(--accent)"></div></div>
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <button id="bgGo" type="button" class="btn btn-primary px-4"><i class="bi bi-play-fill"></i> Start</button>
+                <button id="bgReset" type="button" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                <select id="bgVoice" class="form-select form-select-sm w-auto"><option value="en">🔊 Voice: English</option><option value="hi">🔊 आवाज़: हिन्दी</option><option value="off">🔇 Voice off</option></select>
+              </div>
+              <div class="small text-muted mb-3">Eyes closed? Keep the voice on, it tells you when to inhale, hold and exhale. Hindi voice depends on your phone or browser.</div>
+              <div id="bgSteps"></div>
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-6"><h6 class="fw-bold">How to do it</h6><ol id="bgHow" class="small mb-0"></ol></div>
+            <div class="col-md-6"><h6 class="fw-bold">Science behind it</h6><p id="bgSci" class="small mb-1"></p></div>
+          </div>
+          <p class="small text-muted mt-3 mb-0">These are short focus and stress-relief breaks, not medical treatment. Effects are small but real and build with regular practice. Stop if you feel dizzy or pain.</p>
+        </div>
+      </div>
+
       <!-- Tab: Poster of the Day -->
       <div class="tab-pane fade" id="tab-motivation" role="tabpanel">
         <div class="card p-4 text-center">
@@ -1125,6 +1141,9 @@
   <script>
     const API_BASE_URL = "https://flat-shadow-fd78.khanavik608.workers.dev";
     let currentUserEmail = null;
+    let sessionToken = localStorage.getItem('endorank_session_token');
+    function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sessionToken || '') }; }
+    function dropSession() { sessionToken = null; currentUserEmail = null; localStorage.removeItem('endorank_session_token'); localStorage.removeItem('endorank_user_email'); updateAuthUI(); }
 
     let appData = {
       userName: '',
@@ -1144,9 +1163,6 @@
     let scoreChartInstance = null;
     let bubbleStates = {}; 
     let selectedMoodData = { mood: 'Happy', color: '#16a34a' };
-
-    // Brain Gym Timers state
-    let brainTimers = {};
 
     const quotes = [
       { text: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
@@ -1180,7 +1196,8 @@
       getRandomQuote();
 
       const savedEmail = localStorage.getItem('endorank_user_email');
-      if (savedEmail) {
+      if (savedEmail && !sessionToken) { localStorage.removeItem('endorank_user_email'); }
+      else if (savedEmail) {
         currentUserEmail = savedEmail;
         updateAuthUI();
         fetchCloudData();
@@ -1369,52 +1386,6 @@
         }
       });
     });
-
-    // 🧠 Brain Gym Micro-Timers Logic (Under 5-10 Min)
-    function startBrainTimer(id, totalSecs) {
-      if (brainTimers[id] && brainTimers[id].running) return;
-
-      if (!brainTimers[id]) {
-        brainTimers[id] = { timeLeft: totalSecs, intervalId: null, running: false, initialSecs: totalSecs };
-      }
-
-      brainTimers[id].running = true;
-      brainTimers[id].intervalId = setInterval(() => {
-        if (brainTimers[id].timeLeft > 0) {
-          brainTimers[id].timeLeft--;
-          updateBrainTimerDisplay(id);
-        } else {
-          clearInterval(brainTimers[id].intervalId);
-          brainTimers[id].running = false;
-          alert('🧠 Brain Gym Exercise Completed! Incredible focus boost!');
-        }
-      }, 1000);
-    }
-
-    function pauseBrainTimer(id) {
-      if (brainTimers[id] && brainTimers[id].running) {
-        clearInterval(brainTimers[id].intervalId);
-        brainTimers[id].running = false;
-      }
-    }
-
-    function resetBrainTimer(id, totalSecs) {
-      pauseBrainTimer(id);
-      if (!brainTimers[id]) {
-        brainTimers[id] = { timeLeft: totalSecs, intervalId: null, running: false, initialSecs: totalSecs };
-      } else {
-        brainTimers[id].timeLeft = totalSecs;
-      }
-      updateBrainTimerDisplay(id);
-    }
-
-    function updateBrainTimerDisplay(id) {
-      const t = brainTimers[id] ? brainTimers[id].timeLeft : 300;
-      const mins = String(Math.floor(t / 60)).padStart(2, '0');
-      const secs = String(t % 60).padStart(2, '0');
-      const el = document.getElementById(`timerDisplay_${id}`);
-      if (el) el.innerText = `${mins}:${secs}`;
-    }
 
     // ✨ Initialize Background Stars (Clean Sky, No Clouds)
     function initStars() {
@@ -2058,11 +2029,12 @@
     async function syncToCloudflare() {
       if (!currentUserEmail) return;
       try {
-        await fetch(`${API_BASE_URL}/api/sync`, {
+        const r = await fetch(`${API_BASE_URL}/api/sync`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: currentUserEmail, payload: appData })
+          headers: authHeaders(),
+          body: JSON.stringify({ payload: appData })
         });
+        if (r.status === 401) dropSession();
       } catch (err) {
         console.error('Cloudflare D1 sync error:', err);
       }
@@ -2071,7 +2043,8 @@
     async function fetchCloudData() {
       if (!currentUserEmail) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/sync?email=${encodeURIComponent(currentUserEmail)}`);
+        const res = await fetch(`${API_BASE_URL}/api/sync`, { headers: authHeaders() });
+        if (res.status === 401) { dropSession(); return; }
         const data = await res.json();
         if (data && data.payload) {
           appData = data.payload;
@@ -2100,8 +2073,16 @@
       return JSON.parse(jsonPayload);
     }
 
-    function handleCredentialResponse(response) {
+    async function handleCredentialResponse(response) {
       const payload = parseJwt(response.credential);
+      try {
+        const r = await fetch(`${API_BASE_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential: response.credential }) });
+        const d = await r.json();
+        if (!d.token) throw new Error('no token');
+        sessionToken = d.token;
+        localStorage.setItem('endorank_session_token', d.token);
+        payload.email = d.email;
+      } catch (e) { alert('Login failed. Please try again.'); return; }
       currentUserEmail = payload.email;
       if (!appData.userName) {
         appData.userName = payload.name || currentUserEmail.split('@')[0];
@@ -2115,6 +2096,7 @@
     function logoutUser() {
       currentUserEmail = null;
       localStorage.removeItem('endorank_user_email');
+      localStorage.removeItem('endorank_session_token');
       updateAuthUI();
       location.reload();
     }
@@ -2702,6 +2684,95 @@
       document.getElementById('posterTitle').innerText = currentPoster.title;
       document.getElementById('posterCaption').innerText = currentPoster.caption;
     }
+
+    // ===== Brain Gym & Meditation =====
+    (function(){
+      const EX=[
+        {n:'Box Breathing',ic:'wind',v:0,d:60,how:['Sit tall, shoulders relaxed.','Follow the dot: breathe IN through the nose for 4 seconds.','HOLD 4 seconds, breathe OUT 4 seconds, HOLD 4 seconds.','About 4 rounds (16 seconds each).'],sci:'Slow, paced breathing raises heart-rate variability and calms the stress response, and is linked to lower anxiety. Zaccaro et al., 2018, Frontiers in Human Neuroscience (systematic review).'},
+        {n:'Eye Focus Shift',ic:'eye',v:1,d:45,how:['Hold your thumb or a pen about 25 cm from your face.','Focus on it sharply for 5 seconds.','Then look at something far away (window, 6 m+) for 5 seconds.','Switch back and forth, blink normally.'],sci:'Near-far focus breaks relax the eye muscles and reduce digital eye strain from long screen study. Sheppard & Wolffsohn, 2018, BMJ Open Ophthalmology (review); the 20-20-20 break is advised by the American Academy of Ophthalmology. Evidence is moderate.'},
+        {n:'Cross March',ic:'activity',v:2,d:60,how:['Stand up, back straight.','Lift one knee and touch it with the opposite elbow.','Switch sides every 1.5 seconds in a steady rhythm.','Breathe normally, slow down if dizzy.'],sci:'Short bouts of physical movement give a small boost to attention and cognitive performance. Chang et al., 2012, Brain Research (meta-analysis of 79 studies). Note: the special cross-body claim of "Brain Gym" is not proven, the benefit comes from the movement itself.'},
+        {n:'Muscle Release',ic:'lightning-charge',v:3,d:60,how:['Sit or lie comfortably.','Tense the highlighted muscles for 5 seconds (firm, not painful).','Release suddenly and notice the difference for 7 seconds.','Goes through 5 groups: hands, shoulders, face, core, legs.'],sci:'Progressive muscle relaxation (Jacobson, 1938) lowers stress, and a controlled study found reduced salivary cortisol even with a short version. Pawlow & Jones, 2002, Biological Psychology.'},
+        {n:'Mindful Breath Counting',ic:'flower1',v:4,d:75,how:['Sit comfortably, close your eyes.','Breathe in for 4 seconds and out for 6 following the circle.','Silently count each out-breath from 1 to 10, then restart.','If your mind wanders, gently return to 1, no judgement.'],sci:'Even 4 days of brief mindfulness training improved working memory, attention and executive function. Zeidan et al., 2010, Consciousness and Cognition. Longer regular practice gives stronger effects.'}
+      ];
+      const $=id=>document.getElementById(id);
+      let mode='gym',steps=[],el=0,run=false,last=0,cur=-1,tot=0,ac=null;
+      const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+      const m=a=>a.map(q=>[300-q[0],q[1]]);
+      const PA={AL:[[138,70],[118,84],[112,62]],AR:[[162,70],[166,100],[152,90]],LL:[[143,122],[158,106],[152,146]],LR:[[157,122],[160,158],[160,192]]};
+      const PB={AL:m(PA.AR),AR:m(PA.AL),LL:m(PA.LR),LR:m(PA.LL)};
+      const PN=['Fists & forearms','Shoulders (shrug up)','Face (scrunch)','Stomach & chest','Legs & feet'];
+      const sc=(id,lv,sx,sy)=>$(id).setAttribute('transform','translate(0 -4) scale('+(1+sx*lv)+' '+(1+sy*lv)+') translate(0 4)');
+      const VIS=[
+        t=>{const c=t%16,k=Math.floor(c/4),f=(c%4)/4,P=[[190,122],[190,52],[260,52],[260,122],[190,122]],a=P[k],b=P[k+1],n=4-Math.floor(c%4),lv=[f,1,1-f,0][k];
+          $('bgDot').setAttribute('cx',a[0]+(b[0]-a[0])*f);$('bgDot').setAttribute('cy',a[1]+(b[1]-a[1])*f);
+          $('bgBoxTxt').textContent=['Inhale','Hold','Exhale','Hold'][k];$('bgBoxN').textContent=n;$('bgAir').textContent=['↓ air in','hold','↑ air out','hold'][k];sc('bgChest',lv,.2,.08);
+          vt=[['Breathe in','सांस अंदर लीजिए'],['Hold','रुकिए'],['Breathe out','सांस बाहर छोड़िए'],['Hold again','फिर रुकिए']][k];
+          return ['Breathe IN through the nose, chest expands','Hold gently','Breathe OUT slowly, chest relaxes','Hold gently'][k]},
+        t=>{const nr=Math.floor(t/5)%2===0,T=nr?[181,125]:[259,49];
+          $('bgNear').style.opacity=nr?1:.25;$('bgFar').style.opacity=nr?.25:1;
+          [[80,'bgPL','bgG1'],[120,'bgPR','bgG2']].forEach(e=>{const dx=T[0]-e[0],dy=T[1]-106,d=Math.hypot(dx,dy),g=$(e[2]);
+            $(e[1]).setAttribute('cx',e[0]+dx/d*5);$(e[1]).setAttribute('cy',106+dy/d*3.5);
+            g.setAttribute('x1',e[0]);g.setAttribute('y1',106);g.setAttribute('x2',T[0]);g.setAttribute('y2',T[1])});
+          vt=nr?['Look near','पास देखिए']:['Look far','दूर देखिए'];
+          return nr?'Look at the NEAR object, focus sharply':'Look FAR away, let your eyes relax'},
+        t=>{const s=.5-.5*Math.cos(t*Math.PI*2/3);
+          ['AL','AR','LL','LR'].forEach(k=>{const q=PA[k].map((p,i)=>[p[0]+(PB[k][i][0]-p[0])*s,p[1]+(PB[k][i][1]-p[1])*s]),e=q[2];
+            $('bg'+k).setAttribute('points',q.map(p=>p.join(',')).join(' '));
+            const h=$((k[0]==='A'?'bgH':'bgF')+k[1]);h.setAttribute('cx',e[0]);h.setAttribute('cy',e[1])});
+          $('bgMarchTxt').textContent='Touches: '+(Math.floor(t/1.5)+1);
+          vt=['Keep marching, switch sides','चलते रहिए, पैर बदलिए'];return 'Knee up + opposite elbow down, switch sides'},
+        t=>{const g=Math.min(4,Math.floor(t/12)),u=t%12,te=u<5,C=[[150,122],[150,72],[150,40],[150,98],[150,160]];
+          for(let k=0;k<5;k++){const e=$('bgP'+k),on=k===g,c=C[k],s=on?(te?1.14+.03*Math.sin(u*40):1+.04*Math.sin(u*3)):1,sh=on&&te?Math.sin(u*60)*1.5:0;
+            e.setAttribute('class','pg'+(on?(te?' tense':' rel'):''));
+            e.setAttribute('transform','translate('+(c[0]+sh)+' '+c[1]+') scale('+s+') translate('+(-c[0])+' '+(-c[1])+')')}
+          $('bgPmrName').textContent=PN[g];$('bgPmrTxt').textContent=te?'TENSE '+(5-Math.floor(u))+'s':'RELEASE, feel the warmth';
+          vt=te?['Tense your '+PN[g].toLowerCase(),'कसिए: '+PNH[g]]:['Release, breathe out','ढीला छोड़िए, सांस छोड़िए'];
+          return te?'Tense your '+PN[g].toLowerCase()+' (firm, not painful)':'Let go completely, breathe out slowly'},
+        t=>{const c=t%10,inh=c<4,lv=inh?c/4:1-(c-4)/6,n=Math.floor(t/10)%10+1;
+          $('bgOrb').setAttribute('r',66+24*lv);sc('bgChest2',lv,.2,.08);$('bgOrbTxt').textContent=inh?'Inhale':'Exhale';$('bgOrbN').textContent='Breath count: '+n;
+          vt=inh?['Breathe in','सांस अंदर लीजिए']:['Breathe out. '+n,'सांस बाहर छोड़िए. '+n];
+          return inh?'Breathe in through the nose':'Breathe out slowly, count '+n+' (mind wandered? restart at 1)'}
+      ];
+      let vt=null,lastV='';
+      const VS=window.speechSynthesis;
+      const PNH=['मुट्ठी और कलाई','कंधे','चेहरा','पेट और छाती','पैर'];
+      function say(a){const m=$('bgVoice').value;if(!VS||m==='off'||!a)return;const hi=m==='hi',u=new SpeechSynthesisUtterance(hi?a[1]:a[0]);u.lang=hi?'hi-IN':'en-IN';
+        const vs=VS.getVoices().filter(v=>v.lang.replace('_','-').toLowerCase().indexOf(hi?'hi':'en')===0);
+        const pk=vs.find(v=>v.lang.replace('_','-').toLowerCase()===u.lang.toLowerCase())||vs[0];if(pk)u.voice=pk;u.rate=.85;VS.speak(u)}
+      function hush(){if(VS)VS.cancel()}
+      function bell(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;g.gain.setValueAtTime(.2,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+1.2);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+1.2)}catch(e){}}
+      function btn(){$('bgGo').innerHTML='<i class="bi bi-'+(run?'pause':'play')+'-fill"></i> '+(run?'Pause':(el>0&&el<tot?'Resume':'Start'))}
+      function build(){
+        steps=mode==='gym'?EX.map(e=>Object.assign({},e)):[Object.assign({},EX[4],{n:'Guided Meditation',d:(+$('bgMedLen').value)*60})];
+        tot=steps.reduce((a,s)=>a+s.d,0);el=0;cur=-1;run=false;hush();
+        $('bgSteps').innerHTML=steps.map((s,i)=>'<div class="bg-step" data-i="'+i+'"><span><i class="bi bi-'+s.ic+' me-2"></i>'+s.n+'</span><span>'+fmt(s.d)+'</span></div>').join('');
+        render();btn();
+      }
+      function render(){
+        let acc=0,i=0;while(i<steps.length-1&&el>=acc+steps[i].d){acc+=steps[i].d;i++}
+        const s=steps[i],t=Math.min(el-acc,s.d-.001);
+        if(i!==cur){if(cur>=0&&run){bell();say(['Next: '+s.n,'अगला अभ्यास: '+s.n])}cur=i;lastV='';$('bgName').textContent=s.n;
+          $('bgHow').innerHTML=s.how.map(h=>'<li>'+h+'</li>').join('');$('bgSci').textContent=s.sci;
+          document.querySelectorAll('#bgSvg>g').forEach((g,k)=>g.style.display=k===s.v?'':'none');
+          document.querySelectorAll('.bg-step').forEach((d,k)=>d.className='bg-step'+(k===i?' on':k<i?' done':''));}
+        $('bgTime').textContent=fmt(tot-el);$('bgBar').style.width=(el/tot*100)+'%';
+        vt=null;$('bgCue').textContent=VIS[s.v](t);if(run&&vt&&vt[0]!==lastV){lastV=vt[0];say(vt)}
+      }
+      function loop(){if(!run)return;const n=performance.now();el+=Math.min((n-last)/1000,.5);last=n;
+        if(el>=tot){el=tot;run=false;render();$('bgCue').textContent='Session complete! Great job. Take a deep breath and get back to studying.';$('bgBar').style.width='100%';bell();say(['Session complete. Well done.','सत्र पूरा हुआ। बहुत बढ़िया।']);btn();return}
+        render();requestAnimationFrame(loop)}
+      $('bgGo').onclick=()=>{if(el>=tot)build();run=!run;last=performance.now();if(run){bell();lastV='';try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
+        if(el<.5)say(mode==='med'?['Close your eyes and follow my voice. Breathe naturally.','आंखें बंद कीजिए और मेरी आवाज़ सुनिए। सहज रूप से सांस लीजिए।']:["Let's begin. First: "+steps[cur].n,'शुरू करते हैं। पहला अभ्यास: '+steps[cur].n]);loop()}else hush();btn()};
+      $('bgVoice').onchange=()=>{hush();lastV='';say(['Voice on','आवाज़ चालू है'])};
+      $('bgReset').onclick=build;
+      $('bgSteps').onclick=e=>{const d=e.target.closest('.bg-step');if(!d)return;el=steps.slice(0,+d.dataset.i).reduce((a,s)=>a+s.d,0);render();btn()};
+      $('bgModes').onclick=e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.m;
+        document.querySelectorAll('#bgModes button').forEach(x=>x.className='btn btn-sm '+(x===b?'btn-primary':'btn-outline-primary'));
+        $('bgMedLen').classList.toggle('d-none',mode!=='med');build()};
+      $('bgMedLen').onchange=build;
+      $('braingym-tab').addEventListener('hidden.bs.tab',()=>{run=false;hush();btn()});
+      build();
+    })();
   </script>
 </body>
 </html>
