@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 5.7 (Realistic Dynamic Sun/Moon Sky, Perfected Sunrise/Sunset & All Features Intact) -->
+<!-- ENDORANK Dashboard - Version 5.9 (Perfected Adaptive Contrast Typography & Real Sky Background) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,20 +45,20 @@
       overflow-x: hidden;
     }
 
-    /* 🌅☀️🌇🌙 IST Realistic Sky Gradients & Adaptive Contrast */
+    /* 🌅☀️🌇🌙 IST Realistic Sky Gradients & High-Contrast Readable Typography */
     html.theme-sunrise body {
       background: linear-gradient(135deg, #ffedd5 0%, #fdba74 50%, #ea580c 100%);
-      --card-bg: rgba(255, 255, 255, 0.94);
-      --text-main: #431407;
-      --text-muted: #9a3412;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #3b1104;
+      --text-muted: #842a0c;
       --border-color: #fed7aa;
       --accent: #c2410c;
       --table-hover: #ffedd5;
     }
     html.theme-day body {
       background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 50%, #0284c7 100%);
-      --card-bg: rgba(255, 255, 255, 0.96);
-      --text-main: #0c4a6e;
+      --card-bg: rgba(255, 255, 255, 0.97);
+      --text-main: #082f49;
       --text-muted: #0369a1;
       --border-color: #7dd3fc;
       --accent: #0369a1;
@@ -66,54 +66,53 @@
     }
     html.theme-sunset body {
       background: linear-gradient(135deg, #ffe4e6 0%, #fb7185 50%, #9f1239 100%);
-      --card-bg: rgba(255, 255, 255, 0.94);
-      --text-main: #4c0519;
-      --text-muted: #9f1239;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #3f0312;
+      --text-muted: #881337;
       --border-color: #fecdd3;
       --accent: #e11d48;
       --table-hover: #ffe4e6;
     }
     html.theme-night body {
       background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
-      --card-bg: rgba(17, 24, 39, 0.95);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --border-color: #1f2937;
+      --card-bg: rgba(17, 24, 39, 0.96);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
       --accent: #38bdf8;
       --table-hover: #1e293b;
     }
 
-    /* 🌟 Realistic Sky Celestial Object (Replaces logo-like box) */
-    .realistic-sky-celestial {
-      width: 55px;
-      height: 55px;
+    /* ☀️🌙 Real Background Sky Celestial Object */
+    #backgroundCelestial {
+      position: fixed;
+      top: 40px;
+      right: 60px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-      transition: all 1s ease-in-out;
-      position: relative;
+      z-index: -2;
+      pointer-events: none;
+      transition: all 1.5s ease-in-out;
+      opacity: 0.85;
     }
-    html.theme-sunrise .realistic-sky-celestial {
-      background: radial-gradient(circle, #fef08a 0%, #f97316 100%);
-      box-shadow: 0 0 35px #f97316;
+    html.theme-sunrise #backgroundCelestial {
+      background: radial-gradient(circle, #fef08a 0%, #f97316 70%, transparent 100%);
+      box-shadow: 0 0 70px 25px rgba(249, 115, 22, 0.6);
+      top: 60px;
     }
-    html.theme-day .realistic-sky-celestial {
-      background: radial-gradient(circle, #fef08a 0%, #eab308 100%);
-      box-shadow: 0 0 40px #facc15;
+    html.theme-day #backgroundCelestial {
+      background: radial-gradient(circle, #fef08a 0%, #eab308 70%, transparent 100%);
+      box-shadow: 0 0 90px 30px rgba(234, 179, 8, 0.7);
     }
-    html.theme-sunset .realistic-sky-celestial {
-      background: radial-gradient(circle, #fed7aa 0%, #e11d48 100%);
-      box-shadow: 0 0 35px #e11d48;
+    html.theme-sunset #backgroundCelestial {
+      background: radial-gradient(circle, #fed7aa 0%, #e11d48 70%, transparent 100%);
+      box-shadow: 0 0 70px 25px rgba(225, 29, 72, 0.6);
+      top: 70px;
     }
-    html.theme-night .realistic-sky-celestial {
-      background: radial-gradient(circle, #f8fafc 0%, #94a3b8 100%);
-      box-shadow: 0 0 25px rgba(248, 250, 252, 0.4);
-    }
-    .celestial-icon-inner {
-      font-size: 1.8rem;
-      user-select: none;
+    html.theme-night #backgroundCelestial {
+      background: radial-gradient(circle, #f8fafc 0%, #cbd5e1 70%, transparent 100%);
+      box-shadow: 0 0 50px 15px rgba(248, 250, 252, 0.3);
     }
 
     /* 🌟 Animated Night Sky Stars */
@@ -122,7 +121,7 @@
       background: #ffffff;
       border-radius: 50%;
       pointer-events: none;
-      z-index: -1;
+      z-index: -3;
       opacity: 0;
     }
     html.theme-night .sky-star {
@@ -134,22 +133,42 @@
       50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* ☁️ Floating Cloud Animation for Day & Sunrise Sky */
+    /* ☁️ Fluffy Organic Clouds for Sky Background */
     .sky-cloud {
       position: fixed;
-      background: rgba(255, 255, 255, 0.65);
-      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 100px;
       pointer-events: none;
-      z-index: -1;
+      z-index: -3;
       opacity: 0;
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
     }
-    html.theme-day .sky-cloud, html.theme-sunrise .sky-cloud {
-      opacity: 0.8;
-      animation: floatCloud 28s linear infinite;
+    .sky-cloud::before, .sky-cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+    }
+    .sky-cloud::before {
+      width: 55px;
+      height: 55px;
+      top: -25px;
+      left: 20px;
+    }
+    .sky-cloud::after {
+      width: 45px;
+      height: 45px;
+      top: -18px;
+      right: 25px;
+    }
+
+    html.theme-day .sky-cloud, html.theme-sunrise .sky-cloud, html.theme-sunset .sky-cloud {
+      opacity: 0.85;
+      animation: floatCloud 35s linear infinite;
     }
     @keyframes floatCloud {
-      from { transform: translateX(-180px); }
-      to { transform: translateX(calc(100vw + 180px)); }
+      from { transform: translateX(-220px); }
+      to { transform: translateX(calc(100vw + 220px)); }
     }
 
     .card {
@@ -157,11 +176,11 @@
       border: 1px solid var(--border-color) !important;
       border-radius: 14px;
       color: var(--text-main) !important;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(10px);
     }
     .card:hover {
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
     }
 
     .card-header {
@@ -263,11 +282,11 @@
     }
     .form-control:focus, .form-select:focus {
       border-color: var(--accent) !important;
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
     }
     .form-control::placeholder {
       color: var(--text-muted);
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     .quote-box {
@@ -329,7 +348,7 @@
     .mood-btn.selected {
       border-color: var(--text-main);
       transform: scale(1.06);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
     }
 
     .scheduled-test-card {
@@ -342,14 +361,14 @@
       border: 1px solid #f59e0b;
       border-radius: 12px;
       padding: 8px 14px;
-      color: #92400e;
+      color: #78350f;
       font-weight: bold;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .streak-widget-box:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
     }
 
     .table {
@@ -370,9 +389,11 @@
 </head>
 <body>
 
+  <!-- Real Background Sky Sun / Moon -->
+  <div id="backgroundCelestial"></div>
   <!-- Dynamic Star Container for Night Sky -->
   <div id="starContainer"></div>
-  <!-- Dynamic Cloud Container for Day & Sunrise Sky -->
+  <!-- Fluffy Cloud Container for Day, Sunrise & Sunset Sky -->
   <div id="cloudContainer"></div>
 
   <div class="container py-4">
@@ -380,11 +401,6 @@
     <header class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
       
       <div class="d-flex align-items-center gap-3">
-        <!-- Realistic Sky Celestial Widget -->
-        <div class="realistic-sky-celestial" id="celestialWidget" title="Real-Time Indian Standard Time (IST) Sky Phase">
-          <span id="celestialIcon" class="celestial-icon-inner">☀️</span>
-        </div>
-
         <div>
           <div class="endorank-brand">ENDORANK</div>
           <div class="d-flex align-items-center gap-2">
@@ -615,7 +631,7 @@
       <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
         <div class="card text-center p-5">
           <h3 class="h4 mb-3" style="color: var(--accent);"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Clock & Realistic Sky Cycle</h3>
-          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Sun/Moon/Cloud Cycle</p>
+          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Sun/Moon/Cloud Background Cycle</p>
           <div class="my-3">
             <span id="tabIstDateDisplay" class="h4 fw-bold text-secondary d-block mb-2">Loading Date...</span>
             <span id="tabIstClockDisplay" class="display-3 fw-bold font-monospace p-4 border rounded shadow-sm d-inline-block" style="background: var(--card-bg);">00:00:00 AM IST</span>
@@ -720,7 +736,7 @@
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 (Clean Numbers: Red=Wrong, Yellow=Guess, Blue=Skip) -->
+                <!-- Bubble Grid for 1-180 -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
                     <span>Click Bubbles (1-180): <span style="color:#dc2626;">Red(Wrong)</span> | <span style="color:#ca8a04;">Yellow(Guess)</span> | <span style="color:#0284c7;">Blue(Skip)</span></span>
@@ -1293,7 +1309,7 @@
       });
     });
 
-    // ✨ Initialize Background Stars & Clouds dynamically
+    // ✨ Initialize Background Stars & Fluffy Organic Clouds
     function initStarsAndClouds() {
       const starContainer = document.getElementById('starContainer');
       for(let i=0; i<60; i++) {
@@ -1311,20 +1327,19 @@
       for(let i=0; i<6; i++) {
         const cloud = document.createElement('div');
         cloud.className = 'sky-cloud';
-        cloud.style.width = `${Math.random() * 140 + 90}px`;
-        cloud.style.height = `${Math.random() * 35 + 22}px`;
-        cloud.style.top = `${Math.random() * 55}vh`;
-        cloud.style.left = `-${Math.random() * 200}px`;
-        cloud.style.animationDuration = `${Math.random() * 20 + 20}s`;
-        cloud.style.animationDelay = `${Math.random() * 12}s`;
+        cloud.style.width = `${Math.random() * 130 + 100}px`;
+        cloud.style.height = `${Math.random() * 20 + 35}px`;
+        cloud.style.top = `${Math.random() * 50}vh`;
+        cloud.style.left = `-${Math.random() * 250}px`;
+        cloud.style.animationDuration = `${Math.random() * 22 + 25}s`;
+        cloud.style.animationDelay = `${Math.random() * 15}s`;
         cloudContainer.appendChild(cloud);
       }
     }
 
-    // 🌅☀️🌇🌙 Real-Time IST Dynamic Sky & Realistic Celestial Cycle
+    // 🌅☀️🌇🌙 Real-Time IST Dynamic Sky & Typography Contrast Cycle
     function updateDayNightCycle(istHour, istMinutes) {
       const rootEl = document.documentElement;
-      const celestialIcon = document.getElementById('celestialIcon');
       const badge = document.getElementById('skyPhaseBadge');
 
       const totalMinutes = istHour * 60 + istMinutes;
@@ -1332,22 +1347,18 @@
 
       if (totalMinutes >= 360 && totalMinutes < 480) {
         newTheme = 'theme-sunrise';
-        celestialIcon.innerText = '🌅';
         badge.innerText = 'Sunrise Sky 🌅';
         badge.className = 'badge rounded-pill bg-warning text-dark small';
       } else if (totalMinutes >= 480 && totalMinutes < 1020) {
         newTheme = 'theme-day';
-        celestialIcon.innerText = '☀️';
         badge.innerText = 'Day Sky ☀️';
         badge.className = 'badge rounded-pill bg-info text-dark small';
       } else if (totalMinutes >= 1020 && totalMinutes < 1140) {
         newTheme = 'theme-sunset';
-        celestialIcon.innerText = '🌇';
         badge.innerText = 'Sunset Sky 🌇';
         badge.className = 'badge rounded-pill bg-danger text-white small';
       } else {
         newTheme = 'theme-night';
-        celestialIcon.innerText = '🌙';
         badge.innerText = 'Night Starry Sky 🌙';
         badge.className = 'badge rounded-pill bg-primary text-white small';
       }
