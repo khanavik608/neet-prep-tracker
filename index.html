@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 6.3 (Clean Error Notebook Popup with Question Number Badges) -->
+<!-- ENDORANK Dashboard - Version 6.4 (With Brain Gym & Scientific Under-10-Min Focus Exercises) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -402,6 +402,7 @@
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 flex-wrap" id="mainAppTabs" role="tablist">
       <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#tab-dashboard" type="button"><i class="bi bi-speedometer2 me-1"></i>Dashboard</button></li>
       <li class="nav-item"><button class="nav-link" id="practice-tracker-tab" data-bs-toggle="pill" data-bs-target="#tab-practice" type="button"><i class="bi bi-journal-check me-1"></i>Practice & PYQs Tracker</button></li>
+      <li class="nav-item"><button class="nav-link" id="brain-gym-tab" data-bs-toggle="pill" data-bs-target="#tab-brain-gym" type="button"><i class="bi bi-cpu me-1"></i>🧠 Brain Gym (5-10 Min)</button></li>
       <li class="nav-item"><button class="nav-link" id="clock-section-tab" data-bs-toggle="pill" data-bs-target="#tab-clock-section" type="button"><i class="bi bi-clock me-1"></i>IST Clock</button></li>
       <li class="nav-item"><button class="nav-link" id="focus-timer-tab" data-bs-toggle="pill" data-bs-target="#tab-focus-timer" type="button"><i class="bi bi-aspect-ratio me-1"></i>Big Screen Timer</button></li>
       <li class="nav-item"><button class="nav-link" id="full-todo-tab" data-bs-toggle="pill" data-bs-target="#tab-full-todo" type="button"><i class="bi bi-list-check me-1"></i>To-Do Section</button></li>
@@ -583,6 +584,110 @@
               </thead>
               <tbody id="practiceTableBody"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: 🧠 Brain Gym & Neuro-Boost Section (5 Scientific Exercises under 5-10 Mins) -->
+      <div class="tab-pane fade" id="tab-brain-gym" role="tabpanel">
+        <div class="card p-4 mb-4">
+          <div class="text-center mb-4">
+            <h3 class="h4 fw-bold" style="color: var(--accent);"><i class="bi bi-cpu me-2"></i>🧠 Brain Gym & Neuro-Boost (Under 5-10 Min Exercises)</h3>
+            <p class="text-muted small">Scientifically proven micro-exercises backed by neuroscience to instantly spike dopamine, clear brain fog, boost working memory, and sharpen NEET analytical focus.</p>
+          </div>
+
+          <div class="row g-4">
+            <!-- Exercise 1 -->
+            <div class="col-md-6">
+              <div class="card p-3 h-100 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color: var(--accent);">1. Dual N-Back Working Memory Drill</h5>
+                  <span class="badge bg-warning text-dark">5 Mins</span>
+                </div>
+                <p class="small text-muted mb-3"><b>Science:</b> Proven by neuroscientists to increase fluid intelligence (IQ) and prefrontal cortex activation by holding auditory and visual stimuli simultaneously.</p>
+                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain1">05:00</div>
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain1', 300)"><i class="bi bi-play-fill"></i> Start (5m)</button>
+                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain1')"><i class="bi bi-pause-fill"></i></button>
+                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain1', 300)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exercise 2 -->
+            <div class="col-md-6">
+              <div class="card p-3 h-100 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color: var(--accent);">2. Aerobic High-Focus Interval Sprint</h5>
+                  <span class="badge bg-danger">10 Mins</span>
+                </div>
+                <p class="small text-muted mb-3"><b>Science:</b> Rapid heart rate boosts BDNF (Brain-Derived Neurotrophic Factor), instantly clearing cognitive fatigue and enhancing synaptic plasticity.</p>
+                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain2">10:00</div>
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain2', 600)"><i class="bi bi-play-fill"></i> Start (10m)</button>
+                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain2')"><i class="bi bi-pause-fill"></i></button>
+                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain2', 600)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exercise 3 -->
+            <div class="col-md-6">
+              <div class="card p-3 h-100 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color: var(--accent);">3. Non-Sleep Deep Rest (NSDR) Protocol</h5>
+                  <span class="badge bg-info text-dark">10 Mins</span>
+                </div>
+                <p class="small text-muted mb-3"><b>Science:</b> Deep sensory relaxation protocol popularized by Stanford neurobiologists to clear adenosine, reset dopamine, and fast-track memory consolidation.</p>
+                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain3">10:00</div>
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain3', 600)"><i class="bi bi-play-fill"></i> Start (10m)</button>
+                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain3')"><i class="bi bi-pause-fill"></i></button>
+                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain3', 600)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exercise 4 -->
+            <div class="col-md-6">
+              <div class="card p-3 h-100 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color: var(--accent);">4. Finger-Tapping Motor Skill Circuit</h5>
+                  <span class="badge bg-success">5 Mins</span>
+                </div>
+                <p class="small text-muted mb-3"><b>Science:</b> Complex fine-motor sequencing activates the cerebellum and motor cortex, triggering immediate neural firing and alertness.</p>
+                <div class="p-3 rounded mb-3 text-center border font-monospace" style="background: var(--card-bg); font-size: 1.8rem;" id="timerDisplay_brain4">05:00</div>
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                  <button class="btn btn-sm btn-accent px-3 fw-semibold" onclick="startBrainTimer('brain4', 300)"><i class="bi bi-play-fill"></i> Start (5m)</button>
+                  <button class="btn btn-sm btn-outline-secondary px-2" onclick="pauseBrainTimer('brain4')"><i class="bi bi-pause-fill"></i></button>
+                  <button class="btn btn-sm btn-outline-danger px-2" onclick="resetBrainTimer('brain4', 300)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exercise 5 -->
+            <div class="col-md-12">
+              <div class="card p-3 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color: var(--accent);">5. Spatial Recall & Mental Rotation Drill</h5>
+                  <span class="badge bg-primary">5 Mins</span>
+                </div>
+                <p class="small text-muted mb-3"><b>Science:</b> Visualizing and mentally rotating 3D objects stimulates parietal lobe networks, directly strengthening physics diagram visualization.</p>
+                <div class="row align-items-center">
+                  <div class="col-md-4 text-center">
+                    <div class="p-3 rounded border font-monospace" style="background: var(--card-bg); font-size: 2.2rem;" id="timerDisplay_brain5">05:00</div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="d-flex justify-content-start gap-2">
+                      <button class="btn btn-sm btn-accent px-4 fw-semibold" onclick="startBrainTimer('brain5', 300)"><i class="bi bi-play-fill"></i> Start Drill (5m)</button>
+                      <button class="btn btn-sm btn-outline-secondary px-3" onclick="pauseBrainTimer('brain5')"><i class="bi bi-pause-fill"></i> Pause</button>
+                      <button class="btn btn-sm btn-outline-danger px-3" onclick="resetBrainTimer('brain5', 300)"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1040,6 +1145,9 @@
     let bubbleStates = {}; 
     let selectedMoodData = { mood: 'Happy', color: '#16a34a' };
 
+    // Brain Gym Timers state
+    let brainTimers = {};
+
     const quotes = [
       { text: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
       { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
@@ -1261,6 +1369,52 @@
         }
       });
     });
+
+    // 🧠 Brain Gym Micro-Timers Logic (Under 5-10 Min)
+    function startBrainTimer(id, totalSecs) {
+      if (brainTimers[id] && brainTimers[id].running) return;
+
+      if (!brainTimers[id]) {
+        brainTimers[id] = { timeLeft: totalSecs, intervalId: null, running: false, initialSecs: totalSecs };
+      }
+
+      brainTimers[id].running = true;
+      brainTimers[id].intervalId = setInterval(() => {
+        if (brainTimers[id].timeLeft > 0) {
+          brainTimers[id].timeLeft--;
+          updateBrainTimerDisplay(id);
+        } else {
+          clearInterval(brainTimers[id].intervalId);
+          brainTimers[id].running = false;
+          alert('🧠 Brain Gym Exercise Completed! Incredible focus boost!');
+        }
+      }, 1000);
+    }
+
+    function pauseBrainTimer(id) {
+      if (brainTimers[id] && brainTimers[id].running) {
+        clearInterval(brainTimers[id].intervalId);
+        brainTimers[id].running = false;
+      }
+    }
+
+    function resetBrainTimer(id, totalSecs) {
+      pauseBrainTimer(id);
+      if (!brainTimers[id]) {
+        brainTimers[id] = { timeLeft: totalSecs, intervalId: null, running: false, initialSecs: totalSecs };
+      } else {
+        brainTimers[id].timeLeft = totalSecs;
+      }
+      updateBrainTimerDisplay(id);
+    }
+
+    function updateBrainTimerDisplay(id) {
+      const t = brainTimers[id] ? brainTimers[id].timeLeft : 300;
+      const mins = String(Math.floor(t / 60)).padStart(2, '0');
+      const secs = String(t % 60).padStart(2, '0');
+      const el = document.getElementById(`timerDisplay_${id}`);
+      if (el) el.innerText = `${mins}:${secs}`;
+    }
 
     // ✨ Initialize Background Stars (Clean Sky, No Clouds)
     function initStars() {
