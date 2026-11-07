@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 5.9 (Perfected Adaptive Contrast Typography & Real Sky Background) -->
+<!-- ENDORANK Dashboard - Version 6.1 (Clean Error Review Popup: Only Wrong, Guess & Skip Shown) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,36 +83,36 @@
       --table-hover: #1e293b;
     }
 
-    /* ☀️🌙 Real Background Sky Celestial Object */
+    /* ☀️🌙 Realistic Sun / Moon positioned on the Right Side of the Sky Background */
     #backgroundCelestial {
       position: fixed;
-      top: 40px;
-      right: 60px;
-      width: 90px;
-      height: 90px;
+      top: 45px;
+      right: 70px;
+      width: 95px;
+      height: 95px;
       border-radius: 50%;
       z-index: -2;
       pointer-events: none;
       transition: all 1.5s ease-in-out;
-      opacity: 0.85;
+      opacity: 0.9;
     }
     html.theme-sunrise #backgroundCelestial {
       background: radial-gradient(circle, #fef08a 0%, #f97316 70%, transparent 100%);
-      box-shadow: 0 0 70px 25px rgba(249, 115, 22, 0.6);
-      top: 60px;
+      box-shadow: 0 0 75px 25px rgba(249, 115, 22, 0.65);
+      top: 75px;
     }
     html.theme-day #backgroundCelestial {
       background: radial-gradient(circle, #fef08a 0%, #eab308 70%, transparent 100%);
-      box-shadow: 0 0 90px 30px rgba(234, 179, 8, 0.7);
+      box-shadow: 0 0 95px 30px rgba(234, 179, 8, 0.75);
     }
     html.theme-sunset #backgroundCelestial {
       background: radial-gradient(circle, #fed7aa 0%, #e11d48 70%, transparent 100%);
-      box-shadow: 0 0 70px 25px rgba(225, 29, 72, 0.6);
-      top: 70px;
+      box-shadow: 0 0 75px 25px rgba(225, 29, 72, 0.65);
+      top: 85px;
     }
     html.theme-night #backgroundCelestial {
       background: radial-gradient(circle, #f8fafc 0%, #cbd5e1 70%, transparent 100%);
-      box-shadow: 0 0 50px 15px rgba(248, 250, 252, 0.3);
+      box-shadow: 0 0 55px 15px rgba(248, 250, 252, 0.35);
     }
 
     /* 🌟 Animated Night Sky Stars */
@@ -131,44 +131,6 @@
     @keyframes twinkle {
       0%, 100% { opacity: 0.3; transform: scale(0.8); }
       50% { opacity: 1; transform: scale(1.2); }
-    }
-
-    /* ☁️ Fluffy Organic Clouds for Sky Background */
-    .sky-cloud {
-      position: fixed;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 100px;
-      pointer-events: none;
-      z-index: -3;
-      opacity: 0;
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
-    }
-    .sky-cloud::before, .sky-cloud::after {
-      content: '';
-      position: absolute;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 50%;
-    }
-    .sky-cloud::before {
-      width: 55px;
-      height: 55px;
-      top: -25px;
-      left: 20px;
-    }
-    .sky-cloud::after {
-      width: 45px;
-      height: 45px;
-      top: -18px;
-      right: 25px;
-    }
-
-    html.theme-day .sky-cloud, html.theme-sunrise .sky-cloud, html.theme-sunset .sky-cloud {
-      opacity: 0.85;
-      animation: floatCloud 35s linear infinite;
-    }
-    @keyframes floatCloud {
-      from { transform: translateX(-220px); }
-      to { transform: translateX(calc(100vw + 220px)); }
     }
 
     .card {
@@ -389,12 +351,10 @@
 </head>
 <body>
 
-  <!-- Real Background Sky Sun / Moon -->
+  <!-- Real Background Sun / Moon Positioned on Right Side -->
   <div id="backgroundCelestial"></div>
   <!-- Dynamic Star Container for Night Sky -->
   <div id="starContainer"></div>
-  <!-- Fluffy Cloud Container for Day, Sunrise & Sunset Sky -->
-  <div id="cloudContainer"></div>
 
   <div class="container py-4">
     <!-- Header -->
@@ -631,7 +591,7 @@
       <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
         <div class="card text-center p-5">
           <h3 class="h4 mb-3" style="color: var(--accent);"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Clock & Realistic Sky Cycle</h3>
-          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Sun/Moon/Cloud Background Cycle</p>
+          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Clean Sun/Moon Background Cycle</p>
           <div class="my-3">
             <span id="tabIstDateDisplay" class="h4 fw-bold text-secondary d-block mb-2">Loading Date...</span>
             <span id="tabIstClockDisplay" class="display-3 fw-bold font-monospace p-4 border rounded shadow-sm d-inline-block" style="background: var(--card-bg);">00:00:00 AM IST</span>
@@ -723,23 +683,23 @@
                     <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="140" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testWrongCount" class="form-label small fw-bold" style="color: #dc2626;">Wrong:</label>
+                    <label for="testWrongCount" class="form-label small fw-bold" style="color: #dc2626;">Wrong (1x):</label>
                     <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="30" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testGuessCount" class="form-label small fw-bold" style="color: #ca8a04;">Guess:</label>
+                    <label for="testGuessCount" class="form-label small fw-bold" style="color: #ca8a04;">Guess (2x):</label>
                     <input type="number" id="testGuessCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testSkipCount" class="form-label small fw-bold" style="color: #0284c7;">Skip:</label>
+                    <label for="testSkipCount" class="form-label small fw-bold" style="color: #0284c7;">Skip (3x):</label>
                     <input type="number" id="testSkipCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 -->
+                <!-- Bubble Grid for 1-180 with 4 states -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
-                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">Red(Wrong)</span> | <span style="color:#ca8a04;">Yellow(Guess)</span> | <span style="color:#0284c7;">Blue(Skip)</span></span>
+                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">1x Wrong</span> | <span style="color:#ca8a04;">2x Guess</span> | <span style="color:#0284c7;">3x Skip</span> | <span style="color:var(--text-muted);">4x Normal</span></span>
                     <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
                   </label>
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
@@ -787,7 +747,7 @@
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 mb-0" style="color: var(--accent);"><i class="bi bi-award me-2"></i>All Tests & Error Notebook Panel</h3>
-            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Click any test row below to view detailed question analysis popup!</small>
+            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Click any test row below to view detailed question analysis popup (Only Wrong, Guess & Skip shown)!</small>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -797,9 +757,9 @@
                   <th>Target (/720)</th>
                   <th>Marks (/720)</th>
                   <th style="color: #16a34a; font-weight: bold;">Correct</th>
-                  <th style="color: #dc2626; font-weight: bold;">Wrong</th>
-                  <th style="color: #ca8a04; font-weight: bold;">Guess</th>
-                  <th style="color: #0284c7; font-weight: bold;">Skip</th>
+                  <th style="color: #dc2626; font-weight: bold;">Wrong (1x)</th>
+                  <th style="color: #ca8a04; font-weight: bold;">Guess (2x)</th>
+                  <th style="color: #0284c7; font-weight: bold;">Skip (3x)</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -935,12 +895,12 @@
     </div>
   </div>
 
-  <!-- 🔍 Detailed Test Error Review Popup Modal -->
+  <!-- 🔍 Detailed Test Error Review Popup Modal (Only Wrong, Guess & Skip Shown, No Normal) -->
   <div class="modal fade" id="testReviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content p-3 shadow-lg border-0">
         <div class="modal-header border-bottom">
-          <h5 class="modal-title fw-bold" id="reviewModalTitle" style="color: var(--accent);"><i class="bi bi-journal-medical me-2"></i>Test Error Review</h5>
+          <h5 class="modal-title fw-bold" id="reviewModalTitle" style="color: var(--accent);"><i class="bi bi-journal-medical me-2"></i>Test Error Review (Wrong, Guess & Skip Only)</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -961,10 +921,9 @@
 
           <div class="mb-3">
             <div class="d-flex gap-4 mb-2 small fw-bold">
-              <span style="color: #dc2626;">■ Wrong</span>
-              <span style="color: #ca8a04;">■ Guess</span>
-              <span style="color: #0284c7;">■ Skip</span>
-              <span style="color: var(--text-muted);">■ Normal</span>
+              <span style="color: #dc2626;">■ Wrong (1x)</span>
+              <span style="color: #ca8a04;">■ Guess (2x)</span>
+              <span style="color: #0284c7;">■ Skip (3x)</span>
             </div>
             <div id="reviewBubbleGridContainer" class="bubble-grid-box" style="max-height: 250px;"></div>
           </div>
@@ -1101,7 +1060,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadLocalStorageData();
       evaluateDayStreakOnly();
-      initStarsAndClouds();
+      initStars();
       initISTClockAndDate();
       initISTCountdown();
       initTimers();
@@ -1309,8 +1268,8 @@
       });
     });
 
-    // ✨ Initialize Background Stars & Fluffy Organic Clouds
-    function initStarsAndClouds() {
+    // ✨ Initialize Background Stars (Clean Sky, No Clouds)
+    function initStars() {
       const starContainer = document.getElementById('starContainer');
       for(let i=0; i<60; i++) {
         const star = document.createElement('div');
@@ -1321,19 +1280,6 @@
         star.style.left = `${Math.random() * 100}vw`;
         star.style.animationDelay = `${Math.random() * 3}s`;
         starContainer.appendChild(star);
-      }
-
-      const cloudContainer = document.getElementById('cloudContainer');
-      for(let i=0; i<6; i++) {
-        const cloud = document.createElement('div');
-        cloud.className = 'sky-cloud';
-        cloud.style.width = `${Math.random() * 130 + 100}px`;
-        cloud.style.height = `${Math.random() * 20 + 35}px`;
-        cloud.style.top = `${Math.random() * 50}vh`;
-        cloud.style.left = `-${Math.random() * 250}px`;
-        cloud.style.animationDuration = `${Math.random() * 22 + 25}s`;
-        cloud.style.animationDelay = `${Math.random() * 15}s`;
-        cloudContainer.appendChild(cloud);
       }
     }
 
@@ -1460,6 +1406,7 @@
       document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Highest Session: <b>${peakFormatted}</b>`;
     }
 
+    // 🔍 Error Review Popup Modal: ONLY Wrong, Guess & Skip Shown (Normal ignored)
     function openTestReviewModal(testId) {
       const test = appData.tests.find(t => t.id === testId);
       if(!test) return;
@@ -1475,15 +1422,22 @@
       const bubbleMap = test.bubbleMap || {};
 
       for(let i = 1; i <= 180; i++) {
+        const state = bubbleMap[i] || 4;
+        
+        // Agar state 4 (Normal) hai, toh error review grid mein show hi nahi karenge!
+        if (state === 4) continue;
+
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn bubble-btn';
         btn.innerText = i;
         
-        const state = bubbleMap[i] || 4;
         applyBubbleStyle(btn, state);
-
         container.appendChild(btn);
+      }
+
+      if(container.children.length === 0) {
+        container.innerHTML = '<span class="text-muted small py-2">No Wrong, Guess or Skip questions marked in this test! Excellent performance!</span>';
       }
 
       const reviewModal = new bootstrap.Modal(document.getElementById('testReviewModal'));
@@ -1737,6 +1691,7 @@
       }
     }
 
+    // 🎯 Add Completed Test Analysis Bubble Grid (1x Wrong, 2x Guess, 3x Skip, 4x Normal)
     function renderBubbleGrid() {
       const container = document.getElementById('bubbleGridContainer');
       if(!container) return;
@@ -1762,21 +1717,29 @@
     function applyBubbleStyle(btn, state) {
       btn.className = 'btn bubble-btn';
       if(state === 1) { 
+        // 1x Click -> Wrong (Red)
         btn.style.backgroundColor = '#dc2626'; 
         btn.style.color = '#fff'; 
         btn.style.borderColor = '#dc2626';
+        btn.title = `Q${btn.innerText}: Wrong (1x)`;
       } else if(state === 2) { 
+        // 2x Click -> Guess (Yellow)
         btn.style.backgroundColor = '#eab308'; 
         btn.style.color = '#111827'; 
         btn.style.borderColor = '#eab308';
+        btn.title = `Q${btn.innerText}: Guess (2x)`;
       } else if(state === 3) { 
+        // 3x Click -> Skip (Blue)
         btn.style.backgroundColor = '#0284c7'; 
         btn.style.color = '#fff'; 
         btn.style.borderColor = '#0284c7';
+        btn.title = `Q${btn.innerText}: Skip (3x)`;
       } else { 
+        // 4x Click -> Normal (Default outline)
         btn.style.backgroundColor = ''; 
         btn.style.color = ''; 
         btn.classList.add('btn-outline-secondary'); 
+        btn.title = `Q${btn.innerText}: Normal (4x)`;
       }
     }
 
