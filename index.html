@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 6.1 (Clean Error Review Popup: Only Wrong, Guess & Skip Shown) -->
+<!-- ENDORANK Dashboard - Version 6.3 (Clean Error Notebook Popup with Question Number Badges) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -365,7 +365,7 @@
           <div class="endorank-brand">ENDORANK</div>
           <div class="d-flex align-items-center gap-2">
             <h1 class="h6 mb-0 fw-bold">NEET Prep & Focus Dashboard</h1>
-            <span id="skyPhaseBadge" class="badge rounded-pill bg-info text-dark small" style="font-size: 10px;">Day Sky</span>
+            <span id="skyPhaseBadge" class="badge rounded-pill bg-info text-dark small" style="font-size: 10px;">Day</span>
           </div>
         </div>
       </div>
@@ -683,23 +683,23 @@
                     <input type="number" id="testCorrectCount" class="form-control form-control-sm" placeholder="140" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testWrongCount" class="form-label small fw-bold" style="color: #dc2626;">Wrong (1x):</label>
+                    <label for="testWrongCount" class="form-label small fw-bold" style="color: #dc2626;">Wrong:</label>
                     <input type="number" id="testWrongCount" class="form-control form-control-sm" placeholder="30" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testGuessCount" class="form-label small fw-bold" style="color: #ca8a04;">Guess (2x):</label>
+                    <label for="testGuessCount" class="form-label small fw-bold" style="color: #ca8a04;">Guess:</label>
                     <input type="number" id="testGuessCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                   <div class="col-3">
-                    <label for="testSkipCount" class="form-label small fw-bold" style="color: #0284c7;">Skip (3x):</label>
+                    <label for="testSkipCount" class="form-label small fw-bold" style="color: #0284c7;">Skip:</label>
                     <input type="number" id="testSkipCount" class="form-control form-control-sm" placeholder="5" min="0" max="180">
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 with 4 states -->
+                <!-- Bubble Grid for 1-180 with 1x, 2x, 3x, 4x instructions -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
-                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">1x Wrong</span> | <span style="color:#ca8a04;">2x Guess</span> | <span style="color:#0284c7;">3x Skip</span> | <span style="color:var(--text-muted);">4x Normal</span></span>
+                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">1x = Wrong</span> | <span style="color:#ca8a04;">2x = Guess</span> | <span style="color:#0284c7;">3x = Skip</span> | <span style="color:var(--text-muted);">4x = Normal</span></span>
                     <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
                   </label>
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
@@ -757,9 +757,9 @@
                   <th>Target (/720)</th>
                   <th>Marks (/720)</th>
                   <th style="color: #16a34a; font-weight: bold;">Correct</th>
-                  <th style="color: #dc2626; font-weight: bold;">Wrong (1x)</th>
-                  <th style="color: #ca8a04; font-weight: bold;">Guess (2x)</th>
-                  <th style="color: #0284c7; font-weight: bold;">Skip (3x)</th>
+                  <th style="color: #dc2626; font-weight: bold;">Wrong</th>
+                  <th style="color: #ca8a04; font-weight: bold;">Guess</th>
+                  <th style="color: #0284c7; font-weight: bold;">Skip</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -895,12 +895,12 @@
     </div>
   </div>
 
-  <!-- 🔍 Detailed Test Error Review Popup Modal (Only Wrong, Guess & Skip Shown, No Normal) -->
+  <!-- 🔍 Error Notebook Popup Modal (Categorized Question Numbers pop up) -->
   <div class="modal fade" id="testReviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content p-3 shadow-lg border-0">
         <div class="modal-header border-bottom">
-          <h5 class="modal-title fw-bold" id="reviewModalTitle" style="color: var(--accent);"><i class="bi bi-journal-medical me-2"></i>Test Error Review (Wrong, Guess & Skip Only)</h5>
+          <h5 class="modal-title fw-bold" id="reviewModalTitle" style="color: var(--accent);"><i class="bi bi-journal-medical me-2"></i>Error Notebook Panel</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -919,14 +919,8 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <div class="d-flex gap-4 mb-2 small fw-bold">
-              <span style="color: #dc2626;">■ Wrong (1x)</span>
-              <span style="color: #ca8a04;">■ Guess (2x)</span>
-              <span style="color: #0284c7;">■ Skip (3x)</span>
-            </div>
-            <div id="reviewBubbleGridContainer" class="bubble-grid-box" style="max-height: 250px;"></div>
-          </div>
+          <!-- Categorized Error Notebook Question Number Badges -->
+          <div id="reviewContentContainer"></div>
         </div>
         <div class="modal-footer border-top">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
@@ -1293,19 +1287,19 @@
 
       if (totalMinutes >= 360 && totalMinutes < 480) {
         newTheme = 'theme-sunrise';
-        badge.innerText = 'Sunrise Sky 🌅';
+        badge.innerText = 'Sunrise 🌅';
         badge.className = 'badge rounded-pill bg-warning text-dark small';
       } else if (totalMinutes >= 480 && totalMinutes < 1020) {
         newTheme = 'theme-day';
-        badge.innerText = 'Day Sky ☀️';
+        badge.innerText = 'Day ☀️';
         badge.className = 'badge rounded-pill bg-info text-dark small';
       } else if (totalMinutes >= 1020 && totalMinutes < 1140) {
         newTheme = 'theme-sunset';
-        badge.innerText = 'Sunset Sky 🌇';
+        badge.innerText = 'Sunset 🌇';
         badge.className = 'badge rounded-pill bg-danger text-white small';
       } else {
         newTheme = 'theme-night';
-        badge.innerText = 'Night Starry Sky 🌙';
+        badge.innerText = 'Night 🌙';
         badge.className = 'badge rounded-pill bg-primary text-white small';
       }
 
@@ -1406,39 +1400,52 @@
       document.getElementById('streakInfoDisplay').innerHTML = `Day Streak: <b>${appData.streakData.dayStreak}d</b> | Highest Session: <b>${peakFormatted}</b>`;
     }
 
-    // 🔍 Error Review Popup Modal: ONLY Wrong, Guess & Skip Shown (Normal ignored)
+    // 🔍 Error Notebook Popup Modal: Categorized Question Badges (Wrong, Guess, Skip)
     function openTestReviewModal(testId) {
       const test = appData.tests.find(t => t.id === testId);
       if(!test) return;
 
-      document.getElementById('reviewModalTitle').innerHTML = `<i class="bi bi-journal-medical me-2"></i>Error Review: ${test.name}`;
+      document.getElementById('reviewModalTitle').innerHTML = `<i class="bi bi-journal-medical me-2"></i>Error Notebook: ${test.name}`;
       document.getElementById('reviewTargetDisplay').innerText = test.target || 0;
       document.getElementById('reviewMarksDisplay').innerText = `${test.marks} / 720`;
       document.getElementById('reviewDateDisplay').innerText = test.date;
 
-      const container = document.getElementById('reviewBubbleGridContainer');
-      container.innerHTML = '';
-
       const bubbleMap = test.bubbleMap || {};
+
+      let wrongList = [];
+      let guessList = [];
+      let skipList = [];
 
       for(let i = 1; i <= 180; i++) {
         const state = bubbleMap[i] || 4;
-        
-        // Agar state 4 (Normal) hai, toh error review grid mein show hi nahi karenge!
-        if (state === 4) continue;
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn bubble-btn';
-        btn.innerText = i;
-        
-        applyBubbleStyle(btn, state);
-        container.appendChild(btn);
+        if(state === 1) wrongList.push(i);
+        else if(state === 2) guessList.push(i);
+        else if(state === 3) skipList.push(i);
       }
 
-      if(container.children.length === 0) {
-        container.innerHTML = '<span class="text-muted small py-2">No Wrong, Guess or Skip questions marked in this test! Excellent performance!</span>';
-      }
+      const container = document.getElementById('reviewContentContainer');
+      container.innerHTML = `
+        <div class="mb-3 p-3 rounded border" style="background: var(--card-bg);">
+          <h6 class="fw-bold text-danger mb-2"><i class="bi bi-x-circle-fill me-1"></i>Wrong Questions (1x Click):</h6>
+          <div class="d-flex flex-wrap gap-2">
+            ${wrongList.length > 0 ? wrongList.map(q => `<span class="badge bg-danger fs-6 px-2 py-1">Q${q}</span>`).join('') : '<span class="text-muted small">None</span>'}
+          </div>
+        </div>
+
+        <div class="mb-3 p-3 rounded border" style="background: var(--card-bg);">
+          <h6 class="fw-bold mb-2" style="color: #ca8a04;"><i class="bi bi-question-circle-fill me-1"></i>Guess Questions (2x Click):</h6>
+          <div class="d-flex flex-wrap gap-2">
+            ${guessList.length > 0 ? guessList.map(q => `<span class="badge text-dark fs-6 px-2 py-1" style="background-color: #eab308;">Q${q}</span>`).join('') : '<span class="text-muted small">None</span>'}
+          </div>
+        </div>
+
+        <div class="mb-3 p-3 rounded border" style="background: var(--card-bg);">
+          <h6 class="fw-bold text-primary mb-2"><i class="bi bi-dash-circle-fill me-1"></i>Skip Questions (3x Click):</h6>
+          <div class="d-flex flex-wrap gap-2">
+            ${skipList.length > 0 ? skipList.map(q => `<span class="badge bg-primary fs-6 px-2 py-1">Q${q}</span>`).join('') : '<span class="text-muted small">None</span>'}
+          </div>
+        </div>
+      `;
 
       const reviewModal = new bootstrap.Modal(document.getElementById('testReviewModal'));
       reviewModal.show();
@@ -1691,7 +1698,7 @@
       }
     }
 
-    // 🎯 Add Completed Test Analysis Bubble Grid (1x Wrong, 2x Guess, 3x Skip, 4x Normal)
+    // 🎯 Add Completed Test Analysis Bubble Grid (1x = Wrong, 2x = Guess, 3x = Skip, 4x = Normal)
     function renderBubbleGrid() {
       const container = document.getElementById('bubbleGridContainer');
       if(!container) return;
