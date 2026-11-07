@@ -1,4 +1,4 @@
-<!-- ENDORANK Dashboard - Version 5.5 (Fixed Error Review Colors, Added 4x Normal & Fixed Theme Flash Glitch) -->
+<!-- ENDORANK Dashboard - Version 5.7 (Realistic Dynamic Sun/Moon Sky, Perfected Sunrise/Sunset & All Features Intact) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,28 +45,28 @@
       overflow-x: hidden;
     }
 
-    /* ☀️🌙 IST Dynamic Theme Palettes */
+    /* 🌅☀️🌇🌙 IST Realistic Sky Gradients & Adaptive Contrast */
     html.theme-sunrise body {
-      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
-      --card-bg: rgba(255, 255, 255, 0.92);
+      background: linear-gradient(135deg, #ffedd5 0%, #fdba74 50%, #ea580c 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
       --text-main: #431407;
       --text-muted: #9a3412;
       --border-color: #fed7aa;
-      --accent: #ea580c;
+      --accent: #c2410c;
       --table-hover: #ffedd5;
     }
     html.theme-day body {
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --border-color: #bae6fd;
-      --accent: #0284c7;
-      --table-hover: #e0f2fe;
+      background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 50%, #0284c7 100%);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text-main: #0c4a6e;
+      --text-muted: #0369a1;
+      --border-color: #7dd3fc;
+      --accent: #0369a1;
+      --table-hover: #bae6fd;
     }
     html.theme-sunset body {
-      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);
-      --card-bg: rgba(255, 255, 255, 0.92);
+      background: linear-gradient(135deg, #ffe4e6 0%, #fb7185 50%, #9f1239 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
       --text-main: #4c0519;
       --text-muted: #9f1239;
       --border-color: #fecdd3;
@@ -83,6 +83,39 @@
       --table-hover: #1e293b;
     }
 
+    /* 🌟 Realistic Sky Celestial Object (Replaces logo-like box) */
+    .realistic-sky-celestial {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+      transition: all 1s ease-in-out;
+      position: relative;
+    }
+    html.theme-sunrise .realistic-sky-celestial {
+      background: radial-gradient(circle, #fef08a 0%, #f97316 100%);
+      box-shadow: 0 0 35px #f97316;
+    }
+    html.theme-day .realistic-sky-celestial {
+      background: radial-gradient(circle, #fef08a 0%, #eab308 100%);
+      box-shadow: 0 0 40px #facc15;
+    }
+    html.theme-sunset .realistic-sky-celestial {
+      background: radial-gradient(circle, #fed7aa 0%, #e11d48 100%);
+      box-shadow: 0 0 35px #e11d48;
+    }
+    html.theme-night .realistic-sky-celestial {
+      background: radial-gradient(circle, #f8fafc 0%, #94a3b8 100%);
+      box-shadow: 0 0 25px rgba(248, 250, 252, 0.4);
+    }
+    .celestial-icon-inner {
+      font-size: 1.8rem;
+      user-select: none;
+    }
+
     /* 🌟 Animated Night Sky Stars */
     .sky-star {
       position: fixed;
@@ -93,7 +126,7 @@
       opacity: 0;
     }
     html.theme-night .sky-star {
-      opacity: 0.8;
+      opacity: 0.85;
       animation: twinkle 3s infinite ease-in-out;
     }
     @keyframes twinkle {
@@ -101,22 +134,22 @@
       50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* ☁️ Floating Cloud Animation for Day Sky */
+    /* ☁️ Floating Cloud Animation for Day & Sunrise Sky */
     .sky-cloud {
       position: fixed;
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.65);
       border-radius: 50px;
       pointer-events: none;
       z-index: -1;
       opacity: 0;
     }
     html.theme-day .sky-cloud, html.theme-sunrise .sky-cloud {
-      opacity: 0.6;
-      animation: floatCloud 35s linear infinite;
+      opacity: 0.8;
+      animation: floatCloud 28s linear infinite;
     }
     @keyframes floatCloud {
-      from { transform: translateX(-150px); }
-      to { transform: translateX(calc(100vw + 150px)); }
+      from { transform: translateX(-180px); }
+      to { transform: translateX(calc(100vw + 180px)); }
     }
 
     .card {
@@ -124,18 +157,18 @@
       border: 1px solid var(--border-color) !important;
       border-radius: 14px;
       color: var(--text-main) !important;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(8px);
     }
     .card:hover {
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
 
     .card-header {
       background-color: transparent !important;
       border-bottom: 1px solid var(--border-color) !important;
       color: var(--text-main) !important;
-      font-weight: 600;
+      font-weight: 700;
       padding: 1.1rem 1.35rem;
       border-top-left-radius: 14px !important;
       border-top-right-radius: 14px !important;
@@ -146,25 +179,6 @@
     }
     .text-muted {
       color: var(--text-muted) !important;
-    }
-
-    .celestial-container {
-      position: relative;
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .celestial-body {
-      font-size: 2rem;
-      transition: transform 1s ease-out;
-      user-select: none;
     }
 
     .endorank-brand {
@@ -253,7 +267,7 @@
     }
     .form-control::placeholder {
       color: var(--text-muted);
-      opacity: 0.7;
+      opacity: 0.8;
     }
 
     .quote-box {
@@ -358,7 +372,7 @@
 
   <!-- Dynamic Star Container for Night Sky -->
   <div id="starContainer"></div>
-  <!-- Dynamic Cloud Container for Day/Sunrise Sky -->
+  <!-- Dynamic Cloud Container for Day & Sunrise Sky -->
   <div id="cloudContainer"></div>
 
   <div class="container py-4">
@@ -366,15 +380,16 @@
     <header class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
       
       <div class="d-flex align-items-center gap-3">
-        <div class="celestial-container" id="celestialWidget" title="IST Day & Night Dynamic Sky Cycle">
-          <span id="celestialIcon" class="celestial-body">☀️</span>
+        <!-- Realistic Sky Celestial Widget -->
+        <div class="realistic-sky-celestial" id="celestialWidget" title="Real-Time Indian Standard Time (IST) Sky Phase">
+          <span id="celestialIcon" class="celestial-icon-inner">☀️</span>
         </div>
 
         <div>
           <div class="endorank-brand">ENDORANK</div>
           <div class="d-flex align-items-center gap-2">
             <h1 class="h6 mb-0 fw-bold">NEET Prep & Focus Dashboard</h1>
-            <span id="skyPhaseBadge" class="badge rounded-pill bg-info text-dark small" style="font-size: 10px;">Day Time</span>
+            <span id="skyPhaseBadge" class="badge rounded-pill bg-info text-dark small" style="font-size: 10px;">Day Sky</span>
           </div>
         </div>
       </div>
@@ -599,8 +614,8 @@
       <!-- Tab: IST Clock & Date Section -->
       <div class="tab-pane fade" id="tab-clock-section" role="tabpanel">
         <div class="card text-center p-5">
-          <h3 class="h4 mb-3" style="color: var(--accent);"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Clock & Dynamic Sky Phase</h3>
-          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Sun/Moon Cycle</p>
+          <h3 class="h4 mb-3" style="color: var(--accent);"><i class="bi bi-clock-history me-2"></i>Indian Standard Time (IST) Clock & Realistic Sky Cycle</h3>
+          <p class="text-muted small">Synchronized live with IST timezone (UTC+5:30) & Automatic Sun/Moon/Cloud Cycle</p>
           <div class="my-3">
             <span id="tabIstDateDisplay" class="h4 fw-bold text-secondary d-block mb-2">Loading Date...</span>
             <span id="tabIstClockDisplay" class="display-3 fw-bold font-monospace p-4 border rounded shadow-sm d-inline-block" style="background: var(--card-bg);">00:00:00 AM IST</span>
@@ -705,10 +720,10 @@
                   </div>
                 </div>
 
-                <!-- Bubble Grid for 1-180 (4x States: Normal, Red, Yellow, Blue) -->
+                <!-- Bubble Grid for 1-180 (Clean Numbers: Red=Wrong, Yellow=Guess, Blue=Skip) -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
-                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">1x Red(Wrong)</span> | <span style="color:#ca8a04;">2x Yellow(Guess)</span> | <span style="color:#0284c7;">3x Blue(Skip)</span> | 4x Normal</span>
+                    <span>Click Bubbles (1-180): <span style="color:#dc2626;">Red(Wrong)</span> | <span style="color:#ca8a04;">Yellow(Guess)</span> | <span style="color:#0284c7;">Blue(Skip)</span></span>
                     <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" onclick="resetBubbleGridSelections()">Reset Grid</button>
                   </label>
                   <div id="bubbleGridContainer" class="bubble-grid-box"></div>
@@ -929,11 +944,11 @@
           </div>
 
           <div class="mb-3">
-            <div class="d-flex gap-3 mb-2 small fw-bold">
-              <span style="color: #dc2626;">1x Red (Wrong)</span>
-              <span style="color: #ca8a04;">2x Yellow (Guess)</span>
-              <span style="color: #0284c7;">3x Blue (Skip)</span>
-              <span style="color: var(--text-muted);">4x Normal</span>
+            <div class="d-flex gap-4 mb-2 small fw-bold">
+              <span style="color: #dc2626;">■ Wrong</span>
+              <span style="color: #ca8a04;">■ Guess</span>
+              <span style="color: #0284c7;">■ Skip</span>
+              <span style="color: var(--text-muted);">■ Normal</span>
             </div>
             <div id="reviewBubbleGridContainer" class="bubble-grid-box" style="max-height: 250px;"></div>
           </div>
@@ -1293,20 +1308,20 @@
       }
 
       const cloudContainer = document.getElementById('cloudContainer');
-      for(let i=0; i<5; i++) {
+      for(let i=0; i<6; i++) {
         const cloud = document.createElement('div');
         cloud.className = 'sky-cloud';
-        cloud.style.width = `${Math.random() * 120 + 80}px`;
-        cloud.style.height = `${Math.random() * 30 + 20}px`;
-        cloud.style.top = `${Math.random() * 50}vh`;
+        cloud.style.width = `${Math.random() * 140 + 90}px`;
+        cloud.style.height = `${Math.random() * 35 + 22}px`;
+        cloud.style.top = `${Math.random() * 55}vh`;
         cloud.style.left = `-${Math.random() * 200}px`;
-        cloud.style.animationDuration = `${Math.random() * 25 + 25}s`;
-        cloud.style.animationDelay = `${Math.random() * 15}s`;
+        cloud.style.animationDuration = `${Math.random() * 20 + 20}s`;
+        cloud.style.animationDelay = `${Math.random() * 12}s`;
         cloudContainer.appendChild(cloud);
       }
     }
 
-    // ☀️🌙 Real-Time IST Day/Night Dynamic Sky Cycle
+    // 🌅☀️🌇🌙 Real-Time IST Dynamic Sky & Realistic Celestial Cycle
     function updateDayNightCycle(istHour, istMinutes) {
       const rootEl = document.documentElement;
       const celestialIcon = document.getElementById('celestialIcon');
@@ -1318,26 +1333,22 @@
       if (totalMinutes >= 360 && totalMinutes < 480) {
         newTheme = 'theme-sunrise';
         celestialIcon.innerText = '🌅';
-        celestialIcon.style.transform = `translateY(${10 - ((totalMinutes - 360) / 120) * 10}px) scale(1)`;
-        badge.innerText = 'Sunrise Phase 🌅';
+        badge.innerText = 'Sunrise Sky 🌅';
         badge.className = 'badge rounded-pill bg-warning text-dark small';
       } else if (totalMinutes >= 480 && totalMinutes < 1020) {
         newTheme = 'theme-day';
         celestialIcon.innerText = '☀️';
-        celestialIcon.style.transform = 'translateY(0px) scale(1.1)';
-        badge.innerText = 'Day Time ☀️';
+        badge.innerText = 'Day Sky ☀️';
         badge.className = 'badge rounded-pill bg-info text-dark small';
       } else if (totalMinutes >= 1020 && totalMinutes < 1140) {
         newTheme = 'theme-sunset';
         celestialIcon.innerText = '🌇';
-        celestialIcon.style.transform = `translateY(${((totalMinutes - 1020) / 120) * 10}px) scale(1)`;
-        badge.innerText = 'Sunset Phase 🌇';
+        badge.innerText = 'Sunset Sky 🌇';
         badge.className = 'badge rounded-pill bg-danger text-white small';
       } else {
         newTheme = 'theme-night';
         celestialIcon.innerText = '🌙';
-        celestialIcon.style.transform = 'translateY(0px) scale(1)';
-        badge.innerText = 'Night Study Phase 🌙';
+        badge.innerText = 'Night Starry Sky 🌙';
         badge.className = 'badge rounded-pill bg-primary text-white small';
       }
 
@@ -1458,7 +1469,7 @@
         btn.className = 'btn bubble-btn';
         btn.innerText = i;
         
-        const state = bubbleMap[i] || 4; // Default to 4 (Normal)
+        const state = bubbleMap[i] || 4;
         applyBubbleStyle(btn, state);
 
         container.appendChild(btn);
@@ -1723,13 +1734,13 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.innerText = i;
-        let currentState = bubbleStates[i] || 4; // Default 4 (Normal)
+        let currentState = bubbleStates[i] || 4;
         applyBubbleStyle(btn, currentState);
 
         btn.onclick = () => {
           let st = bubbleStates[i] || 4;
           st++;
-          if (st > 4) st = 1; // Cycle: 1(Red) -> 2(Yellow) -> 3(Blue) -> 4(Normal) -> 1(Red)
+          if (st > 4) st = 1;
           bubbleStates[i] = st;
           applyBubbleStyle(btn, st);
         };
